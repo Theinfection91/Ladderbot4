@@ -1,0 +1,121 @@
+# Ignore Visual Studio temporary files, build results, and
+# user-specific files
+################################
+# User-specific files
+################################
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+################################
+# User-specific folders
+################################
+.vscode/
+.idea/
+*.sw?
+
+################################
+# Mono auto generated files
+################################
+mono_crash.*
+
+################################
+# Build results
+################################
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+################################
+# WPF project files
+################################
+*.g.i.cs
+*.g.cs
+*.cache
+*.ilk
+*.idb
+*.pdb
+*.obj
+*.iobj
+*.ipdb
+*.tlog
+*.log
+*.vspscc
+.vspscc
+*.vssscc
+.vssscc
+*.vshost.exe
+*.vshost.exe.manifest
+*.vshost.exe.config
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# WPF image editor cache
+*.Designer.cs
+*.DesignTimeLayout
+
+################################
+# ASP.NET Scaffolding
+################################
+ScaffoldingReadMe.txt
+
+# WPF specific files
+*.cache
+*.pdb
+
+################################
+# Libraries
+################################
+*.dll
+*.exe
+*.so
+*.dylib
+*.lib
+*.nupkg
+*.symbols.nupkg
+
+################################
+# Packages
+################################
+# Uncomment if you have nuget packages in subfolders
+# **/packages/*
+*.nuget/
+!*.config
+packages/*
+
+################################
+# Windows image file caches
+################################
+Thumbs.db
+ehthumbs.db
+
+################################
+# Temporary files
+################################
+*.tmp
+*.temp
+*.log
+
+# Visual Studio Code
+.vscode/
+
+# Visual Studio 2019/2022
+.vs/
