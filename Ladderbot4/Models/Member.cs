@@ -16,5 +16,20 @@ namespace Ladderbot4.Models
             DiscordId = discordId;
             DisplayName = displayName;
         }
+
+        public override bool Equals(object? obj)
+        {
+            // Check if the object is a Member
+            if (obj is Member otherMember)
+            {
+                return this.DiscordId == otherMember.DiscordId;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return DiscordId.GetHashCode(); // Use DiscordId for hash code
+        }
     }
 }

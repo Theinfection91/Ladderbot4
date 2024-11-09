@@ -52,5 +52,20 @@ namespace Ladderbot4.Managers
                     return false;
             }
         }
+
+        public bool IsMemberOnTeamInDivision(Member member, List<Team> divisionTeams)
+        {
+            foreach (Team team in divisionTeams)
+            {
+                foreach (Member teamMember in team.Members)
+                {
+                    if (teamMember.Equals(member))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

@@ -30,8 +30,15 @@ namespace Ladderbot4.Models
             StringBuilder sb = new();
             foreach (Member member in Members)
             {
-                sb.Append(member.DisplayName + ", ");
-            }
+                if (Members.Count == 1)
+                {
+                    sb.Append(member.DisplayName);
+                }
+                else
+                {
+                    sb.Append(member.DisplayName + ", ");
+                }
+            }   
             return sb.ToString();
         }
     }

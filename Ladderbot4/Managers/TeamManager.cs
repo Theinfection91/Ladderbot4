@@ -20,14 +20,16 @@ namespace Ladderbot4.Managers
             _teamsByDivision = _teamData.LoadAllTeams();
         }
 
+        public void LoadTeamsDatabase()
+        {
+            _teamsByDivision = _teamData.LoadAllTeams();
+        }
+
         // Check if the team name is unique across all divisions
         public bool IsTeamNameUnique(string teamName)
         {
-            // Load all teams grouped by division
-            var teamsByDivision = _teamData.LoadAllTeams();
-
             // Check each division for the team name
-            foreach (var division in new[] { teamsByDivision.Division1v1, teamsByDivision.Division2v2, teamsByDivision.Division3v3 })
+            foreach (var division in new[] { _teamsByDivision.Division1v1, _teamsByDivision.Division2v2, _teamsByDivision.Division3v3 })
             {
                 // Iterate through the teams in this division
                 foreach (Team team in division)
@@ -63,13 +65,35 @@ namespace Ladderbot4.Managers
             switch (division)
             {
                 case "1v1":
+                    Console.WriteLine(_teamsByDivision.Division1v1.Count);
                     return _teamsByDivision.Division1v1.Count;
 
                 case "2v2":
+                    Console.WriteLine(_teamsByDivision.Division2v2.Count);
                     return _teamsByDivision.Division2v2.Count;
 
                 case "3v3":
+                    Console.WriteLine(_teamsByDivision.Division3v3.Count);
                     return _teamsByDivision.Division3v3.Count;
+
+                default:
+                    throw new ArgumentException($"Invalid division type given: {division}");
+            }
+            ;
+        }
+
+        public List<Team> GetTeamsByDivision(string division)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    return _teamsByDivision.Division1v1;
+
+                case "2v2":
+                    return _teamsByDivision.Division2v2;
+
+                case "3v3":
+                    return _teamsByDivision.Division3v3;
 
                 default:
                     throw new ArgumentException($"Invalid division type given: {division}");
@@ -85,6 +109,9 @@ namespace Ladderbot4.Managers
         public void AddNewTeam(Team newTeam)
         {
             _teamData.AddTeam(newTeam);
+
+            // Loads newest save of the database to backing field
+            LoadTeamsDatabase();
         }
     }
 }

@@ -43,6 +43,9 @@ namespace Ladderbot4.Managers
 
         public string RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)
         {
+            // Load latest save of Teams database
+            _teamManager.LoadTeamsDatabase();
+
             // Compares given Team Name against database
             if (_teamManager.IsTeamNameUnique(teamName))
             {
@@ -52,8 +55,20 @@ namespace Ladderbot4.Managers
                     // Convert socket user info into Member objects
                     List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
 
-                    if (_memberManager.IsMemberCountCorrect(newMemberList, divisionType))
+                    if (_memberManager.IsMemberCountCorrect(newMemberList, divisionType) || IsSuperAdminModeOn)
                     {
+                        // Grab all teams from correct division to compare with
+                        List<Team> divisionTeams = _teamManager.GetTeamsByDivision(divisionType);
+
+                        foreach (Member member in newMemberList)
+                        {
+                            if (!IsSuperAdminModeOn && _memberManager.IsMemberOnTeamInDivision(member, divisionTeams))
+                            {
+                                return $"{member.DisplayName} is already on a team in the {divisionType}.";
+                            }
+                        }
+
+                        // All members are eligible, all conditions passed, add the new team to the database.
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
                         return $"Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}";
