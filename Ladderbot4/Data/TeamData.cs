@@ -22,12 +22,11 @@ namespace Ladderbot4.Data
         // Correctly sets the file path for matching json
         private void SetFilePath()
         {
-            // Navigate to the root folder (assuming your .sln file is at the root of the project)
-            string projectRootPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", ".."); // Navigate up four levels
-            projectRootPath = Path.GetFullPath(projectRootPath); // Make it an absolute path
+            // Set the file path relative to the base directory of the executable
+            string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-            // Construct the full path to the teams.json file
-            _filePath = Path.Combine(projectRootPath, "Ladderbot4", "Data", "JsonFiles", "teams.json");
+            // Construct a path in a "Data/JsonFiles" folder within the base directory
+            _filePath = Path.Combine(appBaseDirectory, "Data", "JsonFiles", "teams.json");
 
             // Ensure the directory exists
             string directory = Path.GetDirectoryName(_filePath);
@@ -43,7 +42,14 @@ namespace Ladderbot4.Data
         {
             if (!File.Exists(_filePath))
             {
-                File.WriteAllText(_filePath, JsonConvert.SerializeObject(new List<Team>(), Formatting.Indented));
+                var initialData = new TeamsByDivision
+                {
+                    Division1v1 = new List<Team>(),
+                    Division2v2 = new List<Team>(),
+                    Division3v3 = new List<Team>()
+                };
+
+                File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
             }
         }
 

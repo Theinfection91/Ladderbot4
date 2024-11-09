@@ -35,7 +35,7 @@ namespace Ladderbot4.Managers
                     {
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
-                        return $"Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNames()}";
+                        return $"Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}";
                     }
                     else
                     {

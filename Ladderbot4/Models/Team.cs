@@ -25,7 +25,7 @@ namespace Ladderbot4.Models
             Members = members;
         }
 
-        public string GetAllMemberNames()
+        public string GetAllMemberNamesToStr()
         {
             StringBuilder sb = new();
             foreach (Member member in Members)

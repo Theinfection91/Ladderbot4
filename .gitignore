@@ -1,4 +1,6 @@
+# Ignore token file and publish profile
 Token.cs
+Properties/
 
 # Ignore Visual Studio temporary files, build results, and
 # user-specific files
