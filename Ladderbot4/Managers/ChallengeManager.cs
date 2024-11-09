@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ladderbot4.Data
+namespace Ladderbot4.Managers
 {
-    public class DataAccess
+    internal class ChallengeManager
     {
-
     }
 }

@@ -8,5 +8,15 @@ namespace Ladderbot4.Models
 {
     public class Member
     {
+        public ulong DiscordId { get; set; }
+        public string DisplayName { get; set; }
+        public List<Team> CurrentTeams { get; set; }
+
+        public Member(ulong discordId, string displayName)
+        {
+            DiscordId = discordId;
+            DisplayName = displayName;
+            CurrentTeams = [];
+        }
     }
 }
