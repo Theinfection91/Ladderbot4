@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Managers
 {
-    internal class ChallengeManager
+    public class ChallengeManager
     {
+
     }
 }

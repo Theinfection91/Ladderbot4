@@ -1,6 +1,7 @@
 ﻿using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,18 +12,20 @@ namespace Ladderbot4.Commands
 {
     public class TeamMemberCommands : ModuleBase<SocketCommandContext>
     {
-        public TeamMemberCommands()
+        private LadderManager _ladderManager;
+
+        public TeamMemberCommands(LadderManager ladderManager)
         {
-            Console.WriteLine("TeamMemberCommands module loaded.");
+            Console.WriteLine($"TeamMemberCommands module loaded with {ladderManager} passed through.");
         }
 
         [Command("register_team", Aliases = ["regt"])]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)] // Administrator permission check
-        public async Task RegisterTeam(string teamName, string divisionType, params SocketGuildUser[] members)
+        public async Task RegisterTeamAsync(string teamName, string divisionType, params SocketGuildUser[] members)
         {
             // Get the Discord ID of the person who invokes the command
-            ulong userID = Context.User.Id;
-            await ReplyAsync("Test");
+            // ulong userID = Context.User.Id;
+            
         }
 
         [Command("test")]

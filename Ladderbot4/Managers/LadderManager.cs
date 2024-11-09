@@ -9,11 +9,11 @@ namespace Ladderbot4.Managers
 {
     public class LadderManager
     {
-        public TeamManager TeamManager { get; set; }
+        private TeamManager _teamManager;
 
         public LadderManager(TeamManager teamManager)
         {
-            TeamManager = teamManager;
+            _teamManager = teamManager;
         }
 
         public void RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)

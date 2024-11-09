@@ -16,9 +16,8 @@ namespace Ladderbot4.Models
         public int Losses { get; set; }
         public List<Member> Members { get; set; }
 
-        public Team(int id, string teamName, string division, int rank, int wins, int losses, List<Member> members)
+        public Team(string teamName, string division, int rank, int wins, int losses, List<Member> members)
         {
-            Id = id;
             TeamName = teamName;
             Division = division;
             Rank = rank;

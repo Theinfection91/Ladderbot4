@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Ladderbot4;
 using Ladderbot4.Commands;
+using Ladderbot4.Managers;
 using Microsoft.Extensions.DependencyInjection;
 
 public class Program
@@ -57,14 +58,21 @@ public class Program
         // Register Discord client, command service, and modules
         return new ServiceCollection()
             .AddSingleton(_client)
+
+            // All Commands are loaded into _commands in RunBotAsync
             .AddSingleton(_commands)
+
+            // Add Managers
+            .AddSingleton<TeamManager>()
+            .AddSingleton<LadderManager>()
+
             .BuildServiceProvider();
     }
 
     private async Task HandleCommandAsync(SocketMessage socketMessage)
     {
-        // Console.WriteLine("Message received.");
-        // Console.WriteLine($"Message Content: {socketMessage.Content}"); // For Debugging
+        Console.WriteLine("Message received.");
+        Console.WriteLine($"Message Content: {socketMessage.Content}"); // For Debugging
 
         // Ignore system messages and check if it's a user message
         if (socketMessage is not SocketUserMessage message || message.Author.IsBot)

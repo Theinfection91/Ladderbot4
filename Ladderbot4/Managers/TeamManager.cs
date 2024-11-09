@@ -26,7 +26,7 @@ namespace Ladderbot4.Managers
 
         public Team CreateTeamObject(int id, string teamName, string division, int rank, int wins, int losses, List<Member> members)
         {
-            return new Team(id, teamName, division, rank, wins, losses, members);
+            return new Team(teamName, division, rank, wins, losses, members);
         }
     }
 }

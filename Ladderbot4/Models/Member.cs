@@ -16,7 +16,7 @@ namespace Ladderbot4.Models
         {
             DiscordId = discordId;
             DisplayName = displayName;
-            CurrentTeams = [];
+            CurrentTeams = []; // TODO: For keeping track of all teams a member is on
         }
     }
 }
