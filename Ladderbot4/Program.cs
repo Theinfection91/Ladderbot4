@@ -47,6 +47,7 @@ public class Program
         await _client.StartAsync();
 
         // Load commands
+        await _commands.AddModuleAsync<MiscTestingCommands>(_services);
         await _commands.AddModuleAsync<TeamMemberCommands>(_services);
         Console.WriteLine("Command modules added to CommandService");
 

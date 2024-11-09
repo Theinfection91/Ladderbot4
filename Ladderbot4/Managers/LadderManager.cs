@@ -11,13 +11,34 @@ namespace Ladderbot4.Managers
 {
     public class LadderManager
     {
+        // Sub-Managers
         private TeamManager _teamManager;
         private MemberManager _memberManager;
+
+        // Super Admin Mode
+        public bool IsSuperAdminModeOn { get; set; } = false;
 
         public LadderManager(TeamManager teamManager, MemberManager memberManager)
         {
             _teamManager = teamManager;
             _memberManager = memberManager;
+        }
+
+        public string SetSuperAdminMode(string trueOrFalse)
+        {
+            switch (trueOrFalse.Trim().ToLower())
+            {
+                case "true":
+                    IsSuperAdminModeOn = true;
+                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+
+                case "false":
+                    IsSuperAdminModeOn = false;
+                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+
+                default:
+                    throw new ArgumentException("Incorrent variable given.");
+            }
         }
 
         public string RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)

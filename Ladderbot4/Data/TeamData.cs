@@ -63,6 +63,7 @@ namespace Ladderbot4.Data
         // Write the given list of teams to the JSON file
         public void SaveTeams(TeamsByDivision teamsByDivision)
         {
+            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(teamsByDivision, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }

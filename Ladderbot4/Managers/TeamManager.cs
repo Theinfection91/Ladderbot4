@@ -33,7 +33,7 @@ namespace Ladderbot4.Managers
                 foreach (Team team in division)
                 {
                     // Compare team names (case-insensitive)
-                    if (team.TeamName.ToLower().Equals(teamName.ToLower(), StringComparison.OrdinalIgnoreCase))
+                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
                     {
                         return false; // Name is not unique
                     }
