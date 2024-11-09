@@ -8,7 +8,6 @@ namespace Ladderbot4.Models
 {
     public class Team
     {
-        public int Id { get; set; }
         public string TeamName { get; set; }
         public string Division { get; set; }
         public int Rank { get; set; }
@@ -24,6 +23,16 @@ namespace Ladderbot4.Models
             Wins = wins;
             Losses = losses;
             Members = members;
+        }
+
+        public string GetAllMemberNames()
+        {
+            StringBuilder sb = new();
+            foreach (Member member in Members)
+            {
+                sb.Append(member.DisplayName + ", ");
+            }
+            return sb.ToString();
         }
     }
 }

@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Ladderbot4;
 using Ladderbot4.Commands;
+using Ladderbot4.Data;
 using Ladderbot4.Managers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -59,12 +60,16 @@ public class Program
         return new ServiceCollection()
             .AddSingleton(_client)
 
-            // All Commands are loaded into _commands in RunBotAsync
-            .AddSingleton(_commands)
+            // Add Read/Write Data Helpers
+            .AddSingleton<TeamData>()
 
             // Add Managers
-            .AddSingleton<TeamManager>()
             .AddSingleton<LadderManager>()
+            .AddSingleton<TeamManager>()
+            .AddSingleton<MemberManager>()
+
+            // All Commands are loaded into _commands in RunBotAsync
+            .AddSingleton(_commands)
 
             .BuildServiceProvider();
     }

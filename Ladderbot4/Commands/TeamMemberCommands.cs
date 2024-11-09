@@ -16,7 +16,7 @@ namespace Ladderbot4.Commands
 
         public TeamMemberCommands(LadderManager ladderManager)
         {
-            Console.WriteLine($"TeamMemberCommands module loaded with {ladderManager} passed through.");
+            _ladderManager = ladderManager;
         }
 
         [Command("register_team", Aliases = ["regt"])]
@@ -25,7 +25,9 @@ namespace Ladderbot4.Commands
         {
             // Get the Discord ID of the person who invokes the command
             // ulong userID = Context.User.Id;
-            
+
+            string result = _ladderManager.RegisterTeamProcess(teamName, divisionType, members);
+            await ReplyAsync(result);
         }
 
         [Command("test")]

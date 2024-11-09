@@ -10,13 +10,11 @@ namespace Ladderbot4.Models
     {
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
-        public List<Team> CurrentTeams { get; set; }
 
         public Member(ulong discordId, string displayName)
         {
             DiscordId = discordId;
             DisplayName = displayName;
-            CurrentTeams = []; // TODO: For keeping track of all teams a member is on
         }
     }
 }
