@@ -128,5 +128,13 @@ namespace Ladderbot4.Managers
             // Loads newest save of the database to backing field
             LoadTeamsDatabase();
         }
+
+        public void RemoveTeam(string teamName, string division)
+        {
+            _teamData.RemoveTeam(teamName, division);
+
+            // Loads newest save of the database to backing field
+            LoadTeamsDatabase();
+        }
     }
 }

@@ -35,7 +35,16 @@ namespace Ladderbot4.Commands
             if (member2 != null) members.Add(member2);
             if (member3 != null) members.Add(member3);
 
-            string result = _ladderManager.RegisterTeamProcess(teamName, divisionType, members);
+            string result = _ladderManager.RegisterTeamProcess(teamName, divisionType.Trim().ToLower(), members);
+            await RespondAsync(result);
+        }
+
+        [SlashCommand("remove", "Admin command to remove team from teams database.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task RemoveTeamAsync(
+            [Summary("teamName", "Name of the team to be removed.")] string teamName)
+        {
+            string result = _ladderManager.RemoveTeamProcess(teamName);
             await RespondAsync(result);
         }
     }

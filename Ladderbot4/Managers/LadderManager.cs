@@ -89,6 +89,31 @@ namespace Ladderbot4.Managers
 
             return $"```The given team name is already being used by another team: {teamName} - Please try again.```";
         }
+
+        public string RemoveTeamProcess(string teamName)
+        {
+            // Load latest save of Teams database
+            _teamManager.LoadTeamsDatabase();
+
+            // Check if Team is in database
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab object reference to work with
+                Team teamReference = _teamManager.GetTeamByName(teamName);
+
+                // Remove any challenges related to team, if any
+                if (_challengeManager.IsTeamAwaitingChallengeMatch(teamReference))
+                {
+                    _challengeManager.SudoRemoveChallenge(teamReference.TeamName, teamReference.Division);
+                }
+
+                // Remove the team correctly, with ranks falling into place programmatically
+                _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
+                return $"Team {teamReference.TeamName} removed from {teamReference.Division} division.";
+
+            }
+            return $"```Given Team Name does not exist in the teams database: {teamName} - Please try again.```";
+        }
         #endregion
 
         #region Challenge Based Logic
@@ -101,7 +126,10 @@ namespace Ladderbot4.Managers
         /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
         public string ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
-            // Need to check if both teams actually exist in entire Teams database
+            // Load latest save of Challenges database
+            _challengeManager.LoadChallengesDatabase();
+
+            // Check if both teams actually exist in entire Teams database
             if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
             {
                 // Grab Team object references
@@ -174,6 +202,9 @@ namespace Ladderbot4.Managers
 
         public string CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
+            // Load latest save of Challenges database
+            _challengeManager.LoadChallengesDatabase();
+
             // Check if given team exists
             if (!_teamManager.IsTeamNameUnique(challengerTeam))
             {
@@ -188,7 +219,7 @@ namespace Ladderbot4.Managers
                     {
                         // Cancel the challenge, save challenges database and reload it
                         _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
-                        return $"```{challengerTeamObject.TeamName} has canceled the challenge they have sent out in the {challengerTeamObject.Division}```";
+                        return $"```{challengerTeamObject.TeamName} has canceled the challenge they have sent out in the {challengerTeamObject.Division} division```";
                     }
                     else
                     {
@@ -197,7 +228,7 @@ namespace Ladderbot4.Managers
                 }
                 else
                 {
-                    return $"```You are not a member of that team... Team {challengerTeamObject.TeamName}'s members are currently: {challengerTeamObject.GetAllMemberNamesToStr()}```";
+                    return $"```You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}```";
                 }
             }
             return $"```No team found by the name of: {challengerTeam} - Please try again.```";

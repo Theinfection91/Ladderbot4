@@ -90,5 +90,55 @@ namespace Ladderbot4.Data
             // Save the updated list of teams back to the file
             SaveTeams(teamsByDivision);
         }
+
+        public void RemoveTeam(string teamName, string division)
+        {
+            // Load teams database
+            TeamsByDivision teamsByDivision = LoadAllTeams();
+
+            List<Team>? divisionTeams = division switch
+            {
+                "1v1" => teamsByDivision.Division1v1,
+                "2v2" => teamsByDivision.Division2v2,
+                "3v3" => teamsByDivision.Division3v3,
+                _ => null
+            };
+
+            if (divisionTeams == null)
+            {
+                Console.WriteLine($"Invalid division: {division}");
+                return;
+            }
+
+            // Find the team to remove
+            Team? teamToRemove = divisionTeams.FirstOrDefault(t => t.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+
+            // Check if the team was found
+            if (teamToRemove == null)
+            {
+                Console.WriteLine($"Team {teamName} not found in {division} division.");
+                return;
+            }
+
+            // Grab team's rank
+            int removedRank = teamToRemove.Rank;
+
+            // Remove the team
+            divisionTeams.Remove(teamToRemove);
+            Console.WriteLine($"Team {teamName} removed from {division} division.");
+
+            // Adjust ranks for the other teams
+            foreach (Team team in divisionTeams)
+            {
+                if (team.Rank > removedRank)
+                {
+                    team.Rank--;
+                }
+            }
+
+            // Save the updated teams database
+            SaveTeams(teamsByDivision);
+        }
+
     }
 }

@@ -106,7 +106,6 @@ namespace Ladderbot4.Data
                             if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
                             {
                                 challengeToRemove = challenge;
-                                break;
                             }
                         }
                         if (challengeToRemove != null)
@@ -124,7 +123,6 @@ namespace Ladderbot4.Data
                             if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
                             {
                                 challengeToRemove = challenge;
-                                break;
                             }
                         }
                         if (challengeToRemove != null)
@@ -142,7 +140,6 @@ namespace Ladderbot4.Data
                             if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
                             {
                                 challengeToRemove = challenge;
-                                break;
                             }
                         }
                         if (challengeToRemove != null)
@@ -156,5 +153,67 @@ namespace Ladderbot4.Data
             // Save the updated lists of challenges to json
             SaveChallenges(challengesByDivision);
         }
+
+        // A Sudo Remove Challenge to remove an instance of a challenge where the team is either challenger or challenged
+        public void SudoRemoveChallenge(string teamName, string division)
+        {
+            var challengesByDivision = LoadAllChallenges();
+
+            switch (division)
+            {
+                case "1v1":
+                    {
+                        for (int i = 0; i < challengesByDivision.Challenges1v1.Count; i++)
+                        {
+                            var challenge = challengesByDivision.Challenges1v1[i];
+
+                            // Check if the team is either the Challenger or Challenged
+                            if ((challenge.Challenger.Equals(teamName, StringComparison.OrdinalIgnoreCase)) ||
+                                (challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                challengesByDivision.Challenges1v1.RemoveAt(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                case "2v2":
+                    {
+                        for (int i = 0; i < challengesByDivision.Challenges2v2.Count; i++)
+                        {
+                            var challenge = challengesByDivision.Challenges2v2[i];
+
+                            if ((challenge.Challenger.Equals(teamName, StringComparison.OrdinalIgnoreCase)) ||
+                                (challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                challengesByDivision.Challenges2v2.RemoveAt(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                case "3v3":
+                    {
+                        for (int i = 0; i < challengesByDivision.Challenges3v3.Count; i++)
+                        {
+                            var challenge = challengesByDivision.Challenges3v3[i];
+
+                            if ((challenge.Challenger.Equals(teamName, StringComparison.OrdinalIgnoreCase)) ||
+                                (challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                challengesByDivision.Challenges3v3.RemoveAt(i);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+            }
+
+            // Save the updated list of challenges to JSON
+            SaveChallenges(challengesByDivision);
+        }
+
     }
 }
