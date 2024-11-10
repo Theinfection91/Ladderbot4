@@ -67,27 +67,27 @@ namespace Ladderbot4.Managers
                         {
                             if (!IsSuperAdminModeOn && _memberManager.IsMemberOnTeamInDivision(member, divisionTeams))
                             {
-                                return $"{member.DisplayName} is already on a team in the {divisionType} division.\nPlease try again.";
+                                return $"```{member.DisplayName} is already on a team in the {divisionType} division. Please try again.```";
                             }
                         }
 
                         // All members are eligible, all conditions passed, add the new team to the database.
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
-                        return $"Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}";
+                        return $"```Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}```";
                     }
                     else
                     {
-                        return $"Incorrect amount of members given for specified division type: Division - {divisionType} | Member Count - {newMemberList.Count}\nPlease try again.";
+                        return $"```Incorrect amount of members given for specified division type: Division - {divisionType} | Member Count - {newMemberList.Count} - Please try again.```";
                     }
                 }
                 else
                 {
-                    return $"Incorrect division type given: {divisionType}\nPlease try again.";
+                    return $"```Incorrect division type given: {divisionType} - Please try again.```";
                 }
             }
 
-            return $"The given team name is already being used by another team: {teamName}\nPlease try again.";
+            return $"```The given team name is already being used by another team: {teamName} - Please try again.```";
         }
         #endregion
 
@@ -134,42 +134,42 @@ namespace Ladderbot4.Managers
                                 {
                                     // If all checks are passed, create and save the new Challenge object, save Challenges database
                                     _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
-                                    return $"{objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division! ";
+                                    return $"```{objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
                                 }
                                 else
                                 {
-                                    return $"Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.";
+                                    return $"```Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
                                 }
                             }
                             else
                             {
-                                return $"Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.";
+                                return $"```Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
                             }
                         }
                         else
                         {
                             if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
                             {
-                                return $"{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.";
+                                return $"```{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
                             }
                             else
                             {
-                                return $"{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.";
+                                return $"```{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
                             }
                         }
                     }
                     else
                     {
-                        return $"Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division} - Please try again.";
+                        return $"```Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division} - Please try again.```";
                     }
                 }
                 else
                 {
-                    return $"You are not part of Team {objectChallengerTeam.TeamName}. Please try again.";
+                    return $"```You are not part of Team {objectChallengerTeam.TeamName}. Please try again.```";
                 }
             }
 
-            return "One or both team names not found in the database. Please try again.";
+            return "```One or both team names not found in the database. Please try again.```";
         }
 
         public string CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
@@ -201,7 +201,7 @@ namespace Ladderbot4.Managers
             _settingsManager.SaveSettings(_settingsManager.Settings);
             _settingsManager.LoadSettingsData();
 
-            return $"Set GuildId in config.json to {guildId} - If this is the first time setting the GuildId for Slash Commands, then please restart the bot now.";
+            return $"```Set GuildId in config.json to {guildId} - If this is the first time setting the GuildId for Slash Commands, then please restart the bot now.```";
         }
 
         public string SetSuperAdminMode(string trueOrFalse)
@@ -210,11 +210,11 @@ namespace Ladderbot4.Managers
             {
                 case "true":
                     IsSuperAdminModeOn = true;
-                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+                    return $"```Super Admin Mode set to {IsSuperAdminModeOn}```";
 
                 case "false":
                     IsSuperAdminModeOn = false;
-                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+                    return $"```Super Admin Mode set to {IsSuperAdminModeOn}```";
 
                 default:
                     throw new ArgumentException("Incorrent variable given.");
