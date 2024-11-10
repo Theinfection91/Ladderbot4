@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
 {
-    public class PostChannelCommands
+    public class ReportPostCommands
     {
     }
 }

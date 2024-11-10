@@ -43,13 +43,22 @@ namespace Ladderbot4.Data
         {
             if (!File.Exists(_filePath))
             {
-                var initialData = new SettingsByCategory
+                var initialData = new Settings
                 {
-                    DiscordBotToken = "ENTER_BOT_TOKEN_HERE"
+                    DiscordBotToken = "ENTER_BOT_TOKEN_HERE",
+                    CommandPrefix = "!",
+                    SuperAdminMode = false,
+                    SuperAdminDiscordIds = []
                 };
 
                 File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
             }
+        }
+
+        public Settings LoadSettings()
+        {
+            var json = File.ReadAllText(_filePath);
+            return JsonConvert.DeserializeObject<Settings>(json);
         }
     }
 }

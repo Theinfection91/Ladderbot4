@@ -47,6 +47,19 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region Start/End Ladder
+        public string StartLadderByDivision(string division)
+        {
+            return "";
+        }
+
+        public string EndLadderByDivision(string division)
+        {
+            return "";
+        }
+
+        #endregion
+
         #region Team/Member Logic
         public string RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)
         {

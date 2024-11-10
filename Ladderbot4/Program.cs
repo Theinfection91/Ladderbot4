@@ -17,6 +17,10 @@ namespace Ladderbot4
         private CommandService _commands;
         private IServiceProvider _services;
 
+        // To grab bot token and command prefix
+        private SettingsManager _settingsManager;
+        private SettingsData _settingsData;
+
         public static async Task Main(string[] args)
         {
             var program = new Program();
@@ -36,6 +40,8 @@ namespace Ladderbot4
             });
 
             _commands = new CommandService();
+            _settingsData = new SettingsData();
+            _settingsManager = new SettingsManager(_settingsData);
             _commands.Log += Log;
             _services = ConfigureServices();
 
@@ -44,7 +50,8 @@ namespace Ladderbot4
             _client.MessageReceived += HandleCommandAsync;
 
             // Login and start bot
-            await _client.LoginAsync(TokenType.Bot, Token.discordToken);
+            // Token is pulled from contents of config.json using SettingsManager
+            await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
             await _client.StartAsync();
 
             // Load commands
@@ -65,16 +72,16 @@ namespace Ladderbot4
 
                 // Add Read/Write Data Helpers
                 .AddSingleton<ChallengeData>()
-                .AddSingleton<SettingsData>()
                 .AddSingleton<TeamData>()
+                .AddSingleton(_settingsData) // Registers this instance as Singleton
 
                 // Add Managers
-                .AddSingleton<LadderManager>()
-                .AddSingleton<TeamManager>()
-                .AddSingleton<MemberManager>()
                 .AddSingleton<ChallengeManager>()
-                .AddSingleton<SettingsManager>()
-
+                .AddSingleton<LadderManager>()
+                .AddSingleton<MemberManager>()
+                .AddSingleton(_settingsManager) // Registers this instance as Singleton
+                .AddSingleton<TeamManager>()
+            
                 // All Commands are loaded into _commands in RunBotAsync
                 .AddSingleton(_commands)
 
@@ -96,7 +103,7 @@ namespace Ladderbot4
             int argPos = 0;
 
             // Check if the message has the correct prefix ('!')
-            if (message.HasStringPrefix("!", ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
+            if (message.HasStringPrefix(_settingsManager.Settings.CommandPrefix, ref argPos) || message.HasMentionPrefix(_client.CurrentUser, ref argPos))
             {
                 var context = new SocketCommandContext(_client, message);
 

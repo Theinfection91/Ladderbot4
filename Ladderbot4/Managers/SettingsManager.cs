@@ -11,12 +11,18 @@ namespace Ladderbot4.Managers
     public class SettingsManager
     {
         private readonly SettingsData _settingsData;
-
-        private SettingsByCategory _settingsByCategory;
+        public Settings Settings { get; set; }
 
         public SettingsManager(SettingsData settingsData)
         {
             _settingsData = settingsData;
+            Settings = _settingsData.LoadSettings();
+            Console.WriteLine("Test");
+        }
+
+        public void LoadSettingsData()
+        {
+            Settings = _settingsData.LoadSettings();
         }
     }
 }
