@@ -23,5 +23,12 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
             await ReplyAsync(result);
         }
+
+        [Command("cancel_challenge", Aliases = ["cchal"])]
+        public async Task CancelChallengeAsync(string challengerTeam)
+        {
+            string result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
+            await ReplyAsync(result);
+        }
     }
 }

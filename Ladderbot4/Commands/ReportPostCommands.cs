@@ -8,5 +8,6 @@ namespace Ladderbot4.Commands
 {
     public class ReportPostCommands
     {
+
     }
 }

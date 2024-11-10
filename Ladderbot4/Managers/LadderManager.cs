@@ -28,26 +28,7 @@ namespace Ladderbot4.Managers
             _settingsManager = settingsManager;
         }
 
-        #region Super Admin/High Level Testing Logic
-        public string SetSuperAdminMode(string trueOrFalse)
-        {
-            switch (trueOrFalse.Trim().ToLower())
-            {
-                case "true":
-                    IsSuperAdminModeOn = true;
-                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
-
-                case "false":
-                    IsSuperAdminModeOn = false;
-                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
-
-                default:
-                    throw new ArgumentException("Incorrent variable given.");
-            }
-        }
-        #endregion
-
-        #region Start/End Ladder
+        #region Start/End Ladder Logic
         public string StartLadderByDivision(string division)
         {
             return "";
@@ -60,7 +41,7 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region Team/Member Logic
+        #region Team/Member Based Logic
         public string RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)
         {
             // Load latest save of Teams database
@@ -108,7 +89,14 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
-        #region Challenge Logic
+        #region Challenge Based Logic
+        /// <summary>
+        /// User-level logic used to handle the process of one team challenging another to a match. This logic compares the invoker's Discord Id to the challenger team to make sure they are apart of it. To bypass this, an admin can use the admin_challenge command or enable Super Admin Mode (Check the documentation).
+        /// </summary>
+        /// <param name="context">Used to grab the invoker's Discord Id</param>
+        /// <param name="challengerTeam">The name of the team initiating the challenge.</param>
+        /// <param name="challengedTeam">The name of the team who is receiving the challenge.</param>
+        /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
         public string ChallengeProcess(SocketCommandContext context, string challengerTeam, string challengedTeam)
         {
             // Need to check if both teams actually exist in entire Teams database
@@ -180,6 +168,54 @@ namespace Ladderbot4.Managers
             return "One or both team names not found in the database. Please try again.";
         }
 
+        public string CancelChallengeProcess(SocketCommandContext context, string challengerTeam)
+        {
+            return "";
+        }
+
+        public string AdminChallengeProcess(string challengerTeam, string challengedTeam)
+        {
+            return "";
+        }
+
+        public string AdminCancelChallengeProcess(string challengerTeam)
+        {
+            return "";
+        }
+
+        #endregion
+
+        #region Settings Logic
+
+        public string SetGuildId(SocketCommandContext context)
+        {
+            // Grab Guild Id command was invoked from
+            ulong guildId = context.Guild.Id;
+
+            // Set in Settings using SettingsManager then save and reload Settings
+            _settingsManager.Settings.GuildId = guildId;
+            _settingsManager.SaveSettings(_settingsManager.Settings);
+            _settingsManager.LoadSettingsData();
+
+            return $"Set GuildId in config.json to {guildId} - If this is the first time setting the GuildId for Slash Commands, then please restart the bot now.";
+        }
+
+        public string SetSuperAdminMode(string trueOrFalse)
+        {
+            switch (trueOrFalse.Trim().ToLower())
+            {
+                case "true":
+                    IsSuperAdminModeOn = true;
+                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+
+                case "false":
+                    IsSuperAdminModeOn = false;
+                    return $"Super Admin Mode set to {IsSuperAdminModeOn}";
+
+                default:
+                    throw new ArgumentException("Incorrent variable given.");
+            }
+        }
         #endregion
     }
 }

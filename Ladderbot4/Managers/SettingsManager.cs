@@ -17,12 +17,16 @@ namespace Ladderbot4.Managers
         {
             _settingsData = settingsData;
             Settings = _settingsData.LoadSettings();
-            Console.WriteLine("Test");
         }
 
         public void LoadSettingsData()
         {
             Settings = _settingsData.LoadSettings();
+        }
+
+        public void SaveSettings(Settings settings)
+        {
+            _settingsData.SaveSettings(settings);
         }
     }
 }

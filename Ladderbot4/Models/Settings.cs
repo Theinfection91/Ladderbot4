@@ -9,6 +9,7 @@ namespace Ladderbot4.Models
     public class Settings
     {
         public string DiscordBotToken { get; set; }
+        public ulong GuildId { get; set; }
         public string CommandPrefix { get; set; }
         public bool SuperAdminMode { get; set; }
         public List<ulong> SuperAdminDiscordIds { get; set; }

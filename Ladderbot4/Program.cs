@@ -3,11 +3,13 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Commands;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualBasic;
 
 namespace Ladderbot4
 {
@@ -16,6 +18,9 @@ namespace Ladderbot4
         private DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
+
+        // For Slash Commands
+        private InteractionService _interactionService;
 
         // To grab bot token and command prefix
         private SettingsManager _settingsManager;
@@ -33,20 +38,30 @@ namespace Ladderbot4
             _client = new DiscordSocketClient(new DiscordSocketConfig
             {
                 LogLevel = LogSeverity.Info,
-                GatewayIntents = GatewayIntents.AllUnprivileged |
-                GatewayIntents.MessageContent |
-                GatewayIntents.GuildMessages |
-                GatewayIntents.Guilds
+                GatewayIntents =
+                    GatewayIntents.AllUnprivileged |
+                    GatewayIntents.MessageContent |
+                    GatewayIntents.GuildMessages |
+                    GatewayIntents.Guilds
             });
 
+            // Init CommandService
             _commands = new CommandService();
+
+            // Init SettingsData and SettingsManager for config.json bot data
             _settingsData = new SettingsData();
             _settingsManager = new SettingsManager(_settingsData);
+
+            // Init interaction service for Slash Commands
+            _interactionService = new InteractionService(_client.Rest);
+
             _commands.Log += Log;
             _services = ConfigureServices();
 
             // Set up event handlers
             _client.Log += Log;
+            _client.Ready += ClientReady;
+            _client.InteractionCreated += HandleInteractionAsync;
             _client.MessageReceived += HandleCommandAsync;
 
             // Login and start bot
@@ -56,7 +71,7 @@ namespace Ladderbot4
 
             // Load commands
             await _commands.AddModuleAsync<ChallengeCommands>(_services);
-            await _commands.AddModuleAsync<MiscTestingCommands>(_services);
+            await _commands.AddModuleAsync<SettingsTestingCommands>(_services);
             await _commands.AddModuleAsync<TeamMemberCommands>(_services);
             Console.WriteLine("Command modules added to CommandService");
 
@@ -69,23 +84,40 @@ namespace Ladderbot4
             // Register Discord client, command service, and modules
             return new ServiceCollection()
                 .AddSingleton(_client)
+                
+                // Add Interaction Service
+                .AddSingleton(_interactionService)
 
                 // Add Read/Write Data Helpers
                 .AddSingleton<ChallengeData>()
+                .AddSingleton(_settingsData)
                 .AddSingleton<TeamData>()
-                .AddSingleton(_settingsData) // Registers this instance as Singleton
 
                 // Add Managers
                 .AddSingleton<ChallengeManager>()
                 .AddSingleton<LadderManager>()
                 .AddSingleton<MemberManager>()
-                .AddSingleton(_settingsManager) // Registers this instance as Singleton
+                .AddSingleton(_settingsManager)
                 .AddSingleton<TeamManager>()
             
                 // All Commands are loaded into _commands in RunBotAsync
                 .AddSingleton(_commands)
 
                 .BuildServiceProvider();
+        }
+
+        private async Task ClientReady()
+        {
+            // Register all slash commands
+            await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+            await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);
+            Console.WriteLine("Slash commands registered");
+        }
+
+        private async Task HandleInteractionAsync(SocketInteraction interaction)
+        {
+            var context = new SocketInteractionContext(_client, interaction);
+            await _interactionService.ExecuteCommandAsync(context, _services);
         }
 
         private async Task HandleCommandAsync(SocketMessage socketMessage)

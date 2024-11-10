@@ -46,6 +46,7 @@ namespace Ladderbot4.Data
                 var initialData = new Settings
                 {
                     DiscordBotToken = "ENTER_BOT_TOKEN_HERE",
+                    GuildId = 0,
                     CommandPrefix = "!",
                     SuperAdminMode = false,
                     SuperAdminDiscordIds = []
@@ -59,6 +60,13 @@ namespace Ladderbot4.Data
         {
             var json = File.ReadAllText(_filePath);
             return JsonConvert.DeserializeObject<Settings>(json);
+        }
+
+        public void SaveSettings(Settings settings)
+        {
+            Console.WriteLine("Saving to file: " + _filePath);
+            var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+            File.WriteAllText(_filePath, json);
         }
     }
 }
