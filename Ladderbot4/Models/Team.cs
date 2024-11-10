@@ -36,7 +36,7 @@ namespace Ladderbot4.Models
                 }
                 else
                 {
-                    sb.Append(member.DisplayName + ", ");
+                    sb.Append(member.DisplayName + " ");
                 }
             }   
             return sb.ToString();

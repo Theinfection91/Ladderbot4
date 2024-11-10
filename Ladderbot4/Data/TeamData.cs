@@ -44,9 +44,9 @@ namespace Ladderbot4.Data
             {
                 var initialData = new TeamsByDivision
                 {
-                    Division1v1 = new List<Team>(),
-                    Division2v2 = new List<Team>(),
-                    Division3v3 = new List<Team>()
+                    Division1v1 = [],
+                    Division2v2 = [],
+                    Division3v3 = []
                 };
 
                 File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
@@ -74,17 +74,17 @@ namespace Ladderbot4.Data
             var teamsByDivision = LoadAllTeams();
 
             // Add the team to the appropriate division
-            if (newTeam.Division == "1v1")
+            switch (newTeam.Division)
             {
-                teamsByDivision.Division1v1.Add(newTeam);
-            }
-            else if (newTeam.Division == "2v2")
-            {
-                teamsByDivision.Division2v2.Add(newTeam);
-            }
-            else if (newTeam.Division == "3v3")
-            {
-                teamsByDivision.Division3v3.Add(newTeam);
+                case "1v1":
+                    teamsByDivision.Division1v1.Add(newTeam);
+                    break;
+                case "2v2":
+                    teamsByDivision.Division2v2.Add(newTeam);
+                    break;
+                case "3v3":
+                    teamsByDivision.Division3v3.Add(newTeam);
+                    break;
             }
 
             // Save the updated list of teams back to the file

@@ -15,11 +15,6 @@ namespace Ladderbot4.Managers
 
         }
 
-        public bool IsMemberAmountCorrect(List<Member> members, string divisionType)
-        {
-            return false;
-        }
-
         public Member CreateMemberObject(ulong discordId, string displayName)
         {
             return new Member(discordId, displayName);
@@ -37,20 +32,13 @@ namespace Ladderbot4.Managers
 
         public bool IsMemberCountCorrect(List<Member> membersList, string divisionType)
         {
-            switch (divisionType)
+            return divisionType switch
             {
-                case "1v1":
-                    return membersList.Count == 1;
-
-                case "2v2":
-                    return membersList.Count == 2;
-
-                case "3v3":
-                    return membersList.Count == 3;
-
-                default:
-                    return false;
-            }
+                "1v1" => membersList.Count == 1,
+                "2v2" => membersList.Count == 2,
+                "3v3" => membersList.Count == 3,
+                _ => false,
+            };
         }
 
         public bool IsMemberOnTeamInDivision(Member member, List<Team> divisionTeams)
@@ -63,6 +51,18 @@ namespace Ladderbot4.Managers
                     {
                         return true;
                     }
+                }
+            }
+            return false;
+        }
+
+        public bool IsDiscordIdOnGivenTeam(ulong discordId, Team team)
+        {
+            foreach (Member member in team.Members)
+            {
+                if (member.DiscordId == discordId)
+                {
+                    return true;
                 }
             }
             return false;

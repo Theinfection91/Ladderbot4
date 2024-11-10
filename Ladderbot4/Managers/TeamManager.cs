@@ -24,6 +24,13 @@ namespace Ladderbot4.Managers
         {
             _teamsByDivision = _teamData.LoadAllTeams();
         }
+        
+        // Check if two given teams are in the same division
+        public bool IsTeamsInSameDivision(Team teamOne, Team teamTwo)
+        {
+
+            return teamOne.Division == teamTwo.Division;
+        }
 
         // Check if the team name is unique across all divisions
         public bool IsTeamNameUnique(string teamName)
@@ -48,9 +55,7 @@ namespace Ladderbot4.Managers
 
         public bool IsValidDivisionType(string divisionType)
         {
-            List<string> validDivisionTypes = ["1v1", "2v2", "3v3"];
-
-            foreach (string division in validDivisionTypes)
+            foreach (string division in new[] { "1v1", "2v2", "3v3" })
             {
                 if (divisionType.ToLower().Equals(division))
                 {
@@ -62,43 +67,53 @@ namespace Ladderbot4.Managers
 
         public int GetTeamCount(string division)
         {
-            switch (division)
+            return division switch
             {
-                case "1v1":
-                    Console.WriteLine(_teamsByDivision.Division1v1.Count);
-                    return _teamsByDivision.Division1v1.Count;
-
-                case "2v2":
-                    Console.WriteLine(_teamsByDivision.Division2v2.Count);
-                    return _teamsByDivision.Division2v2.Count;
-
-                case "3v3":
-                    Console.WriteLine(_teamsByDivision.Division3v3.Count);
-                    return _teamsByDivision.Division3v3.Count;
-
-                default:
-                    throw new ArgumentException($"Invalid division type given: {division}");
-            }
+                "1v1" => _teamsByDivision.Division1v1.Count,
+                "2v2" => _teamsByDivision.Division2v2.Count,
+                "3v3" => _teamsByDivision.Division3v3.Count,
+                _ => throw new ArgumentException($"Invalid division type given: {division}"),
+            };
             ;
         }
 
         public List<Team> GetTeamsByDivision(string division)
         {
-            switch (division)
+            return division switch
             {
-                case "1v1":
-                    return _teamsByDivision.Division1v1;
-
-                case "2v2":
-                    return _teamsByDivision.Division2v2;
-
-                case "3v3":
-                    return _teamsByDivision.Division3v3;
-
-                default:
-                    throw new ArgumentException($"Invalid division type given: {division}");
-            }
+                "1v1" => _teamsByDivision.Division1v1,
+                "2v2" => _teamsByDivision.Division2v2,
+                "3v3" => _teamsByDivision.Division3v3,
+                _ => throw new ArgumentException($"Invalid division type given: {division}"),
+            };
             ;
+        }
+
+        public Team GetTeamByName(string teamName)
+        {
+            // Search in Division1v1
+            foreach (var team in _teamsByDivision.Division1v1)
+            {
+                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                    return team;
+            }
+
+            // Search in Division2v2
+            foreach (var team in _teamsByDivision.Division2v2)
+            {
+                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                    return team;
+            }
+
+            // Search in Division3v3
+            foreach (var team in _teamsByDivision.Division3v3)
+            {
+                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                    return team;
+            }
+
+            // If no team is found
+            return null;
         }
 
         public Team CreateTeamObject(string teamName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)

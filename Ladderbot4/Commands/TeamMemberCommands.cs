@@ -12,7 +12,7 @@ namespace Ladderbot4.Commands
 {
     public class TeamMemberCommands : ModuleBase<SocketCommandContext>
     {
-        private LadderManager _ladderManager;
+        private readonly LadderManager _ladderManager;
 
         public TeamMemberCommands(LadderManager ladderManager)
         {
@@ -23,9 +23,6 @@ namespace Ladderbot4.Commands
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)] // Administrator permission check
         public async Task RegisterTeamAsync(string teamName, string divisionType, params SocketGuildUser[] members)
         {
-            // Get the Discord ID of the person who invokes the command
-            // ulong userID = Context.User.Id;
-
             string result = _ladderManager.RegisterTeamProcess(teamName, divisionType, members);
             await ReplyAsync(result);
         }

@@ -11,7 +11,7 @@ namespace Ladderbot4.Commands
 {
     public class MiscTestingCommands : ModuleBase<SocketCommandContext>
     {
-        private LadderManager _ladderManager;
+        private readonly LadderManager _ladderManager;
 
         public MiscTestingCommands(LadderManager ladderManager)
         {

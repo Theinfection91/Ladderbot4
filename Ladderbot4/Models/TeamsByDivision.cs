@@ -14,9 +14,9 @@ namespace Ladderbot4.Models
 
         public TeamsByDivision()
         {
-            Division1v1 = new List<Team>();
-            Division2v2 = new List<Team>();
-            Division3v3 = new List<Team>();
+            Division1v1 = [];
+            Division2v2 = [];
+            Division3v3 = [];
         }
     }
 }
