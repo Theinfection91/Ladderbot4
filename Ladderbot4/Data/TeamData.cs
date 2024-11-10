@@ -26,7 +26,7 @@ namespace Ladderbot4.Data
             string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             // Construct a path in a "Data/JsonFiles" folder within the base directory
-            _filePath = Path.Combine(appBaseDirectory, "Data", "JsonFiles", "teams.json");
+            _filePath = Path.Combine(appBaseDirectory, "Databases", "teams.json");
 
             // Ensure the directory exists
             string directory = Path.GetDirectoryName(_filePath);

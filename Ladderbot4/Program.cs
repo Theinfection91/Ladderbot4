@@ -64,14 +64,16 @@ namespace Ladderbot4
                 .AddSingleton(_client)
 
                 // Add Read/Write Data Helpers
-                .AddSingleton<TeamData>()
                 .AddSingleton<ChallengeData>()
+                .AddSingleton<SettingsData>()
+                .AddSingleton<TeamData>()
 
                 // Add Managers
                 .AddSingleton<LadderManager>()
                 .AddSingleton<TeamManager>()
                 .AddSingleton<MemberManager>()
                 .AddSingleton<ChallengeManager>()
+                .AddSingleton<SettingsManager>()
 
                 // All Commands are loaded into _commands in RunBotAsync
                 .AddSingleton(_commands)

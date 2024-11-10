@@ -15,15 +15,17 @@ namespace Ladderbot4.Managers
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
         private readonly ChallengeManager _challengeManager;
+        private readonly SettingsManager _settingsManager;
 
         // Super Admin Mode
         public bool IsSuperAdminModeOn { get; set; } = false;
 
-        public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager)
+        public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager)
         {
             _teamManager = teamManager;
             _memberManager = memberManager;
             _challengeManager = challengeManager;
+            _settingsManager = settingsManager;
         }
 
         #region Super Admin/High Level Testing Logic
