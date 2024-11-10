@@ -47,7 +47,7 @@ namespace Ladderbot4.Data
                 {
                     DiscordBotToken = "ENTER_BOT_TOKEN_HERE",
                     GuildId = 0,
-                    CommandPrefix = "!",
+                    CommandPrefix = "/",
                     SuperAdminMode = false,
                     SuperAdminDiscordIds = []
                 };

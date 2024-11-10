@@ -23,12 +23,21 @@ namespace Ladderbot4
         private InteractionService _interactionService;
 
         // To grab bot token and command prefix
-        private SettingsManager _settingsManager;
-        private SettingsData _settingsData;
+        private static SettingsManager _settingsManager;
+        private static SettingsData _settingsData;
 
         public static async Task Main(string[] args)
         {
             var program = new Program();
+
+            // Init SettingsData and SettingsManager for config.json bot data
+            _settingsData = new SettingsData();
+            _settingsManager = new SettingsManager(_settingsData);
+
+            // Check if BotToken is set and atleast 59 characters long
+            _settingsManager.SetBotTokenProcess();
+
+            // After setup process is complete, run the Discord bot with correct token and Guild Id
             await program.RunBotAsync();
         }
 
@@ -48,10 +57,6 @@ namespace Ladderbot4
             // Init CommandService
             _commands = new CommandService();
 
-            // Init SettingsData and SettingsManager for config.json bot data
-            _settingsData = new SettingsData();
-            _settingsManager = new SettingsManager(_settingsData);
-
             // Init interaction service for Slash Commands
             _interactionService = new InteractionService(_client.Rest);
 
@@ -69,11 +74,11 @@ namespace Ladderbot4
             await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
             await _client.StartAsync();
 
-            // Load commands
+            // Load Non-Slash Commands
             await _commands.AddModuleAsync<ChallengeCommands>(_services);
             await _commands.AddModuleAsync<SettingsTestingCommands>(_services);
             await _commands.AddModuleAsync<TeamMemberCommands>(_services);
-            Console.WriteLine("Command modules added to CommandService");
+            Console.WriteLine("\t\tNon-SlashCommand modules added to CommandService");
 
             // Keep the bot running
             await Task.Delay(-1);
@@ -85,7 +90,7 @@ namespace Ladderbot4
             return new ServiceCollection()
                 .AddSingleton(_client)
                 
-                // Add Interaction Service
+                // Add Interaction Service (SlashCommands)
                 .AddSingleton(_interactionService)
 
                 // Add Read/Write Data Helpers
@@ -111,7 +116,9 @@ namespace Ladderbot4
             // Register all slash commands
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
             await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);
-            Console.WriteLine("Slash commands registered");
+            Console.WriteLine("\tBot\t\tSlashCommand modules registered to Interaction Service.");
+            Console.WriteLine($"\tBot\t\tGuild Id for SlashCommands set to: {_settingsManager.Settings.GuildId}");
+            Console.WriteLine($"\tBot\t\tIf Guild Id is set to 0, run command '{_settingsManager.Settings.CommandPrefix}set_guild_id' or '{_settingsManager.Settings.CommandPrefix}sgid' in Discord to dynamically set Guild Id then reset the bot and try SlashCommands again.");
         }
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
