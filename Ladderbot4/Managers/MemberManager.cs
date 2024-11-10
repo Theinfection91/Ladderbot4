@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,46 @@ namespace Ladderbot4.Managers
             return new Member(discordId, displayName);
         }
 
-        public List<Member> ConvertMembersListToObjects(params SocketGuildUser[] members)
+        public List<Member> ConvertMembersListToObjects(List<IUser> members)
         {
+            // List to store display names
+            List<string> displayNames = new List<string>();
+
+            foreach (IUser member in members)
+            {
+                string displayName = string.Empty;
+
+                // Check if the member can be cast to SocketGuildUser
+                if (member is SocketGuildUser guildUser)
+                {
+                    // If the user has a nickname (DisplayName), use it
+                    if (!string.IsNullOrEmpty(guildUser.DisplayName))
+                    {
+                        displayName = guildUser.DisplayName;
+                    }
+                    else
+                    {
+                        // If no nickname, use the Username
+                        displayName = guildUser.Username;
+                    }
+                }
+                else
+                {
+                    // If it's not a guild user, use the global Username
+                    displayName = member.Username;
+                }
+
+                // Add the display name to the list
+                displayNames.Add(displayName);
+            }
+
             List<Member> membersList = [];
             foreach (var member in members)
             {
-                membersList.Add(new Member(member.Id, member.DisplayName));
+                foreach (string displayName in displayNames)
+                {
+                    membersList.Add(new Member(member.Id, displayName));
+                }
             }
             return membersList;
         }

@@ -17,13 +17,6 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [Command("start_ladder")]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task StartLadderAsync(string division)
-        {
-
-        }
-
         [Command("end_ladder")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task EndLadderAsync(string division)

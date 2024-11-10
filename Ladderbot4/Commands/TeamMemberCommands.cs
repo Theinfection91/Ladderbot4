@@ -19,14 +19,6 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [Command("register_team", Aliases = ["regt"])]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)] // Administrator permission check
-        public async Task RegisterTeamAsync(string teamName, string divisionType, params SocketGuildUser[] members)
-        {
-            string result = _ladderManager.RegisterTeamProcess(teamName, divisionType, members);
-            await ReplyAsync(result);
-        }
-
         [Command("test")]
         public async Task TestAsync()
         {

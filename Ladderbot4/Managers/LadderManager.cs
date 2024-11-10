@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 using Ladderbot4.Models;
 using System;
@@ -42,7 +43,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Team/Member Based Logic
-        public string RegisterTeamProcess(string teamName, string divisionType, params SocketGuildUser[] members)
+        public string RegisterTeamProcess(string teamName, string divisionType, List<IUser> members)
         {
             // Load latest save of Teams database
             _teamManager.LoadTeamsDatabase();

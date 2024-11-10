@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
 {
-    public class SlashCommands : InteractionModuleBase<SocketInteractionContext>
+    [Group("challenge", "Slash commands related to team management.")]
+    public class ChallengeSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly LadderManager _ladderManager;
 
-        public SlashCommands(LadderManager ladderManager)
+        public ChallengeSlashCommands(LadderManager ladderManager)
         {
             _ladderManager = ladderManager;
         }
