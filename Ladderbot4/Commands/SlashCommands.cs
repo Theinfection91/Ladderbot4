@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Ladderbot4.Managers;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,12 @@ namespace Ladderbot4.Commands
 {
     public class SlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
-        public SlashCommands() { }
+        private readonly LadderManager _ladderManager;
+
+        public SlashCommands(LadderManager ladderManager)
+        {
+            _ladderManager = ladderManager;
+        }
 
         [SlashCommand("ping", "Replies with pong.")]
         public async Task PingCommand()

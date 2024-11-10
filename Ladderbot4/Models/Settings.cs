@@ -8,11 +8,11 @@ namespace Ladderbot4.Models
 {
     public class Settings
     {
-        public string DiscordBotToken { get; set; }
-        public ulong GuildId { get; set; }
-        public string CommandPrefix { get; set; }
-        public bool SuperAdminMode { get; set; }
-        public List<ulong> SuperAdminDiscordIds { get; set; }
+        public string DiscordBotToken { get; set; } = "ENTER_BOT_TOKEN_HERE";
+        public ulong GuildId { get; set; } = 0;
+        public string CommandPrefix { get; set; } = "/";
+        public bool SuperAdminMode { get; set; } = false;
+        public List<ulong> SuperAdminDiscordIds { get; set; } = [];
 
         public Settings()
         { 

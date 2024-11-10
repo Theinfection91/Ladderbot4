@@ -41,7 +41,12 @@ namespace Ladderbot4.Managers
 
         public bool IsGuildIdSet()
         {
-            return Settings.GuildId != 0;
+            return Settings.GuildId != 0 && IsGuildIdValid();
+        }
+
+        public bool IsGuildIdValid()
+        {
+            return Settings.GuildId >= 15; 
         }
 
         public void SetBotTokenProcess()
@@ -51,18 +56,37 @@ namespace Ladderbot4.Managers
             {
                 if (!IsValidBotTokenSet())
                 {
-                    Console.WriteLine("Incorrect Bot Token found in Settings\\config.json");
-                    Console.WriteLine("Please enter your Bot Token now (This can be changed manually in Settings\\config.json as well if entered incorrectly): ");
+                    Console.WriteLine("\nIncorrect Bot Token found in Settings\\config.json");
+                    Console.WriteLine("Please enter your Bot Token now (This can be changed manually in Settings\\config.json as well if entered incorrectly and a connection can not be established): ");
                     string? botToken = Console.ReadLine();
                     if (IsValidBotToken(botToken))
                     {
                         Settings.DiscordBotToken = botToken;
+                        SaveSettings(Settings);
+                        LoadSettingsData();
                         IsBotTokenProcessComplete = true;
                     }
                     else
                     {
                         IsBotTokenProcessComplete = false;
                     }
+                }
+                else
+                {
+                    IsBotTokenProcessComplete= true;
+                }
+            }
+        }
+
+        public void SetGuildIdProcess()
+        {
+            bool IsGuildIdProcessComplete = false;
+            while (!IsGuildIdProcessComplete)
+            {
+                if (!IsGuildIdSet())
+                {
+                    Console.WriteLine("Incorrect Guild Id found in Settings\\config.json");
+                    Console.WriteLine("Please select a guild from the list below: ");
                 }
             }
         }

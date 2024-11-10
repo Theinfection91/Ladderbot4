@@ -30,6 +30,12 @@ namespace Ladderbot4
         {
             var program = new Program();
 
+            Console.CancelKeyPress += (sender, e) =>
+            {
+                // Prevent Ctrl + C from closing console window. This will help in case user needs to copy Guild Id from list.
+                e.Cancel = true;
+            };
+
             // Init SettingsData and SettingsManager for config.json bot data
             _settingsData = new SettingsData();
             _settingsManager = new SettingsManager(_settingsData);
@@ -113,12 +119,42 @@ namespace Ladderbot4
 
         private async Task ClientReady()
         {
-            // Register all slash commands
+            // Register all SlashCommand modules
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+
+            // Setup/Check GuildId Process
+            if (!_settingsManager.IsGuildIdSet())
+            {
+                Console.WriteLine("\nInvalid Guild ID found. Please select your guild from the list below:");
+
+                // List all guilds the bot is currently in
+                foreach (var guild in _client.Guilds)
+                {
+                    Console.WriteLine($"\t- {guild.Name} (ID: {guild.Id})");
+                }
+
+                Console.WriteLine("\nPlease enter the Guild Id you would like to use (If entered incorrectly, use /set_guild_id or /sgid once connected to Discord then restart the bot and SlashCommands should begin to pop up. To change GuildId manually then ensure the bot is closed, edit and save the config.json file in the Settings folder, and restart the bot. SlashCommands should begin to show now as well once you are connected. Refer to the documentation for more information): ");
+                string? guildId = Console.ReadLine();
+
+                // Validate the input
+                if (ulong.TryParse(guildId, out ulong selectedGuildId) && _client.GetGuild(selectedGuildId) != null)
+                {
+                    _settingsManager.Settings.GuildId = selectedGuildId;
+                    _settingsManager.SaveSettings(_settingsManager.Settings);
+                    _settingsManager.LoadSettingsData();
+                    Console.WriteLine($"Guild ID set to {selectedGuildId}.");
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Guild ID entered. Please restart the bot and try again.");
+                    return;
+                }
+            }
+
+            // Register all slash commands to GuildId from setup process/config.json
             await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);
             Console.WriteLine("\tBot\t\tSlashCommand modules registered to Interaction Service.");
             Console.WriteLine($"\tBot\t\tGuild Id for SlashCommands set to: {_settingsManager.Settings.GuildId}");
-            Console.WriteLine($"\tBot\t\tIf Guild Id is set to 0, run command '{_settingsManager.Settings.CommandPrefix}set_guild_id' or '{_settingsManager.Settings.CommandPrefix}sgid' in Discord to dynamically set Guild Id then reset the bot and try SlashCommands again.");
         }
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
