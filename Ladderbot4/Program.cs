@@ -80,10 +80,8 @@ namespace Ladderbot4
             await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
             await _client.StartAsync();
 
-            // Load Non-Slash Commands
-            await _commands.AddModuleAsync<ChallengeCommands>(_services);
+            // Load Non-Slash Commands (For set_guild_id to setup SlashCommands)
             await _commands.AddModuleAsync<SettingsTestingCommands>(_services);
-            await _commands.AddModuleAsync<TeamMemberCommands>(_services);
             Console.WriteLine("\t\tNon-SlashCommand modules added to CommandService");
 
             // Keep the bot running

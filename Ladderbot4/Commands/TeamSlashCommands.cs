@@ -23,7 +23,12 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("register", "Admin command to register team in given division.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task RegisterTeamAsync([Summary("teamName", "Name of the team to be registered")] string teamName, [Summary("division", "Division type (1v1, 2v2, 3v3)")] string divisionType, [Summary("member1", "For creating 1v1 team")] IUser member1, [Summary("member2", "For creating 2v2 team")] IUser? member2 = null, [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
+        public async Task RegisterTeamAsync(
+            [Summary("teamName", "Name of the team to be registered")] string teamName,
+            [Summary("division", "Division type (1v1, 2v2, 3v3)")] string divisionType,
+            [Summary("member1", "For creating 1v1 team")] IUser member1,
+            [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
+            [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
         {
             // Compile member(s) to list
             var members = new List<IUser> { member1 };
