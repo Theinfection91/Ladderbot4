@@ -174,17 +174,43 @@ namespace Ladderbot4.Managers
 
         public string CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
-            return "";
+            // Check if given team exists
+            if (!_teamManager.IsTeamNameUnique(challengerTeam))
+            {
+                // Grab team reference object
+                Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
+
+                // Check if invoker is part of challengerTeam, as this is the user-level logic
+                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
+                {
+                    // Check if Team has a challenge sent out to actually cancel
+                    if (_challengeManager.IsTeamChallenger(challengerTeamObject))
+                    {
+                        // Cancel the challenge, save challenges database and reload it
+                        _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
+                        return $"```{challengerTeamObject.TeamName} has canceled the challenge they have sent out in the {challengerTeamObject.Division}```";
+                    }
+                    else
+                    {
+                        return $"```Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.```";
+                    }
+                }
+                else
+                {
+                    return $"```You are not a member of that team... Team {challengerTeamObject.TeamName}'s members are currently: {challengerTeamObject.GetAllMemberNamesToStr()}```";
+                }
+            }
+            return $"```No team found by the name of: {challengerTeam} - Please try again.```";
         }
 
         public string AdminChallengeProcess(string challengerTeam, string challengedTeam)
         {
-            return "";
+            return "admin challenge";
         }
 
         public string AdminCancelChallengeProcess(string challengerTeam)
         {
-            return "";
+            return "admin cancel challenge";
         }
 
         #endregion
@@ -219,6 +245,16 @@ namespace Ladderbot4.Managers
                 default:
                     throw new ArgumentException("Incorrent variable given.");
             }
+        }
+
+        public string AddSuperAdminId(IUser user)
+        {
+            return "";
+        }
+
+        public string RemoveSuperAdminId(IUser user)
+        {
+            return "";
         }
         #endregion
     }

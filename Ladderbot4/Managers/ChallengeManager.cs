@@ -63,6 +63,44 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        public bool IsTeamChallenger(Team team)
+        {
+            switch (team.Division)
+            {
+                case "1v1":
+                    foreach (Challenge challenge in _challengesByDivision.Challenges1v1)
+                    {
+                        if (challenge.Challenger == team.TeamName)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+
+                case "2v2":
+                    foreach (Challenge challenge in _challengesByDivision.Challenges2v2)
+                    {
+                        if (challenge.Challenger == team.TeamName)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+
+                case "3v3":
+                    foreach (Challenge challenge in _challengesByDivision.Challenges3v3)
+                    {
+                        if (challenge.Challenger == team.TeamName)
+                        {
+                            return true;
+                        }
+                    }
+                    break;
+            }
+
+            return false;
+        }
+
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
         {
             return challengerTeam.Rank > challengedTeam.Rank && challengerTeam.Rank <= challengedTeam.Rank + 2;
@@ -78,6 +116,14 @@ namespace Ladderbot4.Managers
             _challengeData.AddChallenge(challenge);
 
             // Load the newly saved Challenges database
+            LoadChallengesDatabase();
+        }
+
+        public void RemoveChallenge(string challengerTeam, string division)
+        {
+            _challengeData.RemoveChallenge(challengerTeam, division);
+
+            // Load the newly saved challenges database
             LoadChallengesDatabase();
         }
     }

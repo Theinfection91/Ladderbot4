@@ -87,7 +87,73 @@ namespace Ladderbot4.Data
                     break;
             }
 
-            // Save the updated list of teams back to the file
+            // Save the updated list of challenges back to the file
+            SaveChallenges(challengesByDivision);
+        }
+
+        public void RemoveChallenge(string challengerTeam, string division)
+        {
+            var challengesByDivision = LoadAllChallenges();
+
+            // Find existing challenge to remove       
+            switch (division)
+            {
+                case "1v1":
+                    {
+                        Challenge challengeToRemove = null;
+                        foreach (var challenge in challengesByDivision.Challenges1v1)
+                        {
+                            if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
+                            {
+                                challengeToRemove = challenge;
+                                break;
+                            }
+                        }
+                        if (challengeToRemove != null)
+                        {
+                            challengesByDivision.Challenges1v1.Remove(challengeToRemove);
+                        }
+                        break;
+                    }
+
+                case "2v2":
+                    {
+                        Challenge challengeToRemove = null;
+                        foreach (var challenge in challengesByDivision.Challenges2v2)
+                        {
+                            if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
+                            {
+                                challengeToRemove = challenge;
+                                break;
+                            }
+                        }
+                        if (challengeToRemove != null)
+                        {
+                            challengesByDivision.Challenges2v2.Remove(challengeToRemove);
+                        }
+                        break;
+                    }
+
+                case "3v3":
+                    {
+                        Challenge challengeToRemove = null;
+                        foreach (var challenge in challengesByDivision.Challenges3v3)
+                        {
+                            if (challenge.Challenger.Equals(challengerTeam, StringComparison.OrdinalIgnoreCase))
+                            {
+                                challengeToRemove = challenge;
+                                break;
+                            }
+                        }
+                        if (challengeToRemove != null)
+                        {
+                            challengesByDivision.Challenges3v3.Remove(challengeToRemove);
+                        }
+                        break;
+                    }
+            }
+
+            // Save the updated lists of challenges to json
             SaveChallenges(challengesByDivision);
         }
     }
