@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
 {
-    public class SettingsTestingCommands : ModuleBase<SocketCommandContext>
+    public class NonSlashCommands : ModuleBase<SocketCommandContext>
     {
         private readonly LadderManager _ladderManager;
 
-        public SettingsTestingCommands(LadderManager ladderManager)
+        public NonSlashCommands(LadderManager ladderManager)
         {
             _ladderManager = ladderManager;
         }

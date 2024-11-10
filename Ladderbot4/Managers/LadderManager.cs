@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Models;
 using System;
@@ -42,7 +43,7 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region Team/Member Based Logic
+        #region Team/Member Management Logic
         public string RegisterTeamProcess(string teamName, string divisionType, List<IUser> members)
         {
             // Load latest save of Teams database
@@ -98,7 +99,7 @@ namespace Ladderbot4.Managers
         /// <param name="challengerTeam">The name of the team initiating the challenge.</param>
         /// <param name="challengedTeam">The name of the team who is receiving the challenge.</param>
         /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
-        public string ChallengeProcess(SocketCommandContext context, string challengerTeam, string challengedTeam)
+        public string ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Need to check if both teams actually exist in entire Teams database
             if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
@@ -109,6 +110,8 @@ namespace Ladderbot4.Managers
                 
                 // Grab Discord Id of user who invoked this command
                 ulong discordId = context.User.Id;
+
+                Console.WriteLine(discordId);
 
                 // Check if user who invoked command is actually on challenger team
                 if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
@@ -169,7 +172,7 @@ namespace Ladderbot4.Managers
             return "One or both team names not found in the database. Please try again.";
         }
 
-        public string CancelChallengeProcess(SocketCommandContext context, string challengerTeam)
+        public string CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             return "";
         }

@@ -29,7 +29,7 @@ namespace Ladderbot4
         public static async Task Main(string[] args)
         {
             var program = new Program();
-
+            
             Console.CancelKeyPress += (sender, e) =>
             {
                 // Prevent Ctrl + C from closing console window. This will help in case user needs to copy Guild Id from list.
@@ -81,7 +81,7 @@ namespace Ladderbot4
             await _client.StartAsync();
 
             // Load Non-Slash Commands (For set_guild_id to setup SlashCommands)
-            await _commands.AddModuleAsync<SettingsTestingCommands>(_services);
+            await _commands.AddModuleAsync<NonSlashCommands>(_services);
             Console.WriteLine("\t\tNon-SlashCommand modules added to CommandService");
 
             // Keep the bot running

@@ -19,10 +19,13 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [SlashCommand("ping", "Replies with pong.")]
-        public async Task PingCommand()
+        [SlashCommand("send", "Attempts to send a challenge from users given team to another.")]
+        public async Task ChallengeAsync(
+            [Summary("challengerTeam", "Name of team sending challenge")] string challengerTeam,
+            [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
         {
-            await RespondAsync("Pong!");
+            string result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
+            await RespondAsync(result);
         }
     }
 }
