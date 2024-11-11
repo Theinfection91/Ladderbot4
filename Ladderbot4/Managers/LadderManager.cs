@@ -13,6 +13,7 @@ namespace Ladderbot4.Managers
 {
     public class LadderManager
     {
+        #region Properties and Constructor
         // Sub-Managers
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
@@ -30,6 +31,7 @@ namespace Ladderbot4.Managers
             _challengeManager = challengeManager;
             _settingsManager = settingsManager;
         }
+        #endregion
 
         #region Start/End Ladder Logic
         public string StartLadderByDivisionProcess(string division)
@@ -41,7 +43,6 @@ namespace Ladderbot4.Managers
         {
             return "";
         }
-
         #endregion
 
         #region Register/Remove Team Logic
@@ -330,6 +331,10 @@ namespace Ladderbot4.Managers
 
             return $"```Given team name not found in the database: {winningTeamName}```";
         }
+        #endregion
+
+        #region Win/Loss/Rank Modifier Logic
+
         #endregion
 
         #region Helper Methods
