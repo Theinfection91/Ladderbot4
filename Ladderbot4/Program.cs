@@ -93,7 +93,8 @@ namespace Ladderbot4
             // Register Discord client, command service, and modules
             return new ServiceCollection()
                 .AddSingleton(_client)
-                
+                .AddSingleton(_commands)
+
                 // Add Interaction Service (SlashCommands)
                 .AddSingleton(_interactionService)
 
@@ -108,9 +109,6 @@ namespace Ladderbot4
                 .AddSingleton<MemberManager>()
                 .AddSingleton(_settingsManager)
                 .AddSingleton<TeamManager>()
-            
-                // All Commands are loaded into _commands in RunBotAsync
-                .AddSingleton(_commands)
 
                 .BuildServiceProvider();
         }

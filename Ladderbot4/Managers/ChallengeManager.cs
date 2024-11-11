@@ -25,8 +25,39 @@ namespace Ladderbot4.Managers
             _challengesByDivision = _challengeData.LoadAllChallenges();
         }
 
+        public Challenge? GetChallengeByTeamObject(Team team)
+        {
+            // Load the challenges database
+            LoadChallengesDatabase();
+
+            string teamName = team.TeamName;
+            List<Challenge> challenges = team.Division switch
+            {
+                "1v1" => _challengesByDivision.Challenges1v1,
+                "2v2" => _challengesByDivision.Challenges2v2,
+                "3v3" => _challengesByDivision.Challenges3v3,
+                _ => throw new ArgumentException("Invalid division type given.")
+            };
+
+            // Iterate over the challenges in the specified division
+            foreach (var challenge in challenges)
+            {
+                // Check if the team is either the Challenger or Challenged
+                if ((challenge.Challenger != null && challenge.Challenger.Equals(teamName, StringComparison.OrdinalIgnoreCase)) ||
+                    (challenge.Challenged != null && challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return challenge;
+                }
+            }
+
+            // Return null if no challenge is found
+            return null;
+        }
+
         public bool IsTeamAwaitingChallengeMatch(Team team)
         {
+            LoadChallengesDatabase();
+
             switch (team.Division)
             {
                 case "1v1":
@@ -65,6 +96,8 @@ namespace Ladderbot4.Managers
 
         public bool IsTeamChallenger(Team team)
         {
+            LoadChallengesDatabase();
+
             switch (team.Division)
             {
                 case "1v1":
@@ -103,6 +136,8 @@ namespace Ladderbot4.Managers
 
         public bool IsTeamChallenged(Team team)
         {
+            LoadChallengesDatabase();
+
             switch (team.Division)
             {
                 case "1v1":
@@ -141,11 +176,15 @@ namespace Ladderbot4.Managers
 
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
         {
+            LoadChallengesDatabase();
+
             return challengerTeam.Rank > challengedTeam.Rank && challengerTeam.Rank <= challengedTeam.Rank + 2;
         }
 
         public Challenge CreateChallengeObject(string division, string challenger, string challenged)
         {
+            LoadChallengesDatabase();
+
             return new Challenge(division, challenger, challenged);
         }
 

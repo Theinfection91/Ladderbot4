@@ -136,5 +136,10 @@ namespace Ladderbot4.Managers
             // Loads newest save of the database to backing field
             LoadTeamsDatabase();
         }
+
+        public void SaveTeams()
+        {
+            _teamData.SaveTeams(_teamsByDivision);
+        }
     }
 }

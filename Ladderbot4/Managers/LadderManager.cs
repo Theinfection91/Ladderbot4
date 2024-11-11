@@ -20,6 +20,7 @@ namespace Ladderbot4.Managers
         private readonly SettingsManager _settingsManager;
 
         // Super Admin Mode
+        // -TODO- Migrate to Settings
         public bool IsSuperAdminModeOn { get; set; } = false;
 
         public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager)
@@ -31,19 +32,26 @@ namespace Ladderbot4.Managers
         }
 
         #region Start/End Ladder Logic
-        public string StartLadderByDivision(string division)
+        public string StartLadderByDivisionProcess(string division)
         {
             return "";
         }
 
-        public string EndLadderByDivision(string division)
+        public string EndLadderByDivisionProcess(string division)
         {
             return "";
         }
 
         #endregion
 
-        #region Team/Member Management Logic
+        #region Register/Remove Team Logic
+        /// <summary>
+        /// Goes through the process of trying to register a new team with given name, division type, and members.
+        /// </summary>
+        /// <param name="teamName">Desired team name</param>
+        /// <param name="divisionType">Which division to place the team in</param>
+        /// <param name="members">The members for the new team</param>
+        /// <returns>String for the bot that will cover error handling and confirmation of registration.</returns>
         public string RegisterTeamProcess(string teamName, string divisionType, List<IUser> members)
         {
             // Load latest save of Teams database
@@ -90,6 +98,11 @@ namespace Ladderbot4.Managers
             return $"```The given team name is already being used by another team: {teamName} - Please try again.```";
         }
 
+        /// <summary>
+        /// Starts the process of trying to remove a team
+        /// </summary>
+        /// <param name="teamName">Name of team to try and remove from database</param>
+        /// <returns>String for the bot that will cover error handling and confirmation of removal.</returns>
         public string RemoveTeamProcess(string teamName)
         {
             // Load latest save of Teams database
@@ -162,7 +175,7 @@ namespace Ladderbot4.Managers
                                 {
                                     // If all checks are passed, create and save the new Challenge object, save Challenges database
                                     _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
-                                    return $"```{objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
+                                    return $"```Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
                                 }
                                 else
                                 {
@@ -219,7 +232,7 @@ namespace Ladderbot4.Managers
                     {
                         // Cancel the challenge, save challenges database and reload it
                         _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
-                        return $"```{challengerTeamObject.TeamName} has canceled the challenge they have sent out in the {challengerTeamObject.Division} division```";
+                        return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank}) has canceled the challenge they sent out in the {challengerTeamObject.Division} division.```";
                     }
                     else
                     {
@@ -244,6 +257,96 @@ namespace Ladderbot4.Managers
             return "admin cancel challenge";
         }
 
+        #endregion
+
+        #region Reporting Logic
+
+        public string ReportWinProcess(SocketInteractionContext context, string winningTeamName)
+        {
+            // Check if given team name exists
+            if (!_teamManager.IsTeamNameUnique(winningTeamName))
+            {
+                // Grab winningTeam object, add placeholder for losingTeam object
+                Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
+                Team losingTeam;
+
+                // Is the invoker on the team, using context
+                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
+                {
+                    // Is the team part of an active challenge (Challenger or Challenged)
+                    if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
+                    {
+                        // Grab challenge object for reference
+                        Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
+
+                        // Determine if winningTeam is Challenger or Challenged
+                        bool isWinningTeamChallenger;
+                        if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isWinningTeamChallenger = true;
+                            losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
+                        }
+                        else
+                        {
+                            isWinningTeamChallenger = false;
+                            losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
+                        }
+
+                        // If winningTeam is challenger, rank change will occur
+                        if (isWinningTeamChallenger)
+                        {
+                            // The winning team takes the rank of the losing team
+                            winningTeam.Rank = losingTeam.Rank;
+                            losingTeam.Rank++;
+
+                            // Reassign ranks for the entire division
+                            ReassignRanks(winningTeam.Division);
+
+                            // Save the updated teams data
+                            _teamManager.SaveTeams();
+
+                            // Remove the challenge
+                            _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+                            return $"```Team {winningTeam.TeamName} has won the challenge they initiated against Team {losingTeam.TeamName} and taken their rank of (#{winningTeam.Rank})! Team {losingTeam.TeamName} drops down one in the ranks to (#{losingTeam.Rank}). All other ranks are adjusted accordingly.```";
+                        }
+                        // If winningTeam is challenged, no rank change will occur
+                        else
+                        {
+                            // If the challenged team wins, no rank change
+                            _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+                            return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank. No rank change has occured.```";
+                        }
+                    }
+                    else
+                    {
+                        return $"```Team {winningTeam.TeamName} is not currently waiting on a challenge match.```";
+                    }
+                }
+                else
+                {
+                    return $"```You are not part of Team {winningTeam.TeamName}.```";
+                }
+            }
+
+            return $"```Given team name not found in the database: {winningTeamName}```";
+        }
+        #endregion
+
+        #region Helper Methods
+        private void ReassignRanks(string division)
+        {
+            // Get the list of teams in the specified division
+            List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(division);
+
+            // Sort teams by their current rank
+            teamsInDivision.Sort((a, b) => a.Rank.CompareTo(b.Rank));
+
+            // Reassign ranks sequentially
+            for (int i = 0; i < teamsInDivision.Count; i++)
+            {
+                teamsInDivision[i].Rank = i + 1;
+            }
+        }
         #endregion
 
         #region Settings Logic
