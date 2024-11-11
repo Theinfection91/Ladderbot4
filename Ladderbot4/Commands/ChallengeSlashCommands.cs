@@ -35,5 +35,14 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
             await RespondAsync(result);
         }
+
+        [SlashCommand("admin_cancel", "Attempts to cancel a challenge from team as Admin.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task AdminCancelChallengeAsync(
+            [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+        {
+            string result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
+            await RespondAsync(result);
+        }
     }
 }

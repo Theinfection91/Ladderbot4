@@ -47,5 +47,24 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.RemoveTeamProcess(teamName);
             await RespondAsync(result);
         }
+
+        [Group("add", "Slash commands to add wins/losses to teams.")]
+        public class AddWinLossSlashCommands : InteractionModuleBase<SocketInteractionContext>
+        {
+            private readonly LadderManager _ladderManager;
+
+            public AddWinLossSlashCommands(LadderManager ladderManager)
+            {
+                _ladderManager = ladderManager;
+            }
+
+            [SlashCommand("win", "Admin command to add numberOfWins to given team")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+            public async Task AddWinAsync(string teamName, int numberOfWins)
+            {
+                string result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
+                await RespondAsync(result);
+            }
+        }
     }
 }

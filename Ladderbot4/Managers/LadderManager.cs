@@ -248,16 +248,36 @@ namespace Ladderbot4.Managers
             return $"```No team found by the name of: {challengerTeam} - Please try again.```";
         }
 
-        public string AdminChallengeProcess(string challengerTeam, string challengedTeam)
+        public string AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             return "admin challenge";
         }
 
-        public string AdminCancelChallengeProcess(string challengerTeam)
+        public string AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
-            return "admin cancel challenge";
-        }
+            // Load latest save of Challenges database
+            _challengeManager.LoadChallengesDatabase();
 
+            // Check if given team exists
+            if (!_teamManager.IsTeamNameUnique(challengerTeam))
+            {
+                // Grab team reference object
+                Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
+
+                // Check if Team has a challenge sent out to actually cancel
+                if (_challengeManager.IsTeamChallenger(challengerTeamObject))
+                {
+                    // Cancel the challenge, save challenges database and reload it
+                    _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
+                    return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank})'s challenge in the {challengerTeamObject.Division} division has been canceled by an Admin ({context.User.GlobalName})```";
+                }
+                else
+                {
+                    return $"```Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.```";
+                }
+            }
+            return $"```No team found by the name of: {challengerTeam} - Please try again.```";
+        }
         #endregion
 
         #region Reporting Logic
@@ -333,7 +353,112 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
-        #region Win/Loss/Rank Modifier Logic
+        #region Post Standings/Challenges/Teams Logic
+
+        #endregion
+
+        #region Set Rank Logic
+
+        #endregion
+
+        #region Add/Subtract Win/Loss Logic
+
+        // For Admin command use, ReportWin logic uses directly to TeamManager
+        public string AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
+        {
+            // Check if team name exists in database
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab team object
+                Team team = _teamManager.GetTeamByName(teamName);
+
+                // Add the numberOfWins to the team
+                _teamManager.AddToWins(team, numberOfWins);
+
+                // Save and reload teams database
+                _teamManager.SaveAndReloadTeamsDatabase();
+
+                return $"```Team {team.TeamName} has had {numberOfWins} win(s) added to their win count by an Admin({context.User.GlobalName})```";
+            }
+            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+        }
+
+        public string SubtractFromWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
+        {
+            // Check if team name exists in database
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab team object
+                Team team = _teamManager.GetTeamByName(teamName);
+
+                // Make sure the result will not be negative
+                int result = team.Wins - numberOfWins;
+                if (result > 0)
+                {
+                    // Safely subtract from wins
+                    _teamManager.SubtractFromWins(team, numberOfWins);
+
+                    // Save and reload teams database
+                    _teamManager.SaveAndReloadTeamsDatabase();
+
+                    return $"```Team {team.TeamName} has had {numberOfWins} win(s) subtracted from their win count by an Admin({context.User.GlobalName})```";
+                }
+                else
+                {
+                    return $"```Subtracting {numberOfWins} win(s) from Team {team.TeamName}'s {team.Wins} would result in a negative number. Please try again.```";
+                }
+
+            }
+            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+        }
+
+        public string AddToLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
+        {
+            // Check if team name exists in database
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab team object
+                Team team = _teamManager.GetTeamByName(teamName);
+
+                // Add the numberOfLosses to the team
+                _teamManager.AddToLosses(team, numberOfLosses);
+
+                // Save and reload teams database
+                _teamManager.SaveAndReloadTeamsDatabase();
+
+                return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) added to their losses count by an Admin({context.User.GlobalName})```";
+            }
+            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+        }
+
+        public string SubtractFromLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
+        {
+            // Check if team name exists in database
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab team object
+                Team team = _teamManager.GetTeamByName(teamName);
+
+                // Make sure the result will not be negative
+                int result = team.Losses - numberOfLosses;
+                if (result > 0)
+                {
+                    // Safely subtract from losses
+                    _teamManager.SubtractFromLosses(team, numberOfLosses);
+
+                    // Save and reload teams database
+                    _teamManager.SaveAndReloadTeamsDatabase();
+
+                    return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) subtracted from their losses count by an Admin({context.User.GlobalName})```";
+                }
+                else
+                {
+                    return $"```Subtracting {numberOfLosses} loss(es) from Team {team.TeamName}'s {team.Losses} would result in a negative number. Please try again.```";
+                }
+
+            }
+            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+        }
 
         #endregion
 
