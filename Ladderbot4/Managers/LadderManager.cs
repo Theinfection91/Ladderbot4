@@ -153,8 +153,6 @@ namespace Ladderbot4.Managers
                 // Grab Discord Id of user who invoked this command
                 ulong discordId = context.User.Id;
 
-                Console.WriteLine(discordId);
-
                 // Check if user who invoked command is actually on challenger team
                 if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
                 {
@@ -176,6 +174,10 @@ namespace Ladderbot4.Managers
                                 {
                                     // If all checks are passed, create and save the new Challenge object, save Challenges database
                                     _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
+
+                                    // Save and reload Challenges database
+                                    _challengeManager.SaveAndReloadChallenges();
+
                                     return $"```Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
                                 }
                                 else
@@ -192,11 +194,11 @@ namespace Ladderbot4.Managers
                         {
                             if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
                             {
-                                return $"```{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
+                                return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
                             }
                             else
                             {
-                                return $"```{objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
+                                return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
                             }
                         }
                     }
@@ -233,6 +235,10 @@ namespace Ladderbot4.Managers
                     {
                         // Cancel the challenge, save challenges database and reload it
                         _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
+
+                        // Save and reload Challenges database
+                        _challengeManager.SaveAndReloadChallenges();
+
                         return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank}) has canceled the challenge they sent out in the {challengerTeamObject.Division} division.```";
                     }
                     else
@@ -250,7 +256,64 @@ namespace Ladderbot4.Managers
 
         public string AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
-            return "admin challenge";
+            // Load latest save of Challenges database
+            _challengeManager.LoadChallengesDatabase();
+
+            // Check if both teams actually exist in entire Teams database
+            if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
+            {
+                // Grab Team object references
+                Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
+                Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
+
+                // Check if both teams are in the same division
+                if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
+                {
+                    // If in the same division then check ranks to make sure challenger isnt above and also isnt more than 2 below challenged in rank
+                    if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+                    {
+                        // If ranks are in correct range then make sure challenger hasnt issued another challenge to be resolved first
+                        if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
+                        {
+                            // If challenger has no open challenges, check if challengedTeam is currently under a challenge
+                            if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
+                            {
+                                // If all checks are passed, create and save the new Challenge object
+                                _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
+
+                                // Save and reload Challenges database
+                                _challengeManager.SaveAndReloadChallenges();
+
+                                return $"```An Admin({context.User.GlobalName}) has initiated a challenge: Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
+                            }
+                            else
+                            {
+                                return $"```Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                            }
+                        }
+                        else
+                        {
+                            return $"```Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                        }
+                    }
+                    else
+                    {
+                        if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+                        {
+                            return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
+                        }
+                        else
+                        {
+                            return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
+                        }
+                    }
+                }
+                else
+                {
+                    return $"```Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division} - Please try again.```";
+                }
+            }
+            return $"```One or both team names not found in the database. Please try again.```";
         }
 
         public string AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
@@ -269,7 +332,11 @@ namespace Ladderbot4.Managers
                 {
                     // Cancel the challenge, save challenges database and reload it
                     _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
-                    return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank})'s challenge in the {challengerTeamObject.Division} division has been canceled by an Admin ({context.User.GlobalName})```";
+
+                    // Save and reload Challenges database
+                    _challengeManager.SaveAndReloadChallenges();
+
+                    return $"```Team {challengerTeamObject.TeamName}(#{challengerTeamObject.Rank})'s challenge in the {challengerTeamObject.Division} division has been canceled by an Admin ({context.User.GlobalName})```";
                 }
                 else
                 {
@@ -332,7 +399,7 @@ namespace Ladderbot4.Managers
 
                             // Remove the challenge
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
-                            return $"```Team {winningTeam.TeamName} has won the challenge they initiated against Team {losingTeam.TeamName} and taken their rank of (#{winningTeam.Rank})! Team {losingTeam.TeamName} drops down one in the ranks to (#{losingTeam.Rank}). All other ranks are adjusted accordingly.```";
+                            return $"```Team {winningTeam.TeamName} has won the challenge they initiated against Team {losingTeam.TeamName} in the {winningTeam.Division} division and taken their rank of (#{winningTeam.Rank})! Team {losingTeam.TeamName} drops down one in the ranks to (#{losingTeam.Rank}). All other ranks are adjusted accordingly.```";
                         }
                         // If winningTeam is challenged, no rank change will occur
                         else
@@ -346,7 +413,7 @@ namespace Ladderbot4.Managers
 
                             // If the challenged team wins, no rank change
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
-                            return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank. No rank change has occured.```";
+                            return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank in the {winningTeam.Division} division. No rank change has occured.```";
                         }
                     }
                     else

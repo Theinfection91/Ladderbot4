@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
 {
-    [Group("challenge", "Slash commands related to team management.")]
+    [Group("challenge", "Slash commands related to challenges.")]
     public class ChallengeSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly LadderManager _ladderManager;
@@ -36,13 +36,32 @@ namespace Ladderbot4.Commands
             await RespondAsync(result);
         }
 
-        [SlashCommand("admin_cancel", "Attempts to cancel a challenge from team as Admin.")]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task AdminCancelChallengeAsync(
-            [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+        [Group("admin", "Admin slash commands related to challenges.")]
+        public class AdminChallengeSlashCommands : InteractionModuleBase<SocketInteractionContext>
         {
-            string result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
-            await RespondAsync(result);
+            private readonly LadderManager _ladderManager;
+
+            public AdminChallengeSlashCommands(LadderManager ladderManager)
+            {
+                _ladderManager = ladderManager;
+            }
+
+            [SlashCommand("send", "Attempts to send a challenge from one team to another team as Admin.")]
+            public async Task ChallengeAsync(
+            [Summary("challengerTeam", "Name of challenger team")] string challengerTeam,
+            [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
+            {
+                string result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
+                await RespondAsync(result);
+            }
+
+            [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
+            public async Task CancelChallengeAsync(
+            [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
+            {
+                string result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
+                await RespondAsync(result);
+            }
         }
     }
 }

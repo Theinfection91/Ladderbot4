@@ -25,6 +25,17 @@ namespace Ladderbot4.Managers
             _challengesByDivision = _challengeData.LoadAllChallenges();
         }
 
+        public void SaveChallengesDatabase()
+        {
+            _challengeData.SaveChallenges(_challengesByDivision);
+        }
+
+        public void SaveAndReloadChallenges()
+        {
+            SaveChallengesDatabase();
+            LoadChallengesDatabase();
+        }
+
         public Challenge? GetChallengeByTeamObject(Team team)
         {
             // Load the challenges database

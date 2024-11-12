@@ -64,7 +64,9 @@ namespace Ladderbot4.Commands
             #region Add Win/Loss Commands
             [SlashCommand("win", "Admin command to add numberOfWins to given team")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-            public async Task AddWinAsync(string teamName, int numberOfWins)
+            public async Task AddWinAsync(
+                [Summary("teamName", "The name of the team to add wins to.")] string teamName,
+                [Summary("numberOfWins", "The number of wins to add to the team.")] int numberOfWins)
             {
                 string result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
                 await RespondAsync(result);
@@ -72,7 +74,9 @@ namespace Ladderbot4.Commands
 
             [SlashCommand("loss", "Admin command to add numberOfWins to given team")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-            public async Task AddLossAsync(string teamName, int numberOfLosses)
+            public async Task AddLossAsync(
+                [Summary("teamName", "The name of the team to add losses to.")] string teamName,
+                [Summary("numberOfLosses", "The number of losses to add to the team.")] int numberOfLosses)
             {
                 string result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
                 await RespondAsync(result);
@@ -94,7 +98,9 @@ namespace Ladderbot4.Commands
             #region Subtract Win/Loss Commands
             [SlashCommand("win", "Admin command to subtract numberOfWins from given team")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-            public async Task SubtractWinAsync(string teamName, int numberOfWins)
+            public async Task SubtractWinAsync(
+                [Summary("teamName", "The name of the team to subtract wins from.")] string teamName,
+                [Summary("numerOfWins", "The number of wins to subtract from team.")] int numberOfWins)
             {
                 string result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
                 await RespondAsync(result);
@@ -102,13 +108,14 @@ namespace Ladderbot4.Commands
 
             [SlashCommand("loss", "Admin command to subtract numberOfLosses from given team")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-            public async Task SubtractLossAsync(string teamName, int numberOfLosses)
+            public async Task SubtractLossAsync(
+                [Summary("teamName", "The name of the team to subtract losses from.")] string teamName,
+                [Summary("numberOfLosses", "The number of losses to subtract from team.")] int numberOfLosses)
             {
                 string result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
                 await RespondAsync(result);
             }
             #endregion
-
         }
     }
 }
