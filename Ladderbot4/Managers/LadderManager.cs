@@ -38,12 +38,44 @@ namespace Ladderbot4.Managers
         #region Start/End Ladder Logic
         public string StartLadderByDivisionProcess(string division)
         {
-            return "";
+            _statesManager.LoadStatesDatabase();
+
+            // Check if ladder is currently running or not
+            if (!_statesManager.IsLadderRunning(division))
+            {
+                // Set ladder running to true in division
+                _statesManager.SetLadderRunning(division, true);
+
+                // Save and reload the database
+                _statesManager.SaveAndReloadStatesDatabase();
+
+                return $"```The ladder in the {division} division has started!```";
+            }
+            else
+            {
+                return $"```The ladder in the {division} division is already running...```";
+            }  
         }
 
         public string EndLadderByDivisionProcess(string division)
         {
-            return "";
+            _statesManager.LoadStatesDatabase();
+
+            // Check if ladder is currently running or not
+            if (_statesManager.IsLadderRunning(division))
+            {
+                // Set ladder running to false in division
+                _statesManager.SetLadderRunning(division, false);
+
+                // Save and reload the database
+                _statesManager.SaveAndReloadStatesDatabase();
+
+                return $"```The ladder in the {division} division has ended!```";
+            }
+            else
+            {
+                return $"```The ladder in the {division} division hasn't started yet...```";
+            }
         }
         #endregion
 
@@ -150,6 +182,12 @@ namespace Ladderbot4.Managers
                 // Grab Team object references
                 Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
                 Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
+
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
+                {
+                    return $"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.";
+                }
                 
                 // Grab Discord Id of user who invoked this command
                 ulong discordId = context.User.Id;
@@ -228,6 +266,12 @@ namespace Ladderbot4.Managers
                 // Grab team reference object
                 Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
 
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
+                {
+                    return $"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.";
+                }
+
                 // Check if invoker is part of challengerTeam, as this is the user-level logic
                 if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
                 {
@@ -266,6 +310,12 @@ namespace Ladderbot4.Managers
                 // Grab Team object references
                 Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
                 Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
+
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
+                {
+                    return $"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.";
+                }
 
                 // Check if both teams are in the same division
                 if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
@@ -328,6 +378,12 @@ namespace Ladderbot4.Managers
                 // Grab team reference object
                 Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
 
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
+                {
+                    return $"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.";
+                }
+
                 // Check if Team has a challenge sent out to actually cancel
                 if (_challengeManager.IsTeamChallenger(challengerTeamObject))
                 {
@@ -358,6 +414,12 @@ namespace Ladderbot4.Managers
                 // Grab winningTeam object, add placeholder for losingTeam object
                 Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
                 Team losingTeam;
+
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(winningTeam.Division))
+                {
+                    return $"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.";
+                }
 
                 // Is the invoker on the team, using context
                 if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
@@ -436,9 +498,6 @@ namespace Ladderbot4.Managers
 
         public string PostStandingsProcess(SocketInteractionContext context, string division)
         {
-            // TODO - Check to make sure division ladder is running
-            //
-
             // Ressign Ranks to make sure teams are sorted by rank for correct list
             ReassignRanks(division);
 

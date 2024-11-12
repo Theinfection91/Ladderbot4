@@ -55,5 +55,23 @@ namespace Ladderbot4.Managers
                     throw new ArgumentException("Invalid division type given.");
             }
         }
+
+        public void SetLadderRunning(string division, bool trueOrFalse)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    _statesByDivision.States1v1.IsLadderRunning = trueOrFalse;
+                    break;
+
+                case "2v2":
+                    _statesByDivision.States2v2.IsLadderRunning = trueOrFalse;
+                    break;
+
+                case "3v3":
+                    _statesByDivision.States3v3.IsLadderRunning = trueOrFalse;
+                    break;
+            }
+        }
     }
 }
