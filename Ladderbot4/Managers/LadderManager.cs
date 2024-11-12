@@ -323,8 +323,12 @@ namespace Ladderbot4.Managers
                             // Reassign ranks for the entire division
                             ReassignRanks(winningTeam.Division);
 
-                            // Save the updated teams data
-                            _teamManager.SaveTeams();
+                            // Assign win and loss correctly
+                            _teamManager.AddToWins(winningTeam, 1);
+                            _teamManager.AddToLosses(losingTeam, 1);
+
+                            // Save the updated teams database and reload
+                            _teamManager.SaveAndReloadTeamsDatabase();
 
                             // Remove the challenge
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
@@ -333,6 +337,13 @@ namespace Ladderbot4.Managers
                         // If winningTeam is challenged, no rank change will occur
                         else
                         {
+                            // Assign win and loss correctly
+                            _teamManager.AddToWins(winningTeam, 1);
+                            _teamManager.AddToLosses(losingTeam, 1);
+
+                            // Save the updated teams data and reload
+                            _teamManager.SaveAndReloadTeamsDatabase();
+
                             // If the challenged team wins, no rank change
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
                             return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank. No rank change has occured.```";
