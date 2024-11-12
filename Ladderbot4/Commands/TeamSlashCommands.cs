@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
-{
+{   // Base Team Group
     [Group("team", "Slash commands related to team management.")]
     public class TeamSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
@@ -21,6 +21,7 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
+        #region Register/Remove Team Commands
         [SlashCommand("register", "Admin command to register team in given division.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RegisterTeamAsync(
@@ -47,7 +48,9 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.RemoveTeamProcess(teamName);
             await RespondAsync(result);
         }
+        #endregion
 
+        // Team Add Group
         [Group("add", "Slash commands to add wins/losses to teams.")]
         public class AddWinLossSlashCommands : InteractionModuleBase<SocketInteractionContext>
         {
@@ -58,6 +61,7 @@ namespace Ladderbot4.Commands
                 _ladderManager = ladderManager;
             }
 
+            #region Add Win/Loss Commands
             [SlashCommand("win", "Admin command to add numberOfWins to given team")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task AddWinAsync(string teamName, int numberOfWins)
@@ -65,6 +69,46 @@ namespace Ladderbot4.Commands
                 string result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
                 await RespondAsync(result);
             }
+
+            [SlashCommand("loss", "Admin command to add numberOfWins to given team")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+            public async Task AddLossAsync(string teamName, int numberOfLosses)
+            {
+                string result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
+                await RespondAsync(result);
+            }
+            #endregion
+        }
+
+        // Team Subtract Group
+        [Group("subtract", "Slashs commands to subtract wins/losses from teams.")]
+        public class SubtractWinLossComands : InteractionModuleBase<SocketInteractionContext>
+        {
+            private readonly LadderManager _ladderManager;
+
+            public SubtractWinLossComands(LadderManager ladderManager)
+            {
+                _ladderManager = ladderManager;
+            }
+
+            #region Subtract Win/Loss Commands
+            [SlashCommand("win", "Admin command to subtract numberOfWins from given team")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+            public async Task SubtractWinAsync(string teamName, int numberOfWins)
+            {
+                string result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
+                await RespondAsync(result);
+            }
+
+            [SlashCommand("loss", "Admin command to subtract numberOfLosses from given team")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+            public async Task SubtractLossAsync(string teamName, int numberOfLosses)
+            {
+                string result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
+                await RespondAsync(result);
+            }
+            #endregion
+
         }
     }
 }

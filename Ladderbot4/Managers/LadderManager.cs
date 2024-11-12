@@ -393,7 +393,7 @@ namespace Ladderbot4.Managers
 
                 // Make sure the result will not be negative
                 int result = team.Wins - numberOfWins;
-                if (result > 0)
+                if (result >= 0)
                 {
                     // Safely subtract from wins
                     _teamManager.SubtractFromWins(team, numberOfWins);
@@ -405,7 +405,7 @@ namespace Ladderbot4.Managers
                 }
                 else
                 {
-                    return $"```Subtracting {numberOfWins} win(s) from Team {team.TeamName}'s {team.Wins} would result in a negative number. Please try again.```";
+                    return $"```Subtracting {numberOfWins} win(s) from Team {team.TeamName}'s {team.Wins} wins would result in a negative number. Please try again.```";
                 }
 
             }
@@ -441,7 +441,7 @@ namespace Ladderbot4.Managers
 
                 // Make sure the result will not be negative
                 int result = team.Losses - numberOfLosses;
-                if (result > 0)
+                if (result >= 0)
                 {
                     // Safely subtract from losses
                     _teamManager.SubtractFromLosses(team, numberOfLosses);
@@ -453,7 +453,7 @@ namespace Ladderbot4.Managers
                 }
                 else
                 {
-                    return $"```Subtracting {numberOfLosses} loss(es) from Team {team.TeamName}'s {team.Losses} would result in a negative number. Please try again.```";
+                    return $"```Subtracting {numberOfLosses} loss(es) from Team {team.TeamName}'s {team.Losses} losses would result in a negative number. Please try again.```";
                 }
 
             }
