@@ -27,19 +27,20 @@ namespace Ladderbot4.Models
 
         public string GetAllMemberNamesToStr()
         {
-            StringBuilder sb = new();
-            foreach (Member member in Members)
+            switch (Members.Count)
             {
-                if (Members.Count == 1)
-                {
-                    sb.Append(member.DisplayName);
-                }
-                else
-                {
-                    sb.Append(member.DisplayName + " ");
-                }
-            }   
-            return sb.ToString();
+                case 1:
+                    return $"{Members[0].DisplayName}";
+
+                case 2:
+                    return $"{Members[0].DisplayName}, {Members[1].DisplayName}";
+
+                case 3:
+                    return $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}";
+
+                default:
+                    throw new Exception("Incorrect member count.");
+            }
         }
     }
 }

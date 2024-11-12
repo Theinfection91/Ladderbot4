@@ -100,6 +100,7 @@ namespace Ladderbot4
 
                 // Add Read/Write Data Helpers
                 .AddSingleton<ChallengeData>()
+                .AddSingleton<LadderData>()
                 .AddSingleton(_settingsData)
                 .AddSingleton<TeamData>()
 
@@ -107,6 +108,7 @@ namespace Ladderbot4
                 .AddSingleton<ChallengeManager>()
                 .AddSingleton<LadderManager>()
                 .AddSingleton<MemberManager>()
+                .AddSingleton<StatesManager>()
                 .AddSingleton(_settingsManager)
                 .AddSingleton<TeamManager>()
 

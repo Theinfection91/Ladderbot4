@@ -18,18 +18,20 @@ namespace Ladderbot4.Managers
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
         private readonly ChallengeManager _challengeManager;
+        private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
         // Super Admin Mode
         // -TODO- Migrate to Settings
         public bool IsSuperAdminModeOn { get; set; } = false;
 
-        public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager)
+        public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _teamManager = teamManager;
             _memberManager = memberManager;
             _challengeManager = challengeManager;
             _settingsManager = settingsManager;
+            _statesManager = statesManager;
         }
         #endregion
 
@@ -79,11 +81,10 @@ namespace Ladderbot4.Managers
                                 return $"```{member.DisplayName} is already on a team in the {divisionType} division. Please try again.```";
                             }
                         }
-
                         // All members are eligible, all conditions passed, add the new team to the database.
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
-                        return $"```Team {newTeam.TeamName} has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}```";
+                        return $"```Team {newTeam.TeamName}(#{newTeam.Rank}) has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}```";
                     }
                     else
                     {
@@ -432,6 +433,18 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Post Standings/Challenges/Teams Logic
+
+        public string PostStandingsProcess(SocketInteractionContext context, string division)
+        {
+            // TODO - Check to make sure division ladder is running
+            //
+
+            // Ressign Ranks to make sure teams are sorted by rank for correct list
+            ReassignRanks(division);
+
+            // Return all the data as one string
+            return _teamManager.GetStandingsData(division);
+        }
 
         #endregion
 

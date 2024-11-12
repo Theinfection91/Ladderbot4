@@ -3,6 +3,7 @@ using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -73,6 +74,25 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
+        }
+
+        public string GetStandingsData(string division)
+        {
+            // Load database
+            LoadTeamsDatabase();
+
+            List<Team> divisionTeams = GetTeamsByDivision(division);
+
+            StringBuilder sb = new();
+
+            sb.AppendLine($"```\n");
+            foreach(Team team in divisionTeams)
+            {
+                sb.AppendLine($"Team Name: {team.TeamName} - Rank: {team.Rank} - W: {team.Wins} - L: {team.Losses}\n");
+            }
+            sb.AppendLine("\n```");
+
+            return sb.ToString();
         }
 
         public int GetTeamCount(string division)
