@@ -138,7 +138,7 @@ namespace Ladderbot4
                 if (ulong.TryParse(guildId, out ulong selectedGuildId) && _client.GetGuild(selectedGuildId) != null)
                 {
                     _settingsManager.Settings.GuildId = selectedGuildId;
-                    _settingsManager.SaveSettings(_settingsManager.Settings);
+                    _settingsManager.SaveSettings();
                     _settingsManager.LoadSettingsData();
                     Console.WriteLine($"Guild ID set to {selectedGuildId}.");
                 }

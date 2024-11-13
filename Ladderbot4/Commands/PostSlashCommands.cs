@@ -22,7 +22,15 @@ namespace Ladderbot4.Commands
         public async Task PostStandingsAsync(
             [Summary("division", "The division in which to post data from.")] string division)
         {
-            string result = _ladderManager.PostStandingsProcess(Context, division);
+            string result = _ladderManager.PostStandingsProcess(Context, division.Trim().ToLower());
+            await RespondAsync(result);
+        }
+
+        [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
+        public async Task PostChallengesAsync(
+            [Summary("division", "The division in which to post data from.")] string division)
+        {
+            string result = _ladderManager.PostChallengesProcess(Context, division.Trim().ToLower());
             await RespondAsync(result);
         }
     }

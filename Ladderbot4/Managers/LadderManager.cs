@@ -21,10 +21,6 @@ namespace Ladderbot4.Managers
         private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
-        // Super Admin Mode
-        // -TODO- Migrate to Settings
-        public bool IsSuperAdminModeOn { get; set; } = false;
-
         public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _teamManager = teamManager;
@@ -87,7 +83,7 @@ namespace Ladderbot4.Managers
         /// <param name="divisionType">Which division to place the team in</param>
         /// <param name="members">The members for the new team</param>
         /// <returns>String for the bot that will cover error handling and confirmation of registration.</returns>
-        public string RegisterTeamProcess(string teamName, string divisionType, List<IUser> members)
+        public string RegisterTeamProcess(SocketInteractionContext context, string teamName, string divisionType, List<IUser> members)
         {
             // Load latest save of Teams database
             _teamManager.LoadTeamsDatabase();
@@ -101,14 +97,14 @@ namespace Ladderbot4.Managers
                     // Convert User Context Info into Member objects
                     List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
 
-                    if (_memberManager.IsMemberCountCorrect(newMemberList, divisionType) || IsSuperAdminModeOn)
+                    if (_memberManager.IsMemberCountCorrect(newMemberList, divisionType) || _settingsManager.IsUserSuperAdmin(context.User.Id))
                     {
                         // Grab all teams from correct division to compare with
                         List<Team> divisionTeams = _teamManager.GetTeamsByDivision(divisionType);
 
                         foreach (Member member in newMemberList)
                         {
-                            if (!IsSuperAdminModeOn && _memberManager.IsMemberOnTeamInDivision(member, divisionTeams))
+                            if (_memberManager.IsMemberOnTeamInDivision(member, divisionTeams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
                             {
                                 return $"```{member.DisplayName} is already on a team in the {divisionType} division. Please try again.```";
                             }
@@ -156,7 +152,7 @@ namespace Ladderbot4.Managers
 
                 // Remove the team correctly, with ranks falling into place programmatically
                 _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
-                return $"Team {teamReference.TeamName} removed from {teamReference.Division} division.";
+                return $"```Team {teamReference.TeamName} removed from {teamReference.Division} division.```";
 
             }
             return $"```Given Team Name does not exist in the teams database: {teamName} - Please try again.```";
@@ -418,7 +414,7 @@ namespace Ladderbot4.Managers
                 // Check if ladder is running in Challenger's division
                 if (!_statesManager.IsLadderRunning(winningTeam.Division))
                 {
-                    return $"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.";
+                    return $"```The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.```";
                 }
 
                 // Is the invoker on the team, using context
@@ -503,6 +499,11 @@ namespace Ladderbot4.Managers
 
             // Return all the data as one string
             return _teamManager.GetStandingsData(division);
+        }
+
+        public string PostChallengesProcess(SocketInteractionContext context, string division)
+        {
+            return _challengeManager.GetChallengesData(division);
         }
 
         #endregion
@@ -638,37 +639,58 @@ namespace Ladderbot4.Managers
 
             // Set in Settings using SettingsManager then save and reload Settings
             _settingsManager.Settings.GuildId = guildId;
-            _settingsManager.SaveSettings(_settingsManager.Settings);
+            _settingsManager.SaveSettings();
             _settingsManager.LoadSettingsData();
 
             return $"```Set GuildId in config.json to {guildId} - If this is the first time setting the GuildId for Slash Commands, then please restart the bot now.```";
         }
 
-        public string SetSuperAdminMode(string trueOrFalse)
+        public string SetSuperAdminModeOnOffProcess(string onOrOff)
         {
-            switch (trueOrFalse.Trim().ToLower())
+            switch (onOrOff.Trim().ToLower())
             {
-                case "true":
-                    IsSuperAdminModeOn = true;
-                    return $"```Super Admin Mode set to {IsSuperAdminModeOn}```";
+                case "on":
+                    _settingsManager.SetSuperAdminModeOnOff(true);
+                    _settingsManager.SaveAndReloadSettingsDatabase();
+                    return $"```Super Admin Mode is on.```";
 
-                case "false":
-                    IsSuperAdminModeOn = false;
-                    return $"```Super Admin Mode set to {IsSuperAdminModeOn}```";
+                case "off":
+                    _settingsManager.SetSuperAdminModeOnOff(false);
+                    _settingsManager.SaveAndReloadSettingsDatabase();
+                    return $"```Super Admin Mode is off```";
 
                 default:
-                    throw new ArgumentException("Incorrent variable given.");
+                    return $"```Incorrent variable given.```";
             }
         }
 
-        public string AddSuperAdminId(IUser user)
+        public string AddSuperAdminIdProcess(IUser user)
         {
-            return "";
+            // Grab discord Id of given user to make Super Admin
+            ulong newAdminId = user.Id;
+
+            if (!_settingsManager.IsDiscordIdInSuperAdminList(newAdminId))
+            { 
+                _settingsManager.AddSuperAdminId(newAdminId);
+                _settingsManager.SaveAndReloadSettingsDatabase();
+                return $"```New Super Admin Id added to Settings config.json: {newAdminId}```";
+                
+            }
+            return $"```{newAdminId} was already found among the Super Admin List in Settings config.json and can not be added again.```";
         }
 
-        public string RemoveSuperAdminId(IUser user)
+        public string RemoveSuperAdminIdProcess(IUser user)
         {
-            return "";
+            // Grab discord Id of user to remove from Super Admin list
+            ulong adminId = user.Id;
+
+            if (_settingsManager.IsDiscordIdInSuperAdminList(adminId))
+            {
+                _settingsManager.RemoveSuperAdminId(adminId);
+                _settingsManager.SaveAndReloadSettingsDatabase();
+                return $"```{adminId} was removed from the Super Admin Id from Settings config.json.```";
+            }
+            return $"```{adminId} was not found among the Super Admin List in Settings config.json.```";
         }
         #endregion
     }

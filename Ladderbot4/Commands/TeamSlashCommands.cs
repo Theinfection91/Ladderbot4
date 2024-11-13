@@ -36,7 +36,7 @@ namespace Ladderbot4.Commands
             if (member2 != null) members.Add(member2);
             if (member3 != null) members.Add(member3);
 
-            string result = _ladderManager.RegisterTeamProcess(teamName, divisionType.Trim().ToLower(), members);
+            string result = _ladderManager.RegisterTeamProcess(Context, teamName, divisionType.Trim().ToLower(), members);
             await RespondAsync(result);
         }
 

@@ -24,9 +24,45 @@ namespace Ladderbot4.Managers
             Settings = _settingsData.LoadSettings();
         }
 
-        public void SaveSettings(Settings settings)
+        public void SaveSettings()
         {
-            _settingsData.SaveSettings(settings);
+            _settingsData.SaveSettings(Settings);
+        }
+
+        public void SaveAndReloadSettingsDatabase()
+        {
+            SaveSettings();
+            LoadSettingsData();
+        }
+
+        public bool IsDiscordIdInSuperAdminList(ulong discordId)
+        {
+            LoadSettingsData();
+
+            foreach (ulong adminIds in Settings.SuperAdminDiscordIds)
+            {
+                if (adminIds == discordId) return true;
+            }
+            return false;
+        }
+
+        public bool IsGuildIdSet()
+        {
+            return Settings.GuildId != 0 && IsGuildIdValid();
+        }
+
+        public bool IsGuildIdValid()
+        {
+            return Settings.GuildId >= 15;
+        }
+
+        public bool IsUserSuperAdmin(ulong userId)
+        {
+            foreach (ulong admin in Settings.SuperAdminDiscordIds)
+            {
+                if (admin == userId && Settings.SuperAdminMode) return true;
+            }
+            return false;
         }
 
         public bool IsValidBotTokenSet()
@@ -37,16 +73,6 @@ namespace Ladderbot4.Managers
         public bool IsValidBotToken(string botToken)
         {
             return botToken.Length >= 59;
-        }
-
-        public bool IsGuildIdSet()
-        {
-            return Settings.GuildId != 0 && IsGuildIdValid();
-        }
-
-        public bool IsGuildIdValid()
-        {
-            return Settings.GuildId >= 15; 
         }
 
         public void SetBotTokenProcess()
@@ -62,7 +88,7 @@ namespace Ladderbot4.Managers
                     if (IsValidBotToken(botToken))
                     {
                         Settings.DiscordBotToken = botToken;
-                        SaveSettings(Settings);
+                        SaveSettings();
                         LoadSettingsData();
                         IsBotTokenProcessComplete = true;
                     }
@@ -89,6 +115,21 @@ namespace Ladderbot4.Managers
                     Console.WriteLine("Please select a guild from the list below: ");
                 }
             }
+        }
+
+        public void SetSuperAdminModeOnOff(bool trueOrFalse)
+        {
+            Settings.SuperAdminMode = trueOrFalse;
+        }
+
+        public void AddSuperAdminId(ulong discordID)
+        {
+            Settings.SuperAdminDiscordIds.Add(discordID);
+        }
+
+        public void RemoveSuperAdminId(ulong discordID)
+        {
+            Settings.SuperAdminDiscordIds.Remove(discordID);
         }
     }
 }

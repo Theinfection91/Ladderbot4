@@ -192,6 +192,36 @@ namespace Ladderbot4.Managers
             return challengerTeam.Rank > challengedTeam.Rank && challengerTeam.Rank <= challengedTeam.Rank + 2;
         }
 
+        public string GetChallengesData(string division)
+        {
+            // Load database
+            LoadChallengesDatabase();
+
+            List<Challenge> challenges = GetChallengesByDivision(division);
+            StringBuilder sb = new();
+
+            sb.AppendLine($"```\n");
+            foreach (Challenge challenge in challenges)
+            {
+                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created On: {challenge.CreatedOn}\n");
+            }
+            sb.AppendLine("\n```");
+
+            return sb.ToString();
+        }
+
+        public List<Challenge> GetChallengesByDivision(string division)
+        {
+            return division switch
+            {
+                "1v1" => _challengesByDivision.Challenges1v1,
+                "2v2" => _challengesByDivision.Challenges2v2,
+                "3v3" => _challengesByDivision.Challenges3v3,
+                _ => throw new ArgumentException($"Invalid division type given: {division}"),
+            };
+            ;
+        }
+
         public Challenge CreateChallengeObject(string division, string challenger, string challenged)
         {
             LoadChallengesDatabase();

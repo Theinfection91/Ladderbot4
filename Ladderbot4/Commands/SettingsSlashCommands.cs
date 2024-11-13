@@ -19,12 +19,21 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
+        [SlashCommand("super_admin_on_off", "Sets the super admin mode to on (true) or off (false).")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task SuperAdminOnOff(
+            [Summary("onOrOff", "Use on or off to set the Super Admin mode.")] string onOrOff)
+        {
+            string result = _ladderManager.SetSuperAdminModeOnOffProcess(onOrOff);
+            await RespondAsync(result);
+        }
+
         [SlashCommand("add_admin_id", "Adds a given user's Id to list of Super Admin Id's")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task AddSuperAdminIdAsync(
             [Summary("user", "The user to be added to the list in config.json")] IUser user)
         {
-            string result = _ladderManager.AddSuperAdminId(user);
+            string result = _ladderManager.AddSuperAdminIdProcess(user);
             await RespondAsync(result);
         }
 
@@ -33,7 +42,7 @@ namespace Ladderbot4.Commands
         public async Task RemoveSuperAdminIdAsync(
             [Summary("user", "The user to be removed from the list in config.json")] IUser user)
         {
-            string result = _ladderManager.RemoveSuperAdminId(user);
+            string result = _ladderManager.RemoveSuperAdminIdProcess(user);
             await RespondAsync(result);
         }
     }
