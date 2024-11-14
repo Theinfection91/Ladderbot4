@@ -529,7 +529,7 @@ namespace Ladderbot4.Managers
 
                 if (newRank == currentRank)
                 {
-                    return $"Team {teamName} is already at rank {newRank}. No changes made.";
+                    return $"```Team {teamName} is already at rank {newRank}. No changes made.```";
                 }
 
                 // Moving the team up in rank (newRank < currentRank)
@@ -564,9 +564,9 @@ namespace Ladderbot4.Managers
                 // Save and reload the teams database
                 _teamManager.SaveAndReloadTeamsDatabase();
 
-                return $"Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.";
+                return $"```Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.```";
             }
-            return $"The given team name was not found in the database: {teamName}.";
+            return $"```The given team name was not found in the database: {teamName}.```";
         }
 
 
