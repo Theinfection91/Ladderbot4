@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -486,7 +487,7 @@ namespace Ladderbot4.Managers
                 }
             }
 
-            return $"```Given team name not found in the database: {winningTeamName}```";
+            return $"```The given team name not found in the database: {winningTeamName}```";
         }
         #endregion
 
@@ -494,9 +495,6 @@ namespace Ladderbot4.Managers
 
         public string PostStandingsProcess(SocketInteractionContext context, string division)
         {
-            // Ressign Ranks to make sure teams are sorted by rank for correct list
-            ReassignRanks(division);
-
             // Return all the data as one string
             return _teamManager.GetStandingsData(division);
         }
@@ -509,6 +507,38 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Rank Logic
+
+        public string SetRankProcess(string teamName, int rank)
+        {
+            // Does team exist
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Get object reference
+                Team newRankTeam = _teamManager.GetTeamByName(teamName);
+
+                // Get reference teams in division
+                List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(newRankTeam.Division);
+
+                // Set and reassign ranks
+                newRankTeam.Rank = rank;
+
+                // TODO - Works moving down ranks but not up
+                for (int i = 0; i < teamsInDivision.Count; i++)
+                {
+                    if (teamsInDivision[i].Rank >= rank && teamsInDivision[i].TeamName != newRankTeam.TeamName)
+                    {
+                        teamsInDivision[i].Rank--;
+                    }
+                }
+
+                ReassignRanks(newRankTeam.Division);
+
+                // Save and load data base
+                _teamManager.SaveAndReloadTeamsDatabase();
+                return $"TODO Set rank logic";
+            }
+            return $"```The given team name was not found in the database: {teamName}```";
+        }
 
         #endregion
 

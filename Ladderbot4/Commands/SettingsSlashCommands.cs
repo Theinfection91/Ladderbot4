@@ -21,7 +21,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("super_admin_on_off", "Sets the super admin mode to on (true) or off (false).")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task SuperAdminOnOff(
+        public async Task SuperAdminOnOffAsync(
             [Summary("onOrOff", "Use on or off to set the Super Admin mode.")] string onOrOff)
         {
             string result = _ladderManager.SetSuperAdminModeOnOffProcess(onOrOff);

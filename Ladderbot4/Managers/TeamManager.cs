@@ -102,7 +102,7 @@ namespace Ladderbot4.Managers
                 "1v1" => _teamsByDivision.Division1v1.Count,
                 "2v2" => _teamsByDivision.Division2v2.Count,
                 "3v3" => _teamsByDivision.Division3v3.Count,
-                _ => throw new ArgumentException($"Invalid division type given: {division}"),
+                _ => 0
             };
             ;
         }
@@ -114,7 +114,7 @@ namespace Ladderbot4.Managers
                 "1v1" => _teamsByDivision.Division1v1,
                 "2v2" => _teamsByDivision.Division2v2,
                 "3v3" => _teamsByDivision.Division3v3,
-                _ => throw new ArgumentException($"Invalid division type given: {division}"),
+                _ => null
             };
             ;
         }
