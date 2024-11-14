@@ -18,6 +18,14 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
+        [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
+        public async Task PostChallengesAsync(
+            [Summary("division", "The division in which to post data from.")] string division)
+        {
+            string result = _ladderManager.PostChallengesProcess(Context, division.Trim().ToLower());
+            await RespondAsync(result);
+        }
+
         [SlashCommand("standings", "Slash command for posting standings of given division.")]
         public async Task PostStandingsAsync(
             [Summary("division", "The division in which to post data from.")] string division)
@@ -26,11 +34,11 @@ namespace Ladderbot4.Commands
             await RespondAsync(result);
         }
 
-        [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
-        public async Task PostChallengesAsync(
+        [SlashCommand("teams", "Slash commands for posting teams of given division")]
+        public async Task PostTeamsAsync(
             [Summary("division", "The division in which to post data from.")] string division)
         {
-            string result = _ladderManager.PostChallengesProcess(Context, division.Trim().ToLower());
+            string result = _ladderManager.PostTeamsProcess(Context, division.Trim().ToLower());
             await RespondAsync(result);
         }
     }

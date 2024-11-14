@@ -39,7 +39,7 @@ namespace Ladderbot4.Models
                     return $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}";
 
                 default:
-                    throw new Exception("Incorrect member count.");
+                    return $"Incorrect member count.";
             }
         }
     }

@@ -499,6 +499,11 @@ namespace Ladderbot4.Managers
             return _teamManager.GetStandingsData(division);
         }
 
+        public string PostTeamsProcess(SocketInteractionContext context, string division)
+        {
+            return _teamManager.GetTeamsData(division);
+        }
+
         public string PostChallengesProcess(SocketInteractionContext context, string division)
         {
             return _challengeManager.GetChallengesData(division);
@@ -508,37 +513,62 @@ namespace Ladderbot4.Managers
 
         #region Set Rank Logic
 
-        public string SetRankProcess(string teamName, int rank)
+        public string SetRankProcess(string teamName, int newRank)
         {
-            // Does team exist
+            // Check if the team exists
             if (!_teamManager.IsTeamNameUnique(teamName))
             {
-                // Get object reference
-                Team newRankTeam = _teamManager.GetTeamByName(teamName);
+                // Get the team object
+                Team teamToAdjust = _teamManager.GetTeamByName(teamName);
 
-                // Get reference teams in division
-                List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(newRankTeam.Division);
+                // Get the current rank of the team
+                int currentRank = teamToAdjust.Rank;
 
-                // Set and reassign ranks
-                newRankTeam.Rank = rank;
+                // Get all teams in the same division
+                List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(teamToAdjust.Division);
 
-                // TODO - Works moving down ranks but not up
-                for (int i = 0; i < teamsInDivision.Count; i++)
+                if (newRank == currentRank)
                 {
-                    if (teamsInDivision[i].Rank >= rank && teamsInDivision[i].TeamName != newRankTeam.TeamName)
+                    return $"Team {teamName} is already at rank {newRank}. No changes made.";
+                }
+
+                // Moving the team up in rank (newRank < currentRank)
+                if (newRank < currentRank)
+                {
+                    for (int i = 0; i < teamsInDivision.Count; i++)
                     {
-                        teamsInDivision[i].Rank--;
+                        if (teamsInDivision[i].Rank >= newRank && teamsInDivision[i].Rank < currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
+                        {
+                            teamsInDivision[i].Rank++;
+                        }
+                    }
+                }
+                // Moving the team down in rank (newRank > currentRank)
+                else if (newRank > currentRank)
+                {
+                    for (int i = 0; i < teamsInDivision.Count; i++)
+                    {
+                        if (teamsInDivision[i].Rank <= newRank && teamsInDivision[i].Rank > currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
+                        {
+                            teamsInDivision[i].Rank--;
+                        }
                     }
                 }
 
-                ReassignRanks(newRankTeam.Division);
+                // Finally, set the new rank for the team
+                teamToAdjust.Rank = newRank;
 
-                // Save and load data base
+                // Reassign ranks to ensure consistency
+                ReassignRanks(teamToAdjust.Division);
+
+                // Save and reload the teams database
                 _teamManager.SaveAndReloadTeamsDatabase();
-                return $"TODO Set rank logic";
+
+                return $"Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.";
             }
-            return $"```The given team name was not found in the database: {teamName}```";
+            return $"The given team name was not found in the database: {teamName}.";
         }
+
 
         #endregion
 

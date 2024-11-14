@@ -95,6 +95,22 @@ namespace Ladderbot4.Managers
             return sb.ToString();
         }
 
+        public string GetTeamsData(string division)
+        {
+            List<Team> divisionTeams = GetTeamsByDivision(division);
+            
+            StringBuilder sb = new();
+
+            sb.AppendLine($"```\n");
+            foreach (Team team in divisionTeams)
+            {
+                sb.AppendLine($"Team Name: {team.TeamName} - Member(s): {team.GetAllMemberNamesToStr()}");
+            }
+            sb.AppendLine("\n```");
+
+            return sb.ToString();
+        }
+
         public int GetTeamCount(string division)
         {
             return division switch
