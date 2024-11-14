@@ -158,7 +158,7 @@ namespace Ladderbot4
         private async Task HandleInteractionAsync(SocketInteraction interaction)
         {
             var context = new SocketInteractionContext(_client, interaction);
-            await _interactionService.ExecuteCommandAsync(context, _services);
+            await _interactionService.ExecuteCommandAsync(context, _services); 
         }
 
         private async Task HandleCommandAsync(SocketMessage socketMessage)

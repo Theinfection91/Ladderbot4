@@ -113,6 +113,10 @@ namespace Ladderbot4.Managers
                         // All members are eligible, all conditions passed, add the new team to the database.
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
+
+                        // Save and reload database
+                        _teamManager.SaveAndReloadTeamsDatabase();
+
                         return $"```Team {newTeam.TeamName}(#{newTeam.Rank}) has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}```";
                     }
                     else
@@ -153,6 +157,11 @@ namespace Ladderbot4.Managers
 
                 // Remove the team correctly, with ranks falling into place programmatically
                 _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
+                ReassignRanks(teamReference.Division);
+
+                // Save and reload database
+                _teamManager.SaveAndReloadTeamsDatabase();
+
                 return $"```Team {teamReference.TeamName} removed from {teamReference.Division} division.```";
 
             }
