@@ -47,7 +47,7 @@ namespace Ladderbot4.Managers
                 "1v1" => _challengesByDivision.Challenges1v1,
                 "2v2" => _challengesByDivision.Challenges2v2,
                 "3v3" => _challengesByDivision.Challenges3v3,
-                _ => throw new ArgumentException("Invalid division type given.")
+                _ => null
             };
 
             // Iterate over the challenges in the specified division

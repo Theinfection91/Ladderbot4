@@ -16,14 +16,16 @@ namespace Ladderbot4.Managers
     {
         #region Properties and Constructor
         // Sub-Managers
+        private readonly HistoryManager _historyManager;
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
         private readonly ChallengeManager _challengeManager;
         private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
-        public LadderManager(TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
+        public LadderManager(HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
+            _historyManager = historyManager;
             _teamManager = teamManager;
             _memberManager = memberManager;
             _challengeManager = challengeManager;
