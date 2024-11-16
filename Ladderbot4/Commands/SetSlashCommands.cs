@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Ladderbot4.Commands
 {
     [Group("set", "Commands relating to set like rank and division text channels.")]
-    public  class SetSlashCommands : InteractionModuleBase<SocketInteractionContext>
+    public class SetSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly LadderManager _ladderManager;
 

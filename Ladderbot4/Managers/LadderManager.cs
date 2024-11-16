@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Models;
+using Ladderbot4.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

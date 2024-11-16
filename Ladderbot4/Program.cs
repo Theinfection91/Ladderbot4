@@ -8,7 +8,9 @@ using Discord.WebSocket;
 using Ladderbot4.Commands;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
+using Ladderbot4.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
 
 namespace Ladderbot4
@@ -26,24 +28,46 @@ namespace Ladderbot4
         private static SettingsManager _settingsManager;
         private static SettingsData _settingsData;
 
+        // TEST - Init StandingsService
+        private static StandingsUpdaterService _standingsUpdaterService;
+
         public static async Task Main(string[] args)
         {
-            var program = new Program();
-            
-            Console.CancelKeyPress += (sender, e) =>
-            {
-                // Prevent Ctrl + C from closing console window. This will help in case user needs to copy Guild Id from list.
-                e.Cancel = true;
-            };
+            var host = Host.CreateDefaultBuilder(args)
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddSingleton<DiscordSocketClient>();
+                    services.AddSingleton<CommandService>();
+                    services.AddSingleton<InteractionService>();
 
-            // Init SettingsData and SettingsManager for config.json bot data
-            _settingsData = new SettingsData();
-            _settingsManager = new SettingsManager(_settingsData);
+                    services.AddSingleton<ChallengeData>();
+                    services.AddSingleton<HistoryData>();
+                    services.AddSingleton<LadderData>();
+                    services.AddSingleton<SettingsData>();
+                    services.AddSingleton<TeamData>();
 
-            // Check if BotToken is set and atleast 59 characters long
+                    services.AddSingleton<HistoryManager>();
+                    services.AddSingleton<ChallengeManager>();
+                    services.AddSingleton<LadderManager>();
+                    services.AddSingleton<MemberManager>();
+                    services.AddSingleton<StatesManager>();
+                    services.AddSingleton<SettingsManager>();
+                    services.AddSingleton<TeamManager>();
+
+                    services.AddHostedService<StandingsUpdaterService>();
+                })
+                .Build();
+
+            // Retrieve the SettingsManager from the DI container
+            _settingsManager = host.Services.GetRequiredService<SettingsManager>();
+            _settingsData = host.Services.GetRequiredService<SettingsData>();
+
+            // Ensure the settings are loaded correctly
             _settingsManager.SetBotTokenProcess();
 
-            // After setup process is complete, run the Discord bot with correct token and Guild Id
+            var program = new Program();
+            program._services = host.Services;
+
             await program.RunBotAsync();
         }
 
@@ -67,7 +91,7 @@ namespace Ladderbot4
             _interactionService = new InteractionService(_client.Rest);
 
             _commands.Log += Log;
-            _services = ConfigureServices();
+
 
             // Set up event handlers
             _client.Log += Log;
@@ -86,35 +110,6 @@ namespace Ladderbot4
 
             // Keep the bot running
             await Task.Delay(-1);
-        }
-
-        private IServiceProvider ConfigureServices()
-        {
-            // Register Discord client, command service, and modules
-            return new ServiceCollection()
-                .AddSingleton(_client)
-                .AddSingleton(_commands)
-
-                // Add Interaction Service (SlashCommands)
-                .AddSingleton(_interactionService)
-
-                // Add Read/Write Data Helpers
-                .AddSingleton<ChallengeData>()
-                .AddSingleton<HistoryData>()
-                .AddSingleton<LadderData>()
-                .AddSingleton(_settingsData)
-                .AddSingleton<TeamData>()
-
-                // Add Managers
-                .AddSingleton<HistoryManager>()
-                .AddSingleton<ChallengeManager>()
-                .AddSingleton<LadderManager>()
-                .AddSingleton<MemberManager>()
-                .AddSingleton<StatesManager>()
-                .AddSingleton(_settingsManager)
-                .AddSingleton<TeamManager>()
-
-                .BuildServiceProvider();
         }
 
         private async Task ClientReady()
