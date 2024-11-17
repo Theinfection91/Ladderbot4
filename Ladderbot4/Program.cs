@@ -8,7 +8,6 @@ using Discord.WebSocket;
 using Ladderbot4.Commands;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
-using Ladderbot4.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
@@ -27,9 +26,6 @@ namespace Ladderbot4
         // To grab bot token and command prefix
         private static SettingsManager _settingsManager;
         private static SettingsData _settingsData;
-
-        // TEST - Init StandingsService
-        private static StandingsUpdaterService _standingsUpdaterService;
 
         public static async Task Main(string[] args)
         {
@@ -53,8 +49,6 @@ namespace Ladderbot4
                     services.AddSingleton<StatesManager>();
                     services.AddSingleton<SettingsManager>();
                     services.AddSingleton<TeamManager>();
-
-                    services.AddHostedService<StandingsUpdaterService>();
                 })
                 .Build();
 
