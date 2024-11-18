@@ -16,6 +16,7 @@ namespace Ladderbot4.Managers
     {
         #region Properties and Constructor
         // Sub-Managers
+        private readonly DiscordSocketClient _client;
         private readonly HistoryManager _historyManager;
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
@@ -23,15 +24,89 @@ namespace Ladderbot4.Managers
         private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
-        public LadderManager(HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
+        public LadderManager(DiscordSocketClient client, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
+            _client = client;
             _historyManager = historyManager;
             _teamManager = teamManager;
             _memberManager = memberManager;
             _challengeManager = challengeManager;
             _settingsManager = settingsManager;
             _statesManager = statesManager;
+
+            // TODO
+            StartingStandingsTask();
         }
+        #endregion
+
+        #region TODO - Channel Tasks Logic
+
+        public void StartingStandingsTask()
+        {
+            Console.WriteLine("StartingStandingsTask()");
+            Task.Run(() => RunStandingsUpdateTaskAsync());
+        }
+
+        private async Task RunStandingsUpdateTaskAsync()
+        {
+            while (true)
+            {
+                Console.WriteLine("RunStandingsUpdateTaskAsync()");
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                await SendStandingsToChannelAsync();
+            }
+        }
+
+        private async Task SendStandingsToChannelAsync()
+        {
+            Console.WriteLine("SendStandingsToChannelAsync()");
+
+            Console.WriteLine($"Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
+
+            // Map divisions to their respective channel IDs
+            var divisionChannelMap = new Dictionary<string, ulong>
+    {
+        { "1v1", _statesManager.GetStandingsChannelId("1v1") },
+        { "2v2", _statesManager.GetStandingsChannelId("2v2") },
+        { "3v3", _statesManager.GetStandingsChannelId("3v3") }
+    };
+
+            foreach (var division in divisionChannelMap.Keys)
+            {
+                ulong channelId = divisionChannelMap[division];
+
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"Invalid channel ID for division {division}.");
+                    continue;
+                }
+
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+
+                if (channel == null)
+                {
+                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
+                    continue;
+                }
+
+                // Get the standings for the division
+                string standings = _teamManager.GetStandingsData(division);
+
+                if (!string.IsNullOrEmpty(standings))
+                {
+                    // Send the standings message to the correct channel
+                    await channel.SendMessageAsync(standings);
+                    Console.WriteLine($"Standings sent to channel {channelId} for {division} division at {DateTime.Now}");
+                }
+                else
+                {
+                    Console.WriteLine($"No standings data available for division {division}.");
+                }
+            }
+        }
+
+
         #endregion
 
         #region Start/End Ladder Logic
@@ -579,7 +654,42 @@ namespace Ladderbot4.Managers
             }
             return $"```The given team name was not found in the database: {teamName}.```";
         }
+        #endregion
 
+        #region Set Standings/Challenges/Teams Channel Logic
+
+        public string SetStandingsChannelIdProcess(string division, IMessageChannel channel)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetStandingsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Standings.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "2v2":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetStandingsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Standings.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "3v3":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetStandingsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Standings.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                default:
+                    return "Incorrect division type given.";
+            }
+        }
 
         #endregion
 

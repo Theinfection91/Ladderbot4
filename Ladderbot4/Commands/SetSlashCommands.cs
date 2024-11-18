@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,16 @@ namespace Ladderbot4.Commands
             [Summary("rank", "The new rank the team will be awarded.")] int rank)
         {
             string result = _ladderManager.SetRankProcess(teamName, rank);
+            await RespondAsync(result);
+        }
+
+        [SlashCommand("standings_channel_id", "For Admins to set the dynamic standings message.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task SetStandingsChannelIdAsync(
+            [Summary("division", "Which division channel to set.")] string division,
+            [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
+        {
+            string result = _ladderManager.SetStandingsChannelIdProcess(division, channel);
             await RespondAsync(result);
         }
     }

@@ -74,6 +74,27 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void SetStandingsChannelId(string division, ulong channelId)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    _statesByDivision.States1v1.StandingsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "2v2":
+                    _statesByDivision.States2v2.StandingsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "3v3":
+                    _statesByDivision.States3v3.StandingsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+            }
+        }
+
         public void SetLadderRunning(string division, bool trueOrFalse)
         {
             switch (division)
