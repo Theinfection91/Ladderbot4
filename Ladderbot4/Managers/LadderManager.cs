@@ -24,6 +24,12 @@ namespace Ladderbot4.Managers
         private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
+        // Channel Tasks
+        private readonly Dictionary<ulong, ulong> _challengesMessageMap = new();
+        private readonly Dictionary<ulong, ulong> _standingsMessageMap = new();
+        private readonly Dictionary<ulong, ulong> _teamsMessageMap = new();
+
+
         public LadderManager(DiscordSocketClient client, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _client = client;
@@ -34,42 +40,39 @@ namespace Ladderbot4.Managers
             _settingsManager = settingsManager;
             _statesManager = statesManager;
 
-            // TODO
+            // Begin Channel Update Tasks
+            StartingChallengesTask();
             StartingStandingsTask();
         }
         #endregion
 
         #region TODO - Channel Tasks Logic
 
-        public void StartingStandingsTask()
+        #region --Challenges
+
+        public void StartingChallengesTask()
         {
-            Console.WriteLine("StartingStandingsTask()");
-            Task.Run(() => RunStandingsUpdateTaskAsync());
+            Task.Run(() => RunChallengesUpdateTaskAsync());
         }
 
-        private async Task RunStandingsUpdateTaskAsync()
+        private async Task RunChallengesUpdateTaskAsync()
         {
             while (true)
             {
-                Console.WriteLine("RunStandingsUpdateTaskAsync()");
                 await Task.Delay(TimeSpan.FromSeconds(5));
-                await SendStandingsToChannelAsync();
+                await SendChallengesToChannelAsync();
             }
         }
 
-        private async Task SendStandingsToChannelAsync()
+        private async Task SendChallengesToChannelAsync()
         {
-            Console.WriteLine("SendStandingsToChannelAsync()");
-
-            Console.WriteLine($"Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
-
             // Map divisions to their respective channel IDs
             var divisionChannelMap = new Dictionary<string, ulong>
-    {
-        { "1v1", _statesManager.GetStandingsChannelId("1v1") },
-        { "2v2", _statesManager.GetStandingsChannelId("2v2") },
-        { "3v3", _statesManager.GetStandingsChannelId("3v3") }
-    };
+            {
+                { "1v1", _statesManager.GetChallengesChannelId("1v1") },
+                { "2v2", _statesManager.GetChallengesChannelId("2v2") },
+                { "3v3", _statesManager.GetChallengesChannelId("3v3") }
+            };
 
             foreach (var division in divisionChannelMap.Keys)
             {
@@ -91,21 +94,146 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the standings for the division
-                string standings = _teamManager.GetStandingsData(division);
+                string standings = _challengeManager.GetChallengesData(division) + $"\n Updated: {DateTime.Now}";
 
-                if (!string.IsNullOrEmpty(standings))
+                if (string.IsNullOrEmpty(standings))
                 {
-                    // Send the standings message to the correct channel
-                    await channel.SendMessageAsync(standings);
-                    Console.WriteLine($"Standings sent to channel {channelId} for {division} division at {DateTime.Now}");
+                    Console.WriteLine($"No challenges data available for division {division}.");
+                    continue;
                 }
-                else
+
+                try
                 {
-                    Console.WriteLine($"No standings data available for division {division}.");
+                    // Check if a message already exists in the channel
+                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message
+                            await existingMessage.ModifyAsync(msg => msg.Content = standings);
+                            Console.WriteLine($"Challenges updated in channel {channelId} for {division} division.");
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(standings);
+                            _standingsMessageMap[channelId] = newMessage.Id;
+                            Console.WriteLine($"Challenges sent to channel {channelId} for {division} division.");
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(standings);
+                        _standingsMessageMap[channelId] = newMessage.Id;
+                        Console.WriteLine($"Challenges sent to channel {channelId} for {division} division.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating challenges in channel {channelId}: {ex.Message}");
                 }
             }
         }
+        #endregion
 
+        #region --Standings
+        public void StartingStandingsTask()
+        {
+            Task.Run(() => RunStandingsUpdateTaskAsync());
+        }
+
+        private async Task RunStandingsUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                await SendStandingsToChannelAsync();
+            }
+        }
+
+        private async Task SendStandingsToChannelAsync()
+        {
+            // Map divisions to their respective channel IDs
+            var divisionChannelMap = new Dictionary<string, ulong>
+            {
+                { "1v1", _statesManager.GetStandingsChannelId("1v1") },
+                { "2v2", _statesManager.GetStandingsChannelId("2v2") },
+                { "3v3", _statesManager.GetStandingsChannelId("3v3") }
+            };
+
+            foreach (var division in divisionChannelMap.Keys)
+            {
+                ulong channelId = divisionChannelMap[division];
+
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"Invalid channel ID for division {division}.");
+                    continue;
+                }
+
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+
+                if (channel == null)
+                {
+                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
+                    continue;
+                }
+
+                // Get the standings for the division
+                string standings = _teamManager.GetStandingsData(division) + $"\n Updated: {DateTime.Now}";
+
+                if (string.IsNullOrEmpty(standings))
+                {
+                    Console.WriteLine($"No standings data available for division {division}.");
+                    continue;
+                }
+
+                try
+                {
+                    // Check if a message already exists in the channel
+                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message
+                            await existingMessage.ModifyAsync(msg => msg.Content = standings);
+                            Console.WriteLine($"Standings updated in channel {channelId} for {division} division.");
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(standings);
+                            _standingsMessageMap[channelId] = newMessage.Id;
+                            Console.WriteLine($"Standings sent to channel {channelId} for {division} division.");
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(standings);
+                        _standingsMessageMap[channelId] = newMessage.Id;
+                        Console.WriteLine($"Standings sent to channel {channelId} for {division} division.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
+                }
+            }
+        }
+        #endregion
+
+        #region --Teams
+
+        #endregion
 
         #endregion
 
@@ -657,6 +785,39 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic
+
+        public string SetChallengesChannelIdProcess(string division, IMessageChannel channel)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetChallengesChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Challenges.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "2v2":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetChallengesChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Challenges.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "3v3":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetChallengesChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Challenges.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                default:
+                    return "Incorrect division type given.";
+            }
+        }
 
         public string SetStandingsChannelIdProcess(string division, IMessageChannel channel)
         {

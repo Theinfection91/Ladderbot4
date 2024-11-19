@@ -56,6 +56,45 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public ulong GetChallengesChannelId(string division)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    return _statesByDivision.States1v1.ChallengesChannelId;
+
+                case "2v2":
+                    return _statesByDivision.States2v2.ChallengesChannelId;
+
+                case "3v3":
+                    return _statesByDivision.States3v3.ChallengesChannelId;
+
+                default:
+                    return 0;
+            }
+        }
+
+        public void SetChallengesChannelId(string division, ulong channelId)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    _statesByDivision.States1v1.ChallengesChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "2v2":
+                    _statesByDivision.States2v2.ChallengesChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "3v3":
+                    _statesByDivision.States3v3.ChallengesChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+            }
+        }
+
         public ulong GetStandingsChannelId(string division)
         {
             switch (division)

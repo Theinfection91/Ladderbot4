@@ -203,7 +203,7 @@ namespace Ladderbot4.Managers
             sb.AppendLine($"```\n");
             foreach (Challenge challenge in challenges)
             {
-                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created On: {challenge.CreatedOn}\n");
+                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created: {challenge.CreatedOn}\n");
             }
             sb.AppendLine("\n```");
 
