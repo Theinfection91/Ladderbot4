@@ -1,4 +1,5 @@
-﻿using Ladderbot4.Data;
+﻿using Discord.WebSocket;
+using Ladderbot4.Data;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -10,12 +11,15 @@ namespace Ladderbot4.Managers
 {
     public class ChallengeManager
     {
+        private DiscordSocketClient _client;
+
         private readonly ChallengeData _challengeData;
 
         private ChallengesByDivision _challengesByDivision;
 
-        public ChallengeManager(ChallengeData challengeData)
+        public ChallengeManager(ChallengeData challengeData, DiscordSocketClient client)
         {
+            _client = client;
             _challengeData = challengeData;
             _challengesByDivision = _challengeData.LoadAllChallenges();
         }
@@ -220,6 +224,34 @@ namespace Ladderbot4.Managers
                 _ => throw new ArgumentException($"Invalid division type given: {division}"),
             };
             ;
+        }
+
+        public async void SendChallengeNotification(ulong userId, Challenge challenge)
+        {
+            try
+            {
+                // Retrieve the user by ID
+                var user = await _client.GetUserAsync(userId);
+
+                if (user == null)
+                {
+                    Console.WriteLine($"User with ID {userId} not found.");
+                    return;
+                }
+
+                // Open a DM channel with the user
+                var dmChannel = await user.CreateDMChannelAsync();
+
+                // Send the message
+                string message = $"Your Team (Team {challenge.Challenged}) was challenged by Team {challenge.Challenger} in the {challenge.Division} division!";
+                await dmChannel.SendMessageAsync(message);
+
+                Console.WriteLine($"Message sent to user {user.Username} (ID: {userId}).");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send message to user {userId}: {ex.Message}");
+            }
         }
 
         public Challenge CreateChallengeObject(string division, string challenger, string challenged)

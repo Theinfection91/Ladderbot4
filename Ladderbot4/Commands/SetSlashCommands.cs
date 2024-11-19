@@ -47,5 +47,15 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.SetStandingsChannelIdProcess(division, channel);
             await RespondAsync(result);
         }
+
+        [SlashCommand("teams_channel_id", "For Admins to set the dynamic teams message.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task SetTeamsChannelIdAsync(
+            [Summary("division", "Which division channel to set.")] string division,
+            [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
+        {
+            string result = _ladderManager.SetTeamsChannelIdProcess(division, channel);
+            await RespondAsync(result);
+        }
     }
 }

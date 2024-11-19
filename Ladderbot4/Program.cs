@@ -169,5 +169,4 @@ namespace Ladderbot4
             return Task.CompletedTask;
         }
     }
-
 }

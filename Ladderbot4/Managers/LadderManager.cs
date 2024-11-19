@@ -43,6 +43,7 @@ namespace Ladderbot4.Managers
             // Begin Channel Update Tasks
             StartingChallengesTask();
             StartingStandingsTask();
+            StartingTeamsTask();
         }
         #endregion
 
@@ -59,7 +60,7 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(15));
                 await SendChallengesToChannelAsync();
             }
         }
@@ -94,7 +95,7 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the standings for the division
-                string standings = _challengeManager.GetChallengesData(division) + $"\n Updated: {DateTime.Now}";
+                string standings = _challengeManager.GetChallengesData(division) + $"Updated: {DateTime.Now}";
 
                 if (string.IsNullOrEmpty(standings))
                 {
@@ -150,7 +151,7 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(15));
                 await SendStandingsToChannelAsync();
             }
         }
@@ -185,7 +186,7 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the standings for the division
-                string standings = _teamManager.GetStandingsData(division) + $"\n Updated: {DateTime.Now}";
+                string standings = _teamManager.GetStandingsData(division) + $"Updated: {DateTime.Now}";
 
                 if (string.IsNullOrEmpty(standings))
                 {
@@ -232,6 +233,95 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region --Teams
+
+        public void StartingTeamsTask()
+        {
+            Task.Run(() => RunTeamsUpdateTaskAsync());
+        }
+
+        private async Task RunTeamsUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                await SendTeamsToChannelAsync();
+            }
+        }
+
+        private async Task SendTeamsToChannelAsync()
+        {
+            // Map divisions to their respective channel IDs
+            var divisionChannelMap = new Dictionary<string, ulong>
+            {
+                { "1v1", _statesManager.GetTeamsChannelId("1v1") },
+                { "2v2", _statesManager.GetTeamsChannelId("2v2") },
+                { "3v3", _statesManager.GetTeamsChannelId("3v3") }
+            };
+
+            foreach (var division in divisionChannelMap.Keys)
+            {
+                ulong channelId = divisionChannelMap[division];
+
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"Invalid channel ID for division {division}.");
+                    continue;
+                }
+
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+
+                if (channel == null)
+                {
+                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
+                    continue;
+                }
+
+                // Get the standings for the division
+                string standings = _teamManager.GetTeamsData(division) + $"Updated: {DateTime.Now}";
+
+                if (string.IsNullOrEmpty(standings))
+                {
+                    Console.WriteLine($"No teams data available for division {division}.");
+                    continue;
+                }
+
+                try
+                {
+                    // Check if a message already exists in the channel
+                    if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message
+                            await existingMessage.ModifyAsync(msg => msg.Content = standings);
+                            Console.WriteLine($"Teams updated in channel {channelId} for {division} division.");
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(standings);
+                            _teamsMessageMap[channelId] = newMessage.Id;
+                            Console.WriteLine($"Teams sent to channel {channelId} for {division} division.");
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(standings);
+                        _teamsMessageMap[channelId] = newMessage.Id;
+                        Console.WriteLine($"Teams sent to channel {channelId} for {division} division.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
+                }
+            }
+        }
 
         #endregion
 
@@ -427,6 +517,15 @@ namespace Ladderbot4.Managers
 
                                     // Save and reload Challenges database
                                     _challengeManager.SaveAndReloadChallenges();
+
+                                    // Grab new Challenge object reference
+                                    Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
+
+                                    // TODO - Send challenged notification
+                                    foreach (Member member in objectChallengedTeam.Members)
+                                    {
+                                        _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge);
+                                    }
 
                                     return $"```Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
                                 }
@@ -844,6 +943,39 @@ namespace Ladderbot4.Managers
                     {
                         _statesManager.SetStandingsChannelId(division, channel.Id);
                         return $"{channel.Id} was set for {division} Standings.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                default:
+                    return "Incorrect division type given.";
+            }
+        }
+
+        public string SetTeamsChannelIdProcess(string division, IMessageChannel channel)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetTeamsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Teams.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "2v2":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetTeamsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Teams.";
+                    }
+                    return $"{channel.Id} is incorrect for a channel Id.";
+
+                case "3v3":
+                    if (channel.Id != 0)
+                    {
+                        _statesManager.SetTeamsChannelId(division, channel.Id);
+                        return $"{channel.Id} was set for {division} Teams.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
 

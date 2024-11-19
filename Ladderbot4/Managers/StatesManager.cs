@@ -134,6 +134,45 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public ulong GetTeamsChannelId(string division)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    return _statesByDivision.States1v1.TeamsChannelId;
+
+                case "2v2":
+                    return _statesByDivision.States2v2.TeamsChannelId;
+
+                case "3v3":
+                    return _statesByDivision.States3v3.TeamsChannelId;
+
+                default:
+                    return 0;
+            }
+        }
+
+        public void SetTeamsChannelId(string division, ulong channelId)
+        {
+            switch (division)
+            {
+                case "1v1":
+                    _statesByDivision.States1v1.TeamsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "2v2":
+                    _statesByDivision.States2v2.TeamsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+
+                case "3v3":
+                    _statesByDivision.States3v3.TeamsChannelId = channelId;
+                    SaveAndReloadStatesDatabase();
+                    break;
+            }
+        }
+
         public void SetLadderRunning(string division, bool trueOrFalse)
         {
             switch (division)
