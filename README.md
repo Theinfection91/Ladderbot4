@@ -12,11 +12,6 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ## Features
 
 ### Key Functionalities:
-  
-- **Logging System** (Enhanced):
-  - Logs command invocations, parameters, and errors in `ladderbot.log`.
-  - Log files auto-rotate at 5MB with up to 5 backup copies.
-  - Plans to integrate bot commands to filter and view logs dynamically in Discord.
 
 - **Ladder Management**:
   - Admins can start and end ladders for specific divisions (e.g., 1v1, 2v2, 3v3).
@@ -32,7 +27,7 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
   - Command-based reporting for match results that automatically update standings and rankings.
   - Admin commands to adjust results, ranks, and other metrics manually.
 
-- **Standings and Challenges Channels**:
+- **Standings, Challenges, Teams Channels**:
   - Post real-time standings and active challenges to designated channels.
   - Automatically update standings and challenge information.
 
