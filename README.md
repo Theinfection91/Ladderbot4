@@ -9,6 +9,46 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 
 ---
 
+## Rules of the Ladder System
+
+### Team Rank Assignments
+1. **New Teams**:
+   - Teams are assigned ranks based on the order they are created in a division.
+     - First team: Rank 1.
+     - Second team: Rank 2.
+     - Subsequent teams are assigned incrementally lower ranks.
+   
+2. **Divisions**:
+   - The bot supports concurrent ladders for the following divisions:
+     - **1v1**
+     - **2v2**
+     - **3v3**
+
+### Challenges and Rank Changes
+1. **Who Can Be Challenged**:
+   - Teams **cannot challenge below their rank**.
+   - Teams may only challenge **up to 2 ranks above them**.
+     - Example: Rank 4 can challenge Rank 3 and Rank 2, but not Rank 1.
+
+2. **Challenge Outcomes**:
+   - **If the challenger wins**:
+     - The challenger team takes the rank of the defeated team.
+     - The defeated team is pushed **down one rank**, and all other teams below them are adjusted accordingly.
+     - Example:
+       - Rank 4 defeats Rank 2 → Rank 4 becomes Rank 2, Rank 2 becomes Rank 3, and Rank 3 becomes Rank 4.
+   - **If the challenger loses**:
+     - No rank changes occur.
+     - The standings remain the same.
+
+3. **Rank Swapping**:
+   - If the challenger defeats the team directly above them, their ranks are swapped.
+     - Example: Rank 4 defeats Rank 3 → Rank 4 becomes Rank 3, and Rank 3 becomes Rank 4.
+
+4. **Challenge Limitations**:
+   - Teams may only have **one active challenge** at a time.
+
+---
+
 ## Features
 
 ### Key Functionalities:
