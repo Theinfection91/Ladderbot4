@@ -3,9 +3,9 @@
 ## Overview
 **Ladderbot4** is a robust and feature-rich Discord bot designed for managing competitive ladders in various divisions. This C# implementation significantly enhances performance and maintainability over its predecessor, Ladderbot3.0, leveraging dependency injection, a more modular architecture, and improved command handling like **SlashCommands** to add a more interactive experience and reduce errors.
 
-SlashCommand Example 1: ![SlashCommand Example 1](examples/example1.png)
+![SlashCommand Example 1](examples/example1.png)
 
-SlashCommand Example 2: ![SlashCommand Example 2](examples/example2.png)
+![SlashCommand Example 2](examples/example2.png)
 
 Ladderbot4 is still under active development, but it offers a stable foundation with exciting new features and improvements to come over previous versions. Feedback and suggestions are always welcome to further refine and expand its capabilities.
 
