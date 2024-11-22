@@ -17,6 +17,7 @@ namespace Ladderbot4.Managers
         #region Properties and Constructor
         // Sub-Managers
         private readonly DiscordSocketClient _client;
+        private readonly GitBackupManager _backupManager;
         private readonly HistoryManager _historyManager;
         private readonly TeamManager _teamManager;
         private readonly MemberManager _memberManager;
@@ -30,9 +31,10 @@ namespace Ladderbot4.Managers
         private readonly Dictionary<ulong, ulong> _teamsMessageMap = new();
 
 
-        public LadderManager(DiscordSocketClient client, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
+        public LadderManager(DiscordSocketClient client, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _client = client;
+            _backupManager = gitBackupManager;
             _historyManager = historyManager;
             _teamManager = teamManager;
             _memberManager = memberManager;
