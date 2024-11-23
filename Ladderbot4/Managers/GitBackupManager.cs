@@ -8,14 +8,14 @@ namespace Ladderbot4.Managers
     public class GitBackupManager
     {
         private string _repoPath;
-        private readonly string _remoteUrl = "";
+        private readonly string _remoteUrl = Token.gitRemoteUrlPath;
         private readonly string _token = Token.gitPatToken;
 
         public GitBackupManager()
         {
             Console.WriteLine("GitBackupManager init");
             SetRepoFilePath();
-            CloneRepository();
+            InitializeRepository();
         }
 
         private void SetRepoFilePath()
@@ -38,52 +38,39 @@ namespace Ladderbot4.Managers
             }
         }
 
-        private void CloneRepository()
+        public void InitializeRepository()
         {
-            if (System.IO.Directory.GetFiles(_repoPath).Length > 0)
+            if (!Repository.IsValid(_repoPath))
             {
-                Console.WriteLine("Repository already cloned.");
-                return;
-            }
-
-            Console.WriteLine("Cloning repository using Git...");
-            try
-            {
-                // Prepare the Git command
-                string gitCommand = $"";
-
-                // Start a new process to execute the Git command
-                ProcessStartInfo processInfo = new ProcessStartInfo("git", gitCommand)
+                Console.WriteLine("Cloning repository...");
+                try
                 {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using (Process process = Process.Start(processInfo))
+                    var options = new CloneOptions
+                    {
+                        FetchOptions =
+                        {
+                            CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
+                            {
+                                Username = "Ixnay",
+                                Password = _token
+                            }
+                        }
+                    };
+                    Repository.Clone(_remoteUrl, _repoPath, options);
+                    Console.WriteLine("Repository cloned successfully.");
+                }
+                catch (LibGit2SharpException ex)
                 {
-                    string output = process.StandardOutput.ReadToEnd();
-                    string error = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-
-                    if (process.ExitCode == 0)
-                    {
-                        Console.WriteLine("Repository cloned successfully.");
-                        Console.WriteLine(output);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error cloning repository:");
-                        Console.WriteLine(error);
-                    }
+                    Console.WriteLine($"Error cloning repository: {ex.Message}");
+                    throw; // Re-throw for visibility if debugging
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Failed to clone repository: {ex.Message}");
+                Console.WriteLine("Repository already initialized.");
             }
         }
+
 
         public void BackupFiles(string[] files)
         {
