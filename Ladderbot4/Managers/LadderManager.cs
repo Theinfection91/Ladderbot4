@@ -336,6 +336,9 @@ namespace Ladderbot4.Managers
                 // Save and reload the database
                 _statesManager.SaveAndReloadStatesDatabase();
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return $"```The ladder in the {division} division has started!```";
             }
             else
@@ -356,6 +359,9 @@ namespace Ladderbot4.Managers
 
                 // Save and reload the database
                 _statesManager.SaveAndReloadStatesDatabase();
+
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
 
                 return $"```The ladder in the {division} division has ended!```";
             }
@@ -519,6 +525,9 @@ namespace Ladderbot4.Managers
                                     // Save and reload Challenges database
                                     _challengeManager.SaveAndReloadChallenges();
 
+                                    // Backup the database to Git
+                                    _backupManager.CopyAndBackupFilesToGit();
+
                                     // Grab new Challenge object reference
                                     Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
 
@@ -595,6 +604,9 @@ namespace Ladderbot4.Managers
                         // Save and reload Challenges database
                         _challengeManager.SaveAndReloadChallenges();
 
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank}) has canceled the challenge they sent out in the {challengerTeamObject.Division} division.```";
                     }
                     else
@@ -645,6 +657,9 @@ namespace Ladderbot4.Managers
 
                                 // Save and reload Challenges database
                                 _challengeManager.SaveAndReloadChallenges();
+
+                                // Backup the database to Git
+                                _backupManager.CopyAndBackupFilesToGit();
 
                                 return $"```An Admin({context.User.GlobalName}) has initiated a challenge: Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
                             }
@@ -703,6 +718,9 @@ namespace Ladderbot4.Managers
 
                     // Save and reload Challenges database
                     _challengeManager.SaveAndReloadChallenges();
+
+                    // Backup the database to Git
+                    _backupManager.CopyAndBackupFilesToGit();
 
                     return $"```Team {challengerTeamObject.TeamName}(#{challengerTeamObject.Rank})'s challenge in the {challengerTeamObject.Division} division has been canceled by an Admin ({context.User.GlobalName})```";
                 }
@@ -773,6 +791,10 @@ namespace Ladderbot4.Managers
 
                             // Remove the challenge
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+
+                            // Backup the database to Git
+                            _backupManager.CopyAndBackupFilesToGit();
+
                             return $"```Team {winningTeam.TeamName} has won the challenge they initiated against Team {losingTeam.TeamName} in the {winningTeam.Division} division and taken their rank of (#{winningTeam.Rank})! Team {losingTeam.TeamName} drops down one in the ranks to (#{losingTeam.Rank}). All other ranks are adjusted accordingly.```";
                         }
                         // If winningTeam is challenged, no rank change will occur
@@ -787,6 +809,10 @@ namespace Ladderbot4.Managers
 
                             // If the challenged team wins, no rank change
                             _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+
+                            // Backup the database to Git
+                            _backupManager.CopyAndBackupFilesToGit();
+
                             return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank in the {winningTeam.Division} division. No rank change has occured.```";
                         }
                     }
@@ -878,6 +904,9 @@ namespace Ladderbot4.Managers
                 // Save and reload the teams database
                 _teamManager.SaveAndReloadTeamsDatabase();
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return $"```Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.```";
             }
             return $"```The given team name was not found in the database: {teamName}.```";
@@ -894,6 +923,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetChallengesChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Challenges.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -902,6 +935,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetChallengesChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Challenges.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -910,6 +947,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetChallengesChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Challenges.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -927,6 +968,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetStandingsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Standings.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -935,6 +980,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetStandingsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Standings.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -943,6 +992,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetStandingsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Standings.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -960,6 +1013,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetTeamsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Teams.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -968,6 +1025,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetTeamsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Teams.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
@@ -976,6 +1037,10 @@ namespace Ladderbot4.Managers
                     if (channel.Id != 0)
                     {
                         _statesManager.SetTeamsChannelId(division, channel.Id);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"{channel.Id} was set for {division} Teams.";
                     }
                     return $"{channel.Id} is incorrect for a channel Id.";
