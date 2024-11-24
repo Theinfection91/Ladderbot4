@@ -46,6 +46,9 @@ namespace Ladderbot4.Managers
             StartingChallengesTask();
             StartingStandingsTask();
             StartingTeamsTask();
+
+            // Start Automated Backup Task
+            StartAutomatedBackupTask();
         }
         #endregion
 
@@ -56,6 +59,27 @@ namespace Ladderbot4.Managers
             _backupManager.CopyJsonFilesToBackupRepo();
             _backupManager.BackupFiles();
             return "Executed BackupFiles()";
+        }
+
+        public void StartAutomatedBackupTask()
+        {
+            Task.Run(() => RunAutomatedBackupTaskAsync());
+        }
+
+        private async Task RunAutomatedBackupTaskAsync()
+        {
+            while (true)
+            {
+                // Default time between automated backup is 60 minutes
+                await Task.Delay(TimeSpan.FromMinutes(60));
+                await SendBackupRepoToGitRepo();
+            }
+        }
+
+        private async Task SendBackupRepoToGitRepo()
+        {
+            _backupManager.CopyJsonFilesToBackupRepo();
+            _backupManager.ForceBackupFiles();
         }
 
         #endregion

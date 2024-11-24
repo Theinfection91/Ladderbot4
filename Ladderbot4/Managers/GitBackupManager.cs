@@ -101,8 +101,6 @@ namespace Ladderbot4.Managers
                             {
                                 sourceStream.CopyTo(destinationStream);
                             }
-
-                            Console.WriteLine($"{DateTime.Now} - GitBackupManager - Backed up {jsonFile} to {destinationPath}");
                         }
                         catch (IOException ex)
                         {
@@ -187,8 +185,6 @@ namespace Ladderbot4.Managers
         {
             using (var repo = new Repository(_repoPath))
             {
-                Console.WriteLine("Staging all files in the repository directory...");
-
                 // Get all files in the repository directory
                 var files = Directory.GetFiles(_repoPath, "*", SearchOption.AllDirectories);
 
@@ -199,10 +195,7 @@ namespace Ladderbot4.Managers
 
                     // Stage the file
                     LibGit2Sharp.Commands.Stage(repo, file);
-                    Console.WriteLine($"Staged: {file}");
                 }
-
-                Console.WriteLine("Creating a commit...");
 
                 // Create a commit with the current timestamp
                 Signature author = new Signature("Ladderbot4", "ladderbot4@bot.com", DateTimeOffset.Now);
@@ -215,21 +208,17 @@ namespace Ladderbot4.Managers
                         new CommitOptions { AllowEmptyCommit = true } // Force empty commits
                     );
 
-                    Console.WriteLine($"Commit created: {commit.Sha}");
-
                     // Push changes to the remote repository
                     var options = new PushOptions
                     {
                         CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
                         {
-                            Username = "Ixnay", // Can be any string
+                            Username = "Ladderbot4",
                             Password = _token
                         }
                     };
-
-                    Console.WriteLine("Pushing changes to the remote repository...");
                     repo.Network.Push(repo.Branches["main"], options);
-                    Console.WriteLine("Backup completed successfully.");
+                    Console.WriteLine($"{DateTime.Now} GitBackupManager - Automated Backup pushed successfully.");
                 }
                 catch (LibGit2Sharp.EmptyCommitException)
                 {
