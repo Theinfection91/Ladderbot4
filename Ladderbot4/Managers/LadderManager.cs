@@ -49,6 +49,17 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region TODO - Automated/Event Driven Backup Logic
+
+        public string ManualBackupProcess()
+        {
+            _backupManager.CopyJsonFilesToBackupRepo();
+            _backupManager.BackupFiles();
+            return "Executed BackupFiles()";
+        }
+
+        #endregion
+
         #region TODO - Channel Tasks Logic
 
         #region --Challenges
@@ -83,7 +94,6 @@ namespace Ladderbot4.Managers
 
                 if (channelId == 0)
                 {
-                    Console.WriteLine($"Invalid channel ID for division {division}.");
                     continue;
                 }
 
@@ -92,7 +102,6 @@ namespace Ladderbot4.Managers
 
                 if (channel == null)
                 {
-                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
                     continue;
                 }
 
@@ -101,7 +110,6 @@ namespace Ladderbot4.Managers
 
                 if (string.IsNullOrEmpty(standings))
                 {
-                    Console.WriteLine($"No challenges data available for division {division}.");
                     continue;
                 }
 
@@ -117,14 +125,12 @@ namespace Ladderbot4.Managers
                         {
                             // Edit the existing message
                             await existingMessage.ModifyAsync(msg => msg.Content = standings);
-                            Console.WriteLine($"Challenges updated in channel {channelId} for {division} division.");
                         }
                         else
                         {
                             // Message was deleted, send a new one
                             var newMessage = await channel.SendMessageAsync(standings);
                             _standingsMessageMap[channelId] = newMessage.Id;
-                            Console.WriteLine($"Challenges sent to channel {channelId} for {division} division.");
                         }
                     }
                     else
@@ -132,7 +138,6 @@ namespace Ladderbot4.Managers
                         // No existing message, send a new one
                         var newMessage = await channel.SendMessageAsync(standings);
                         _standingsMessageMap[channelId] = newMessage.Id;
-                        Console.WriteLine($"Challenges sent to channel {channelId} for {division} division.");
                     }
                 }
                 catch (Exception ex)
@@ -174,7 +179,6 @@ namespace Ladderbot4.Managers
 
                 if (channelId == 0)
                 {
-                    Console.WriteLine($"Invalid channel ID for division {division}.");
                     continue;
                 }
 
@@ -183,7 +187,6 @@ namespace Ladderbot4.Managers
 
                 if (channel == null)
                 {
-                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
                     continue;
                 }
 
@@ -192,7 +195,6 @@ namespace Ladderbot4.Managers
 
                 if (string.IsNullOrEmpty(standings))
                 {
-                    Console.WriteLine($"No standings data available for division {division}.");
                     continue;
                 }
 
@@ -208,14 +210,12 @@ namespace Ladderbot4.Managers
                         {
                             // Edit the existing message
                             await existingMessage.ModifyAsync(msg => msg.Content = standings);
-                            Console.WriteLine($"Standings updated in channel {channelId} for {division} division.");
                         }
                         else
                         {
                             // Message was deleted, send a new one
                             var newMessage = await channel.SendMessageAsync(standings);
                             _standingsMessageMap[channelId] = newMessage.Id;
-                            Console.WriteLine($"Standings sent to channel {channelId} for {division} division.");
                         }
                     }
                     else
@@ -223,7 +223,6 @@ namespace Ladderbot4.Managers
                         // No existing message, send a new one
                         var newMessage = await channel.SendMessageAsync(standings);
                         _standingsMessageMap[channelId] = newMessage.Id;
-                        Console.WriteLine($"Standings sent to channel {channelId} for {division} division.");
                     }
                 }
                 catch (Exception ex)
@@ -266,7 +265,6 @@ namespace Ladderbot4.Managers
 
                 if (channelId == 0)
                 {
-                    Console.WriteLine($"Invalid channel ID for division {division}.");
                     continue;
                 }
 
@@ -275,7 +273,6 @@ namespace Ladderbot4.Managers
 
                 if (channel == null)
                 {
-                    Console.WriteLine($"Channel with ID {channelId} not found or is not a message channel.");
                     continue;
                 }
 
@@ -284,7 +281,6 @@ namespace Ladderbot4.Managers
 
                 if (string.IsNullOrEmpty(standings))
                 {
-                    Console.WriteLine($"No teams data available for division {division}.");
                     continue;
                 }
 
@@ -300,14 +296,12 @@ namespace Ladderbot4.Managers
                         {
                             // Edit the existing message
                             await existingMessage.ModifyAsync(msg => msg.Content = standings);
-                            Console.WriteLine($"Teams updated in channel {channelId} for {division} division.");
                         }
                         else
                         {
                             // Message was deleted, send a new one
                             var newMessage = await channel.SendMessageAsync(standings);
                             _teamsMessageMap[channelId] = newMessage.Id;
-                            Console.WriteLine($"Teams sent to channel {channelId} for {division} division.");
                         }
                     }
                     else
@@ -315,7 +309,6 @@ namespace Ladderbot4.Managers
                         // No existing message, send a new one
                         var newMessage = await channel.SendMessageAsync(standings);
                         _teamsMessageMap[channelId] = newMessage.Id;
-                        Console.WriteLine($"Teams sent to channel {channelId} for {division} division.");
                     }
                 }
                 catch (Exception ex)
@@ -414,6 +407,9 @@ namespace Ladderbot4.Managers
                         // Save and reload database
                         _teamManager.SaveAndReloadTeamsDatabase();
 
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
                         return $"```Team {newTeam.TeamName}(#{newTeam.Rank}) has been created in the {divisionType} division with the following member(s): {newTeam.GetAllMemberNamesToStr()}```";
                     }
                     else
@@ -458,6 +454,9 @@ namespace Ladderbot4.Managers
 
                 // Save and reload database
                 _teamManager.SaveAndReloadTeamsDatabase();
+
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
 
                 return $"```Team {teamReference.TeamName} removed from {teamReference.Division} division.```";
 

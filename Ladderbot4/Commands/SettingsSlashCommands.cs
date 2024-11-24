@@ -45,5 +45,13 @@ namespace Ladderbot4.Commands
             string result = _ladderManager.RemoveSuperAdminIdProcess(user);
             await RespondAsync(result);
         }
+
+        [SlashCommand("manual_backup_db", "Manually backs up the database to the github repo")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task ManualBackupDatabaseAsync()
+        {
+            string result = _ladderManager.ManualBackupProcess();
+            await RespondAsync(result);
+        }
     }
 }

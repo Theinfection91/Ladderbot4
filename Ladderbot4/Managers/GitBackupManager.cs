@@ -10,12 +10,14 @@ namespace Ladderbot4.Managers
         private string _repoPath;
         private readonly string _remoteUrl = Token.gitRemoteUrlPath;
         private readonly string _token = Token.gitPatToken;
+        private readonly string _databasesFolderPath;
 
         public GitBackupManager()
         {
             Console.WriteLine("GitBackupManager init");
             SetRepoFilePath();
             InitializeRepository();
+            _databasesFolderPath = SetDatabasesFolders();
         }
 
         private void SetRepoFilePath()
@@ -38,7 +40,7 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void InitializeRepository()
+        private void InitializeRepository()
         {
             if (!Repository.IsValid(_repoPath))
             {
@@ -51,7 +53,7 @@ namespace Ladderbot4.Managers
                         {
                             CredentialsProvider = (_url, _user, _cred) => new UsernamePasswordCredentials
                             {
-                                Username = "Ixnay",
+                                Username = "Ladderbot4",
                                 Password = _token
                             }
                         }
@@ -71,44 +73,172 @@ namespace Ladderbot4.Managers
             }
         }
 
+        private string SetDatabasesFolders()
+        {
+            string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-        public void BackupFiles(string[] files)
+            return Path.Combine(appBaseDirectory, "Databases");
+        }
+
+        public void CopyJsonFilesToBackupRepo()
+        {
+            try
+            {
+                if (Directory.Exists(_databasesFolderPath))
+                {
+                    var jsonFiles = Directory.GetFiles(_databasesFolderPath, "*.json", SearchOption.TopDirectoryOnly);
+
+                    foreach (var jsonFile in jsonFiles)
+                    {
+                        string fileName = Path.GetFileName(jsonFile);
+                        string destinationPath = Path.Combine(_repoPath, fileName);
+
+                        try
+                        {
+                            // Copy the file even if it's in use
+                            using (FileStream sourceStream = new FileStream(jsonFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            using (FileStream destinationStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                            {
+                                sourceStream.CopyTo(destinationStream);
+                            }
+
+                            Console.WriteLine($"{DateTime.Now} - GitBackupManager - Backed up {jsonFile} to {destinationPath}");
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine($"Error copying file {jsonFile}: {ex.Message}");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error during backup process: {ex.Message}");
+            }
+        }
+
+
+        public void BackupFiles()
         {
             using (var repo = new Repository(_repoPath))
             {
+                Console.WriteLine("Staging all files in the repository directory...");
+
+                // Get all files in the repository directory
+                var files = Directory.GetFiles(_repoPath, "*", SearchOption.AllDirectories);
+
                 foreach (var file in files)
                 {
-                    string fullPath = Path.Combine(_repoPath, file);
-                    if (File.Exists(fullPath))
-                    {
-                        LibGit2Sharp.Commands.Stage(repo, fullPath);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Warning: {file} does not exist and will be skipped.");
-                    }
+                    // Skip Git metadata files
+                    if (file.Contains(".git")) continue;
+
+                    // Stage the file
+                    LibGit2Sharp.Commands.Stage(repo, file);
+                    Console.WriteLine($"Staged: {file}");
                 }
 
+                // Check if there are any changes to commit
                 if (repo.RetrieveStatus().IsDirty)
                 {
-                    Signature author = new Signature("Ladderbot4", "ladderbot4@bot.com", DateTimeOffset.Now);
-                    Commit commit = repo.Commit("Backup: Update data files", author, author);
+                    Console.WriteLine("Changes detected. Creating a commit...");
 
+                    // Create a commit with the current timestamp
+                    Signature author = new Signature("Ladderbot4", "ladderbot4@bot.com", DateTimeOffset.Now);
+                    Commit commit = repo.Commit($"Backup: Update data files ({DateTime.Now})", author, author);
+
+                    Console.WriteLine($"Commit created: {commit.Sha}");
+
+                    // Push changes to the remote repository
                     var options = new PushOptions
                     {
                         CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
                         {
-                            Username = "Ixnay", // Can be anything
+                            Username = "Ladderbot4",
                             Password = _token
                         }
                     };
 
-                    repo.Network.Push(repo.Branches["main"], options);
-                    Console.WriteLine("Backup completed successfully.");
+                    try
+                    {
+                        Console.WriteLine("Pushing changes to the remote repository...");
+                        repo.Network.Push(repo.Branches["main"], options);
+                        Console.WriteLine("Backup completed successfully.");
+                    }
+                    catch (LibGit2SharpException ex)
+                    {
+                        Console.WriteLine($"Error during push: {ex.Message}");
+                        throw;
+                    }
                 }
                 else
                 {
                     Console.WriteLine("No changes detected; nothing to backup.");
+                }
+            }
+        }
+
+        public void CopyAndBackupFilesToGit()
+        {
+            CopyJsonFilesToBackupRepo();
+            BackupFiles();
+        }
+
+        public void ForceBackupFiles()
+        {
+            using (var repo = new Repository(_repoPath))
+            {
+                Console.WriteLine("Staging all files in the repository directory...");
+
+                // Get all files in the repository directory
+                var files = Directory.GetFiles(_repoPath, "*", SearchOption.AllDirectories);
+
+                foreach (var file in files)
+                {
+                    // Skip Git metadata files
+                    if (file.Contains(".git")) continue;
+
+                    // Stage the file
+                    LibGit2Sharp.Commands.Stage(repo, file);
+                    Console.WriteLine($"Staged: {file}");
+                }
+
+                Console.WriteLine("Creating a commit...");
+
+                // Create a commit with the current timestamp
+                Signature author = new Signature("Ladderbot4", "ladderbot4@bot.com", DateTimeOffset.Now);
+                try
+                {
+                    Commit commit = repo.Commit(
+                        $"Backup: Commit at {DateTime.Now}",
+                        author,
+                        author,
+                        new CommitOptions { AllowEmptyCommit = true } // Force empty commits
+                    );
+
+                    Console.WriteLine($"Commit created: {commit.Sha}");
+
+                    // Push changes to the remote repository
+                    var options = new PushOptions
+                    {
+                        CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
+                        {
+                            Username = "Ixnay", // Can be any string
+                            Password = _token
+                        }
+                    };
+
+                    Console.WriteLine("Pushing changes to the remote repository...");
+                    repo.Network.Push(repo.Branches["main"], options);
+                    Console.WriteLine("Backup completed successfully.");
+                }
+                catch (LibGit2Sharp.EmptyCommitException)
+                {
+                    Console.WriteLine("No changes; empty commit was skipped.");
+                }
+                catch (LibGit2SharpException ex)
+                {
+                    Console.WriteLine($"Error during push: {ex.Message}");
+                    throw;
                 }
             }
         }
