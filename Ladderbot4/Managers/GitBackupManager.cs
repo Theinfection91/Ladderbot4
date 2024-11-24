@@ -7,44 +7,44 @@ namespace Ladderbot4.Managers
 {
     public class GitBackupManager
     {
-        private string _repoPath;
+        private readonly string _repoPath;
         private readonly string _remoteUrl = Token.gitRemoteUrlPath;
         private readonly string _token = Token.gitPatToken;
         private readonly string _databasesFolderPath;
 
         public GitBackupManager()
         {
-            Console.WriteLine("GitBackupManager init");
-            SetRepoFilePath();
+            // Set BackupRepo file path and init repo if necessary
+            _repoPath = SetRepoFilePath();
             InitializeRepository();
+
+            // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
         }
 
-        private void SetRepoFilePath()
+        private string SetRepoFilePath()
         {
             // Set the file path relative to the base directory of the executable
             string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             // Construct a path in a "BackupRepo" folder within the base directory
-            _repoPath = Path.Combine(appBaseDirectory, "BackupRepo");
+            string repoPath = Path.Combine(appBaseDirectory, "BackupRepo");
 
             // Ensure the directory exists
-            if (!Directory.Exists(_repoPath))
+            if (!Directory.Exists(repoPath))
             {
-                Directory.CreateDirectory(_repoPath); // Create the directory if it doesn't exist
-                Console.WriteLine($"Directory created: {_repoPath}");
+                Directory.CreateDirectory(repoPath); // Create the directory if it doesn't exist
+                Console.WriteLine($"{DateTime.Now} - Directory created: {_repoPath}");
             }
-            else
-            {
-                Console.WriteLine($"Directory already exists: {_repoPath}");
-            }
+
+            return repoPath;
         }
 
         private void InitializeRepository()
         {
             if (!Repository.IsValid(_repoPath))
             {
-                Console.WriteLine("Cloning repository...");
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Cloning repository...");
                 try
                 {
                     var options = new CloneOptions
@@ -59,17 +59,12 @@ namespace Ladderbot4.Managers
                         }
                     };
                     Repository.Clone(_remoteUrl, _repoPath, options);
-                    Console.WriteLine("Repository cloned successfully.");
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Repository cloned successfully.");
                 }
                 catch (LibGit2SharpException ex)
                 {
-                    Console.WriteLine($"Error cloning repository: {ex.Message}");
-                    throw; // Re-throw for visibility if debugging
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error cloning repository: {ex.Message}");
                 }
-            }
-            else
-            {
-                Console.WriteLine("Repository already initialized.");
             }
         }
 
@@ -104,7 +99,7 @@ namespace Ladderbot4.Managers
                         }
                         catch (IOException ex)
                         {
-                            Console.WriteLine($"Error copying file {jsonFile}: {ex.Message}");
+                            Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error copying file {jsonFile}: {ex.Message}");
                         }
                     }
                 }
@@ -120,8 +115,6 @@ namespace Ladderbot4.Managers
         {
             using (var repo = new Repository(_repoPath))
             {
-                Console.WriteLine("Staging all files in the repository directory...");
-
                 // Get all files in the repository directory
                 var files = Directory.GetFiles(_repoPath, "*", SearchOption.AllDirectories);
 
@@ -132,19 +125,14 @@ namespace Ladderbot4.Managers
 
                     // Stage the file
                     LibGit2Sharp.Commands.Stage(repo, file);
-                    Console.WriteLine($"Staged: {file}");
                 }
 
                 // Check if there are any changes to commit
                 if (repo.RetrieveStatus().IsDirty)
                 {
-                    Console.WriteLine("Changes detected. Creating a commit...");
-
                     // Create a commit with the current timestamp
                     Signature author = new Signature("Ladderbot4", "ladderbot4@bot.com", DateTimeOffset.Now);
                     Commit commit = repo.Commit($"Backup: Update data files ({DateTime.Now})", author, author);
-
-                    Console.WriteLine($"Commit created: {commit.Sha}");
 
                     // Push changes to the remote repository
                     var options = new PushOptions
@@ -158,19 +146,17 @@ namespace Ladderbot4.Managers
 
                     try
                     {
-                        Console.WriteLine("Pushing changes to the remote repository...");
                         repo.Network.Push(repo.Branches["main"], options);
-                        Console.WriteLine("Backup completed successfully.");
+                        Console.WriteLine($"{DateTime.Now} - GitBackupManager - Backup pushed successfully.");
                     }
                     catch (LibGit2SharpException ex)
                     {
                         Console.WriteLine($"Error during push: {ex.Message}");
-                        throw;
                     }
                 }
                 else
                 {
-                    Console.WriteLine("No changes detected; nothing to backup.");
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - No changes detected; nothing to backup.");
                 }
             }
         }
@@ -222,12 +208,11 @@ namespace Ladderbot4.Managers
                 }
                 catch (LibGit2Sharp.EmptyCommitException)
                 {
-                    Console.WriteLine("No changes; empty commit was skipped.");
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - No changes; empty commit was skipped.");
                 }
                 catch (LibGit2SharpException ex)
                 {
-                    Console.WriteLine($"Error during push: {ex.Message}");
-                    throw;
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error during push: {ex.Message}");
                 }
             }
         }
