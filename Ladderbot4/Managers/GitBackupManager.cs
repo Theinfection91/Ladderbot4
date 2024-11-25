@@ -44,7 +44,7 @@ namespace Ladderbot4.Managers
         {
             if (!Repository.IsValid(_repoPath))
             {
-                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Cloning repository...");
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - No local repo found. Cloning repository...");
                 try
                 {
                     var options = new CloneOptions

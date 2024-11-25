@@ -52,14 +52,7 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
-        #region TODO - Automated/Event Driven Backup Logic
-
-        public string ManualBackupProcess()
-        {
-            _backupManager.CopyJsonFilesToBackupRepo();
-            _backupManager.BackupFiles();
-            return "Executed BackupFiles()";
-        }
+        #region Automated Backup Logic
 
         public void StartAutomatedBackupTask()
         {
@@ -84,7 +77,7 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region TODO - Channel Tasks Logic
+        #region Channel Tasks Logic
 
         #region --Challenges
 
@@ -1093,6 +1086,9 @@ namespace Ladderbot4.Managers
                 // Save and reload teams database
                 _teamManager.SaveAndReloadTeamsDatabase();
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return $"```Team {team.TeamName} has had {numberOfWins} win(s) added to their win count by an Admin({context.User.GlobalName})```";
             }
             return $"```Given team name not found in the database: {teamName} - Please try again.```";
@@ -1115,6 +1111,9 @@ namespace Ladderbot4.Managers
 
                     // Save and reload teams database
                     _teamManager.SaveAndReloadTeamsDatabase();
+
+                    // Backup the database to Git
+                    _backupManager.CopyAndBackupFilesToGit();
 
                     return $"```Team {team.TeamName} has had {numberOfWins} win(s) subtracted from their win count by an Admin({context.User.GlobalName})```";
                 }
@@ -1141,6 +1140,9 @@ namespace Ladderbot4.Managers
                 // Save and reload teams database
                 _teamManager.SaveAndReloadTeamsDatabase();
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) added to their losses count by an Admin({context.User.GlobalName})```";
             }
             return $"```Given team name not found in the database: {teamName} - Please try again.```";
@@ -1163,6 +1165,9 @@ namespace Ladderbot4.Managers
 
                     // Save and reload teams database
                     _teamManager.SaveAndReloadTeamsDatabase();
+
+                    // Backup the database to Git
+                    _backupManager.CopyAndBackupFilesToGit();
 
                     return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) subtracted from their losses count by an Admin({context.User.GlobalName})```";
                 }
