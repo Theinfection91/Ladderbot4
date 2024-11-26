@@ -13,6 +13,8 @@ namespace Ladderbot4.Models
         public string CommandPrefix { get; set; } = "/";
         public bool SuperAdminMode { get; set; } = false;
         public List<ulong> SuperAdminDiscordIds { get; set; } = [];
+        public string GitPatToken { get; set; } = "ENTER_GIT_PAT_TOKEN_HERE";
+        public string GitUrlPath { get; set; } = "https://github.com/YourUsername/YourGitStorageRepo.git";
 
         public Settings()
         { 

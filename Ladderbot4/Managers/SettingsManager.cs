@@ -1,4 +1,5 @@
-﻿using Ladderbot4.Data;
+﻿using Discord.WebSocket;
+using Ladderbot4.Data;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,13 @@ namespace Ladderbot4.Managers
 {
     public class SettingsManager
     {
+        private DiscordSocketClient _client;
         private readonly SettingsData _settingsData;
         public Settings Settings { get; set; }
 
-        public SettingsManager(SettingsData settingsData)
+        public SettingsManager(DiscordSocketClient client, SettingsData settingsData)
         {
+            _client = client;
             _settingsData = settingsData;
             Settings = _settingsData.LoadSettings();
         }
@@ -54,6 +57,11 @@ namespace Ladderbot4.Managers
         public bool IsGuildIdValid()
         {
             return Settings.GuildId >= 15;
+        }
+
+        public bool IsGuildIdValidBool(ulong guildId)
+        {
+            return guildId >= 15;
         }
 
         public bool IsUserSuperAdmin(ulong userId)
@@ -108,11 +116,33 @@ namespace Ladderbot4.Managers
         {
             bool IsGuildIdProcessComplete = false;
             while (!IsGuildIdProcessComplete)
-            {
+            {                
                 if (!IsGuildIdSet())
                 {
                     Console.WriteLine("Incorrect Guild Id found in Settings\\config.json");
-                    Console.WriteLine("Please select a guild from the list below: ");
+                    Console.WriteLine("Please set a valid Guild ID for SlashCommands.");
+                    Console.WriteLine("Select a guild from the list below: ");
+                    foreach (var guild in _client.Guilds)
+                    {
+                        Console.WriteLine($"Guild: {guild.Name} (ID: {guild.Id})");
+                    }
+                    string guildIdString = Console.ReadLine();
+                    if (guildIdString != null)
+                    {
+                        if (ulong.TryParse(guildIdString.Trim(), out ulong guildId))
+                        {
+                            if (IsGuildIdValidBool(guildId))
+                            {
+                                Settings.GuildId = guildId;
+                                SaveAndReloadSettingsDatabase();
+                                IsGuildIdProcessComplete = true;
+                            }
+                            else
+                            {
+                                IsGuildIdProcessComplete= false;
+                            }
+                        }
+                    }                   
                 }
             }
         }

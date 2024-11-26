@@ -127,15 +127,7 @@ namespace Ladderbot4
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
             // Setup guild ID if not set
-            if (!_settingsManager.IsGuildIdSet())
-            {
-                Console.WriteLine("Please set a valid Guild ID.");
-                foreach (var guild in _client.Guilds)
-                {
-                    Console.WriteLine($"Guild: {guild.Name} (ID: {guild.Id})");
-                }
-                return;
-            }
+            _settingsManager.SetGuildIdProcess();
 
             // Register commands to guild
             await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);

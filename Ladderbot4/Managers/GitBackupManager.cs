@@ -110,7 +110,6 @@ namespace Ladderbot4.Managers
             }
         }
 
-
         public void BackupFiles()
         {
             using (var repo = new Repository(_repoPath))

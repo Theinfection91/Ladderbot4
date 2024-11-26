@@ -49,7 +49,9 @@ namespace Ladderbot4.Data
                     GuildId = 0,
                     CommandPrefix = "/",
                     SuperAdminMode = false,
-                    SuperAdminDiscordIds = []
+                    SuperAdminDiscordIds = [],
+                    GitPatToken = "ENTER_GIT_PAT_TOKEN_HERE",
+                    GitUrlPath = "https://github.com/YourUsername/YourGitStorageRepo.git"
                 };
 
                 File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
