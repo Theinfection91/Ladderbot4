@@ -12,7 +12,9 @@ namespace Ladderbot4.Managers
         private readonly string _token = Token.gitPatToken;
         private readonly string _databasesFolderPath;
 
-        public GitBackupManager()
+        private readonly SettingsManager _settingsManager;
+
+        public GitBackupManager(SettingsManager settingsManager)
         {
             // Set BackupRepo file path and init repo if necessary
             _repoPath = SetRepoFilePath();
@@ -20,6 +22,8 @@ namespace Ladderbot4.Managers
 
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
+            
+            _settingsManager = settingsManager;
         }
 
         private string SetRepoFilePath()

@@ -147,6 +147,34 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void SetGitBackupProcess()
+        {
+            bool IsGitBackupProcessComplete = false;
+            while (!IsGitBackupProcessComplete)
+            {
+                Console.WriteLine("Enter your Git PAT Token now if you want to have online backup storage through a GitHub repo you control.");
+                Console.WriteLine("If you wish to skip this feature for now, enter 0 for the PAT token.");
+                Console.WriteLine("Refer to documentation for more help with the Git Backup Storage");
+                string? gitPatToken = Console.ReadLine();
+                if (!gitPatToken.Equals("0") && gitPatToken.Length > 15)
+                {
+                    Settings.GitPatToken = gitPatToken;
+                    Console.WriteLine("Git PAT Token accepted. Now give the https url path to your Git repo. It will look something like this: https://github.com/YourUsername/YourGitStorageRepo.git");
+                    string? gitUrlPath = Console.ReadLine();
+                    Settings.GitUrlPath = gitUrlPath;
+                    Console.WriteLine($"Repo Url set to: {gitUrlPath}");
+                    Console.WriteLine("You can manually change your token and url path in the Settings/config.json file as well.");
+                    SaveAndReloadSettingsDatabase();
+                    IsGitBackupProcessComplete = true;
+                }
+                else
+                {
+                    Console.WriteLine("Git Backup Storage was not set up.");
+                    IsGitBackupProcessComplete = true;
+                }
+            }
+        }
+
         public void SetSuperAdminModeOnOff(bool trueOrFalse)
         {
             Settings.SuperAdminMode = trueOrFalse;
