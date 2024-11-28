@@ -8,22 +8,25 @@ namespace Ladderbot4.Managers
     public class GitBackupManager
     {
         private readonly string _repoPath;
-        private readonly string _remoteUrl = Token.gitRemoteUrlPath;
-        private readonly string _token = Token.gitPatToken;
+        private readonly string _remoteUrl;
+        private readonly string _token;
         private readonly string _databasesFolderPath;
 
         private readonly SettingsManager _settingsManager;
 
         public GitBackupManager(SettingsManager settingsManager)
         {
+            // Grab info from SettingsManager
+            _settingsManager = settingsManager;
+            _remoteUrl = _settingsManager.Settings.GitUrlPath;
+            _token = _settingsManager.Settings.GitPatToken;
+
             // Set BackupRepo file path and init repo if necessary
             _repoPath = SetRepoFilePath();
             InitializeRepository();
 
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
-            
-            _settingsManager = settingsManager;
         }
 
         private string SetRepoFilePath()

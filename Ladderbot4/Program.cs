@@ -79,6 +79,9 @@ namespace Ladderbot4
             // Ensure settings are loaded
             _settingsManager.SetBotTokenProcess();
 
+            // TODO - Implement working Git PAT Token and URL Process
+            _settingsManager.SetGitBackupProcess();
+
             await RunBotAsync();
         }
 
