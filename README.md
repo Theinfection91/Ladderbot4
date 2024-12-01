@@ -78,6 +78,9 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 - **Administrative Controls**:
   - Comprehensive admin controls for managing ladders, teams, ranks, wins, and losses.
 
+- **(NEW) Git Backup Storage**:
+  - The ability to use an owned GitHub Repo as a backup storage hub for the .json database files that are used for teams, challenges, states, and history.
+
 ---
 
 ## Planned Features
@@ -89,7 +92,7 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
      - Player achievements, such as participating in a champion team.
    - Implement achievements tied to Discord IDs and store data in the bot's database.
 
-2. **Match History**:
+2. **Match History** (Began Implementation of Feature):
    - Storing previous match results in the database to cross reference for later use in case messages or channels are deleted. I also plan to use Match History for writing tests.
 
 3. **Logging System** (Enhanced):
@@ -104,4 +107,10 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ## Setting Up Ladderbot4
 
 ### Discord Bot Token
-**Ladderbot4** now has a setup process when ran that checks the Discord Bot Token length and has you enter it in into the Command Line Interface if it isn't a certain amount of characters. If a token of correct length is entered but is actually incorrect, then manually change it in Settings/config.json for now until I finish the setup process completely. The setup also asks for the correct Guild ID and gives a list showing all servers the bot is connected from. Enter in the correct Guild ID for your Server to enable Slash Commands. If an incorrect one is entered, you can use /set_guild_id or /sgid as a regular command in discord after the bot runs to dynamically grab the Id, then restart the bot and Slash Commands should begin working for that Server.
+**Ladderbot4** now has a setup process when ran that checks the Discord Bot Token length and has you enter it in into the Command Line Interface if it isn't a certain amount of characters. If a token of correct length is entered but is actually incorrect, then manually change it in Settings/config.json for now until I finish the setup process completely. 
+
+### Guild ID for SlashCommands 
+The setup also asks for the correct Guild ID and gives a list showing all servers the bot is connected from. Enter in the correct Guild ID for your Server to enable Slash Commands. If an incorrect one is entered, you can use /set_guild_id or /sgid as a regular command in discord after the bot runs to dynamically grab the Id, then restart the bot and Slash Commands should begin working for that Server.
+
+### Git Backup Feature
+Another feature that is handled during setup is the ability to use your an owned GitHub repo as a backup system for all the json database files. It will prompt for a GitHub PAT Token which you can generate through GitHub, and asks for the https link to the GitHub Repo.
