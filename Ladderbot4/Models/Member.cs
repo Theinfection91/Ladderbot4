@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ladderbot4.Models.Achievements;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,9 @@ namespace Ladderbot4.Models
         public double WinRatio2v2 => (Wins2v2 + Losses2v2) == 0 ? 0 : (double)Wins2v2 / (Wins2v2 + Losses2v2);
         public double WinRatio3v3 => (Wins3v3 + Losses3v3) == 0 ? 0 : (double)Wins3v3 / (Wins3v3 + Losses3v3);
 
-
+        // Achievements
+        public List<Achievement> UnlockedAchievements { get; set; } = [];
+        public int TotalAchievementPoints { get; set; } = 0;
 
         public Member(ulong discordId, string displayName)
         {
@@ -65,6 +68,16 @@ namespace Ladderbot4.Models
         public void UpdateTotalTeamCount()
         {
             TotalTeamCount = TeamCount1v1 + TeamCount2v2 + TeamCount3v3;
+        }
+
+        public void UpdateTotalAchievementPoints()
+        {
+            int points = 0;
+            for (int i = 0; i < UnlockedAchievements.Count; i++)
+            {
+                points += UnlockedAchievements[i].AchievementPointsValue;
+            }
+            TotalAchievementPoints = points;
         }
     }
 }

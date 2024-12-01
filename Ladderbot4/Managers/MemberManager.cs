@@ -113,6 +113,18 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        public bool IsMemberRegisteredToDatabase(Member memberToCheck)
+        {
+            foreach (Member member in _membersList.AllMembers)
+            {
+                if (member.Equals(memberToCheck))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool IsDiscordIdOnGivenTeam(ulong discordId, Team team)
         {
             foreach (Member member in team.Members)

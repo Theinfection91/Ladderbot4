@@ -17,6 +17,7 @@ namespace Ladderbot4.Managers
         #region Properties and Constructor
         // Sub-Managers
         private readonly DiscordSocketClient _client;
+        private readonly AchievementManager _achievementManager;
         private readonly GitBackupManager _backupManager;
         private readonly HistoryManager _historyManager;
         private readonly TeamManager _teamManager;
@@ -31,9 +32,10 @@ namespace Ladderbot4.Managers
         private readonly Dictionary<ulong, ulong> _teamsMessageMap = new();
 
 
-        public LadderManager(DiscordSocketClient client, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
+        public LadderManager(DiscordSocketClient client,AchievementManager achievementManager, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _client = client;
+            _achievementManager = achievementManager;
             _backupManager = gitBackupManager;
             _historyManager = historyManager;
             _teamManager = teamManager;
@@ -423,6 +425,16 @@ namespace Ladderbot4.Managers
                                 return $"```{member.DisplayName} is already on a team in the {divisionType} division. Please try again.```";
                             }
                         }
+                        // TODO - See if each member is in members.json, if not then add them. Ensure no duplicates in database
+                        foreach (Member member in newMemberList)
+                        {
+                            if (!_memberManager.IsMemberRegisteredToDatabase(member))
+                            {
+                                Console.WriteLine($"Adding new member to members.json: {member.DiscordId} - {member.DisplayName}");
+                                _memberManager.AddNewMember(member);
+                            }
+                        }
+
                         // All members are eligible, all conditions passed, add the new team to the database.
                         Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
                         _teamManager.AddNewTeam(newTeam);
