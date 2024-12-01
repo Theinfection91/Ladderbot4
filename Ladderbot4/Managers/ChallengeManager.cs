@@ -254,11 +254,11 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public Challenge CreateChallengeObject(string division, string challenger, string challenged)
+        public Challenge CreateChallengeObject(string division, string challenger, int challengerRank, string challenged, int challengedRank)
         {
             LoadChallengesDatabase();
 
-            return new Challenge(division, challenger, challenged);
+            return new Challenge(division, challenger, challengerRank, challenged, challengedRank);
         }
 
         public void AddNewChallenge(Challenge challenge)

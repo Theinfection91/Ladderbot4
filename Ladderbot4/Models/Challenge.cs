@@ -10,14 +10,18 @@ namespace Ladderbot4.Models
     {
         public string Division { get; set; }
         public string Challenger {  get; set; }
+        public int ChallengerRank { get; set; }
         public string Challenged {  get; set; }
+        public int ChallengedRank { get; set; }
         public DateTime CreatedOn { get; set; }
 
-        public Challenge(string division, string challenger, string challenged)
+        public Challenge(string division, string challenger, int challengerRank, string challenged, int challengedRank)
         {
             Division = division;
             Challenger = challenger;
+            ChallengerRank = challengerRank;
             Challenged = challenged;
+            ChallengedRank = challengedRank;
             CreatedOn = DateTime.Now;
         }
 

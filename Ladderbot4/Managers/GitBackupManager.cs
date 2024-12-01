@@ -40,7 +40,7 @@ namespace Ladderbot4.Managers
             // Ensure the directory exists
             if (!Directory.Exists(repoPath))
             {
-                Directory.CreateDirectory(repoPath); // Create the directory if it doesn't exist
+                Directory.CreateDirectory(repoPath);
                 Console.WriteLine($"{DateTime.Now} - Directory created: {_repoPath}");
             }
 

@@ -29,7 +29,7 @@ namespace Ladderbot4.Data
             _filePath = Path.Combine(appBaseDirectory, "Databases", "teams.json");
 
             // Ensure the directory exists
-            string directory = Path.GetDirectoryName(_filePath);
+            string? directory = Path.GetDirectoryName(_filePath);
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);  // Create the directory if it doesn't exist

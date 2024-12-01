@@ -101,8 +101,7 @@ namespace Ladderbot4.Managers
                     if (IsValidBotToken(botToken))
                     {
                         Settings.DiscordBotToken = botToken;
-                        SaveSettings();
-                        LoadSettingsData();
+                        SaveAndReloadSettingsDatabase();
                         IsBotTokenProcessComplete = true;
                     }
                     else
@@ -163,29 +162,27 @@ namespace Ladderbot4.Managers
             {
                 if (!IsGitPatTokenSet())
                 {
-                    Console.WriteLine("Enter your Git PAT Token now if you want to have online backup storage through a GitHub repo you control.");
-                    Console.WriteLine("If you wish to skip this feature for now, enter 0 for the PAT token.");
-                    Console.WriteLine("Refer to documentation for more help with the Git Backup Storage");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Enter your Git PAT Token now if you want to have online backup storage through a GitHub repo you control.\nIf you wish to skip this feature for now, enter 0 for the PAT token.\nRefer to documentation for more help with the Git Backup Storage.");
                     string? gitPatToken = Console.ReadLine();
                     if (!gitPatToken.Equals("0") && gitPatToken.Length > 15)
                     {
                         Settings.GitPatToken = gitPatToken;
-                        Console.WriteLine("Git PAT Token accepted. Now give the https url path to your Git repo. It will look something like this: https://github.com/YourUsername/YourGitStorageRepo.git");
+                        Console.WriteLine($"{DateTime.Now} SettingsManager - Git PAT Token accepted. Now give the https url path to your Git repo. It will look something like this: https://github.com/YourUsername/YourGitStorageRepo.git");
                         string? gitUrlPath = Console.ReadLine();
                         Settings.GitUrlPath = gitUrlPath;
-                        Console.WriteLine($"Repo Url set to: {gitUrlPath}");
-                        Console.WriteLine("You can manually change your token and url path in the Settings/config.json file as well.");
+                        Console.WriteLine($"{DateTime.Now} SettingsManager - Repo Url set to: {gitUrlPath}\nYou can manually change your token and url path in the Settings/config.json file as well.");
                         SaveAndReloadSettingsDatabase();
                         IsGitBackupProcessComplete = true;
                     }
                     else
                     {
-                        Console.WriteLine("Git Backup Storage was not set up. You can manually change your token and url path in the Settings/config.json file.");
+                        Console.WriteLine($"{DateTime.Now} SettingsManager - Git Backup Storage was not set up. You can manually change your token and url path in the Settings/config.json file.");
                         IsGitBackupProcessComplete = true;
                     }
                 }
                 else
                 {
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Non-default value found for GitPatToken in config.json file. Skipping backup setup process. If you entered in the token or url incorrectly, you can manually change it in the config.json file for now.");
                     IsGitBackupProcessComplete = true;
                 }
             }

@@ -537,7 +537,7 @@ namespace Ladderbot4.Managers
                                 if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
                                 {
                                     // If all checks are passed, create and save the new Challenge object, save Challenges database
-                                    _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
+                                    _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
 
                                     // Save and reload Challenges database
                                     _challengeManager.SaveAndReloadChallenges();
@@ -670,7 +670,7 @@ namespace Ladderbot4.Managers
                             if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
                             {
                                 // If all checks are passed, create and save the new Challenge object
-                                _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengedTeam.TeamName));
+                                _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
 
                                 // Save and reload Challenges database
                                 _challengeManager.SaveAndReloadChallenges();
@@ -803,6 +803,12 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
+                            // TODO: Create Match object to add to History (Past Matches)
+                            // Create correct match ID from division
+                            int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+
+                            _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+
                             // Save the updated teams database and reload
                             _teamManager.SaveAndReloadTeamsDatabase();
 
@@ -820,6 +826,12 @@ namespace Ladderbot4.Managers
                             // Assign win and loss correctly
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
+
+                            // TODO: Create Match object to add to History (Past Matches)
+                            // Create correct match ID from division
+                            int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+
+                            _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
                             // Save the updated teams data and reload
                             _teamManager.SaveAndReloadTeamsDatabase();
