@@ -15,7 +15,6 @@ namespace Ladderbot4.Data
         public TeamData()
         {
             SetFilePath();
-
             InitializeFile();
         }
 

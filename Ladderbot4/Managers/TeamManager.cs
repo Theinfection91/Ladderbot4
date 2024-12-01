@@ -196,21 +196,25 @@ namespace Ladderbot4.Managers
         public void AddToWins(Team team, int numberOfWins)
         {
             team.Wins += numberOfWins;
+            SaveAndReloadTeamsDatabase();
         }
 
         public void SubtractFromWins(Team team, int numberOfWins)
         {
             team.Wins -= numberOfWins;
+            SaveAndReloadTeamsDatabase();
         }
 
         public void AddToLosses(Team team, int numberOfLosses)
         {
             team.Losses += numberOfLosses;
+            SaveAndReloadTeamsDatabase();
         }
 
         public void SubtractFromLosses(Team team, int numberOfLosses)
         {
            team.Losses -= numberOfLosses;
+           SaveAndReloadTeamsDatabase();
         }
 
         public Team CreateTeamObject(string teamName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)

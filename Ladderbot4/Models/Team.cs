@@ -8,12 +8,21 @@ namespace Ladderbot4.Models
 {
     public class Team
     {
+        // Basic Info
         public string TeamName { get; set; }
         public string Division { get; set; }
         public int Rank { get; set; }
         public int Wins { get; set; }
         public int Losses { get; set; }
         public List<Member> Members { get; set; }
+
+        // TODO - Stats and Achievements
+            // Streaks
+        public int WinStreak {  get; set; }
+        public int LoseStreak { get; set; }
+
+            // W/L Ratio
+        public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
         public Team(string teamName, string division, int rank, int wins, int losses, List<Member> members)
         {

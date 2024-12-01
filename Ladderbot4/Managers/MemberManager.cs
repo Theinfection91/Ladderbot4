@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.WebSocket;
+using Ladderbot4.Data;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -11,9 +12,30 @@ namespace Ladderbot4.Managers
 {
     public class MemberManager
     {
-        public MemberManager()
-        {
+        private readonly MemberData _memberData;
 
+        private MembersList _membersList;
+
+        public MemberManager(MemberData memberData)
+        {
+            _memberData = memberData;
+            _membersList = _memberData.LoadAllMembers();
+        }
+
+        public void SaveMembersList()
+        {
+            _memberData.SaveAllMembers(_membersList);
+        }
+
+        public void LoadMembersList()
+        {
+            _membersList = _memberData.LoadAllMembers();
+        }
+
+        public void SaveAndReloadMembersList()
+        {
+            SaveMembersList();
+            LoadMembersList();
         }
 
         public Member CreateMemberObject(ulong discordId, string displayName)
@@ -101,6 +123,18 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
+        }
+
+        public void AddToMemberWins(Member member, int numberOfWins)
+        {
+
+        }
+
+        public void AddNewMember(Member member)
+        {
+            _memberData.AddMember(member);
+
+            LoadMembersList();
         }
     }
 }
