@@ -30,8 +30,8 @@ namespace Ladderbot4.Commands
         public async Task PostStandingsAsync(
             [Summary("division", "The division in which to post data from.")] string division)
         {
-            string result = _ladderManager.PostStandingsProcess(Context, division.Trim().ToLower());
-            await RespondAsync(result);
+            var result = _ladderManager.PostStandingsProcess(Context, division.Trim().ToLower());
+            await RespondAsync(embed: result);
         }
 
         [SlashCommand("teams", "Slash commands for posting teams of given division")]

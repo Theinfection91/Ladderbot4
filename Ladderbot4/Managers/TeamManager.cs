@@ -1,4 +1,5 @@
-﻿using Ladderbot4.Data;
+﻿using Discord;
+using Ladderbot4.Data;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -93,6 +94,36 @@ namespace Ladderbot4.Managers
             sb.AppendLine("\n```");
 
             return sb.ToString();
+        }
+
+        public Embed GetStandingsEmbed(string division)
+        {
+            // Load database
+            LoadTeamsDatabase();
+
+            List<Team> divisionTeams = GetTeamsByDivision(division);
+
+            // Create the embed
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"> 🏆 ```Standings for {division} Division```")
+                .WithColor(Color.Green)
+                .WithDescription($"Current {division} standings:");
+
+            // Format the standings
+            foreach (Team team in divisionTeams)
+            {
+                embedBuilder.AddField(
+                    $"```#{team.Rank} {team.TeamName}```",
+                    $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}**",
+                    inline: false // Stacked vertically for better readability
+                );
+            }
+
+            // Add a footer with timestamp
+            embedBuilder.WithFooter("Updated")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
         }
 
         public string GetTeamsData(string division)
