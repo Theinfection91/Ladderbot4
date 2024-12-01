@@ -17,11 +17,11 @@ namespace Ladderbot4.Models
         public List<Member> Members { get; set; }
 
         // TODO - Stats and Achievements
-            // Streaks
-        public int WinStreak {  get; set; }
+        // Streaks
+        public int WinStreak { get; set; }
         public int LoseStreak { get; set; }
 
-            // W/L Ratio
+        // W/L Ratio
         public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
         public Team(string teamName, string division, int rank, int wins, int losses, List<Member> members)

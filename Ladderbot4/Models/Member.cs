@@ -28,11 +28,13 @@ namespace Ladderbot4.Models
         public int TeamCount3v3 { get; set; } = 0;
 
         // Derived Stats
-        public int MatchCount { get; set; } = 0;
+        public int TotalMatchCount { get; set; } = 0;
         public int TotalTeamCount { get; set; } = 0;
         public double WinRatio1v1 => (Wins1v1 + Losses1v1) == 0 ? 0 : (double)Wins1v1 / (Wins1v1 + Losses1v1);
         public double WinRatio2v2 => (Wins2v2 + Losses2v2) == 0 ? 0 : (double)Wins2v2 / (Wins2v2 + Losses2v2);
         public double WinRatio3v3 => (Wins3v3 + Losses3v3) == 0 ? 0 : (double)Wins3v3 / (Wins3v3 + Losses3v3);
+
+
 
         public Member(ulong discordId, string displayName)
         {
@@ -57,7 +59,7 @@ namespace Ladderbot4.Models
 
         public void UpdateMatchCount()
         {
-            MatchCount = Wins1v1 + Losses1v1 + Wins2v2 + Losses2v2 + Wins3v3 + Losses3v3;
+            TotalMatchCount = Wins1v1 + Losses1v1 + Wins2v2 + Losses2v2 + Wins3v3 + Losses3v3;
         }
 
         public void UpdateTotalTeamCount()
