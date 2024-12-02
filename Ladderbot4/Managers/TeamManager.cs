@@ -27,17 +27,17 @@ namespace Ladderbot4.Managers
             _teamData.SaveTeams(_teamsByDivision);
         }
 
+        public void LoadTeamsDatabase()
+        {
+            _teamsByDivision = _teamData.LoadAllTeams();
+        }
+
         public void SaveAndReloadTeamsDatabase()
         {
             SaveTeams();
             LoadTeamsDatabase();
         }
 
-        public void LoadTeamsDatabase()
-        {
-            _teamsByDivision = _teamData.LoadAllTeams();
-        }
-        
         // Check if two given teams are in the same division
         public bool IsTeamsInSameDivision(Team teamOne, Team teamTwo)
         {
@@ -196,25 +196,21 @@ namespace Ladderbot4.Managers
         public void AddToWins(Team team, int numberOfWins)
         {
             team.Wins += numberOfWins;
-            SaveAndReloadTeamsDatabase();
         }
 
         public void SubtractFromWins(Team team, int numberOfWins)
         {
             team.Wins -= numberOfWins;
-            SaveAndReloadTeamsDatabase();
         }
 
         public void AddToLosses(Team team, int numberOfLosses)
         {
             team.Losses += numberOfLosses;
-            SaveAndReloadTeamsDatabase();
         }
 
         public void SubtractFromLosses(Team team, int numberOfLosses)
         {
            team.Losses -= numberOfLosses;
-           SaveAndReloadTeamsDatabase();
         }
 
         public Team CreateTeamObject(string teamName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)

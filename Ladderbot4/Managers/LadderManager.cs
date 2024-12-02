@@ -815,6 +815,17 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
+                            // Add to members wins and losses
+                            foreach (Member member in winningTeam.Members)
+                            {
+                                _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                            }
+
+                            foreach (Member member in losingTeam.Members)
+                            {
+                                _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+                            }
+
                             // TODO: Create Match object to add to History (Past Matches)
                             // Create correct match ID from division
                             int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
@@ -838,6 +849,17 @@ namespace Ladderbot4.Managers
                             // Assign win and loss correctly
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
+
+                            // Add to members wins and losses
+                            foreach (Member member in winningTeam.Members)
+                            {
+                                _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                            }
+
+                            foreach (Member member in losingTeam.Members)
+                            {
+                                _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+                            }
 
                             // TODO: Create Match object to add to History (Past Matches)
                             // Create correct match ID from division

@@ -137,15 +137,59 @@ namespace Ladderbot4.Managers
             return false;
         }
 
-        public void AddToMemberWins(Member member, int numberOfWins)
+        public void AddToMemberWins(Member member, string division, int numberOfWins)
         {
+            // Find the corresponding member in the list
+            var targetMember = _membersList.AllMembers.FirstOrDefault(m => m.DiscordId == member.DiscordId);
 
+            if (targetMember != null)
+            {
+                switch (division)
+                {
+                    case "1v1":
+                        targetMember.Wins1v1 += numberOfWins;
+                        break;
+
+                    case "2v2":
+                        targetMember.Wins2v2 += numberOfWins;
+                        break;
+
+                    case "3v3":
+                        targetMember.Wins3v3 += numberOfWins;
+                        break;
+                }
+                SaveAndReloadMembersList();
+            }
+        }
+
+        public void AddToMemberLosses(Member member, string division, int numberOfLosses)
+        {
+            // Find the corresponding member in the list
+            var targetMember = _membersList.AllMembers.FirstOrDefault(m => m.DiscordId == member.DiscordId);
+
+            if (targetMember != null)
+            {
+                switch (division)
+                {
+                    case "1v1":
+                        targetMember.Losses1v1 += numberOfLosses;
+                        break;
+
+                    case "2v2":
+                        targetMember.Losses2v2 += numberOfLosses;
+                        break;
+
+                    case "3v3":
+                        targetMember.Losses3v3 += numberOfLosses;
+                        break;
+                }
+                SaveAndReloadMembersList();
+            }
         }
 
         public void AddNewMember(Member member)
         {
             _memberData.AddMember(member);
-
             LoadMembersList();
         }
     }
