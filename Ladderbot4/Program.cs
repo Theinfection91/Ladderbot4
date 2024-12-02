@@ -55,6 +55,7 @@ namespace Ladderbot4
                     services.AddSingleton<InteractionService>();
 
                     services.AddSingleton<ChallengeData>();
+                    services.AddSingleton<EmbedManager>();
                     services.AddSingleton<HistoryData>();
                     services.AddSingleton<LadderData>();
                     services.AddSingleton<MemberData>();
