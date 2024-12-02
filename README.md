@@ -7,9 +7,71 @@
 
 ![SlashCommand Example 2](examples/example2.png)
 
+This version also implements Discord embed in messages instead of just string in markdown to further highlight errors and also increase the overall beauty of the Bot's repsonses. The examples below may change slightly over time but this is a general idea of the appearance. 
+
+![Embed Example 1](examples/example3.png)
+
 Ladderbot4 is still under active development, but it offers a stable foundation with exciting new features and improvements to come over previous versions. Feedback and suggestions are always welcome to further refine and expand its capabilities.
 
 For any questions, suggestions, or issues, feel free to submit them via the **Issues** tab or message me on Discord at `Theinfection1991`.
+
+---
+
+## Features
+
+### New/In-Progress Functionalities:
+
+- **(NEW) Git Backup Storage (Implemented, But Need Some Polishing)**:
+  - The ability to use an owned GitHub Repo as a backup storage hub for the .json database files that are used for teams, challenges, states, and history.
+ 
+- **(NEW) Match History (In-Progress, Needs User Commands To Read/Write To Discord)**:
+   - Storing previous match results in the database to cross reference for later use in case messages or channels are deleted. I also plan to use Match History for writing tests.
+ 
+- **(NEW) Embed Output (In-Progress, Refactoring All Previous Output From String To Embed)**:
+  - Previous versions only used string in Markdown format, **Ladderbot4** will now return embed objects as output to increase the overall beauty for the user.
+
+### Returning Features from Ladderbot3.0:
+
+- **Ladder Management**:
+  - Admins can start and end ladders for specific divisions (e.g., 1v1, 2v2, 3v3).
+
+- **Team Management**:
+  - Admin commands for registering and removing teams in specific divisions.
+
+- **Challenge System**:
+  - Allows teams to issue challenges, manage their status, and track results.
+  - Admin overrides for manually creating or canceling challenges.
+
+- **Match Reporting**:
+  - Command-based reporting for match results that automatically update standings and rankings.
+  - Admin commands to adjust results, ranks, and other metrics manually.
+
+- **Standings, Challenges, Teams Channels**:
+  - Post real-time standings and active challenges to designated channels.
+  - Automatically update standings and challenge information.
+
+- **Administrative Controls**:
+  - Comprehensive admin controls for managing ladders, teams, ranks, wins, and losses.
+
+---
+
+## Planned Features
+
+1. **Stat Tracking and Achievements** (Began Background Work):
+   - Track team and individual stats, possible stat ideas:
+     - Number of matches played.
+     - Rank changes during a ladder's lifetime.
+     - Player achievements, such as participating in a champion team.
+   - Implement achievements tied to Discord IDs and store data in the bot's database.
+
+
+
+3. **Logging System** (Enhanced):
+   - Plans to integrate bot commands to filter and view logs dynamically in Discord.
+   - Logs command invocations, parameters, and errors
+     
+5. **Creative Additions**:
+   - Open to suggestions for new features or improvements to the bot's current functionality.
 
 ---
 
@@ -50,57 +112,6 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 
 4. **Challenge Limitations**:
    - Teams may only have **one active challenge** at a time.
-
----
-
-## Features
-
-### Key Functionalities:
-
-- **Ladder Management**:
-  - Admins can start and end ladders for specific divisions (e.g., 1v1, 2v2, 3v3).
-
-- **Team Management**:
-  - Admin commands for registering and removing teams in specific divisions.
-
-- **Challenge System**:
-  - Allows teams to issue challenges, manage their status, and track results.
-  - Admin overrides for manually creating or canceling challenges.
-
-- **Match Reporting**:
-  - Command-based reporting for match results that automatically update standings and rankings.
-  - Admin commands to adjust results, ranks, and other metrics manually.
-
-- **Standings, Challenges, Teams Channels**:
-  - Post real-time standings and active challenges to designated channels.
-  - Automatically update standings and challenge information.
-
-- **Administrative Controls**:
-  - Comprehensive admin controls for managing ladders, teams, ranks, wins, and losses.
-
-- **(NEW) Git Backup Storage**:
-  - The ability to use an owned GitHub Repo as a backup storage hub for the .json database files that are used for teams, challenges, states, and history.
-
----
-
-## Planned Features
-
-1. **Stat Tracking and Achievements**:
-   - Track team and individual stats, possible stat ideas:
-     - Number of matches played.
-     - Rank changes during a ladder's lifetime.
-     - Player achievements, such as participating in a champion team.
-   - Implement achievements tied to Discord IDs and store data in the bot's database.
-
-2. **Match History** (Began Implementation of Feature):
-   - Storing previous match results in the database to cross reference for later use in case messages or channels are deleted. I also plan to use Match History for writing tests.
-
-3. **Logging System** (Enhanced):
-   - Plans to integrate bot commands to filter and view logs dynamically in Discord.
-   - Logs command invocations, parameters, and errors
-     
-5. **Creative Additions**:
-   - Open to suggestions for new features or improvements to the bot's current functionality.
 
 ---
 
