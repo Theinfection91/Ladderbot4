@@ -45,26 +45,17 @@ namespace Ladderbot4.Managers
 
         public List<Member> ConvertMembersListToObjects(List<IUser> members)
         {
-            // List to store display names
-            List<string> displayNames = new List<string>();
+            List<Member> membersList = new List<Member>();
 
             foreach (IUser member in members)
             {
-                string displayName = string.Empty;
+                string displayName;
 
                 // Check if the member can be cast to SocketGuildUser
                 if (member is SocketGuildUser guildUser)
                 {
                     // If the user has a nickname (DisplayName), use it
-                    if (!string.IsNullOrEmpty(guildUser.DisplayName))
-                    {
-                        displayName = guildUser.DisplayName;
-                    }
-                    else
-                    {
-                        // If no nickname, use the Username
-                        displayName = guildUser.Username;
-                    }
+                    displayName = !string.IsNullOrEmpty(guildUser.DisplayName) ? guildUser.DisplayName : guildUser.Username;
                 }
                 else
                 {
@@ -72,20 +63,13 @@ namespace Ladderbot4.Managers
                     displayName = member.Username;
                 }
 
-                // Add the display name to the list
-                displayNames.Add(displayName);
+                // Create a new Member object with the Discord ID and display name
+                membersList.Add(new Member(member.Id, displayName));
             }
 
-            List<Member> membersList = [];
-            foreach (var member in members)
-            {
-                foreach (string displayName in displayNames)
-                {
-                    membersList.Add(new Member(member.Id, displayName));
-                }
-            }
             return membersList;
         }
+
 
         public bool IsMemberCountCorrect(List<Member> membersList, string divisionType)
         {

@@ -48,7 +48,7 @@ namespace Ladderbot4.Models
                     return $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}";
 
                 default:
-                    return $"Incorrect member count.";
+                    return $"Incorrect member count. Count: {Members.Count}";
             }
         }
     }
