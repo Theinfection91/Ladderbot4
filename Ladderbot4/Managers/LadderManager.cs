@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Models;
+using Ladderbot4.Models.Achievements;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -432,6 +433,24 @@ namespace Ladderbot4.Managers
                             {
                                 Console.WriteLine($"Adding new member to members.json: {member.DiscordId} - {member.DisplayName}");
                                 _memberManager.AddNewMember(member);
+                            }
+                        }
+
+                        // TODO - Testing Achievements like the first team achievement
+                        foreach (Member member in newMemberList)
+                        {
+                            _memberManager.AddToDivisionTeamCount(member, divisionType);
+                        }
+
+                        foreach (Member member in newMemberList)
+                        {
+                            _achievementManager.LoadMembersAchievements();
+                            if (member.TotalTeamCount >= 1)
+                            {
+                                Console.WriteLine("Test");
+                                YourFirstWin yourFirstWin = new();
+                                _achievementManager.AddAchievementToMember(member, yourFirstWin);
+                                _achievementManager.SendAchievementNotification(member.DiscordId, yourFirstWin);
                             }
                         }
 

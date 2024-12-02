@@ -187,6 +187,32 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void AddToDivisionTeamCount(Member member, string division)
+        {
+            // Find the corresponding member in the list
+            var targetMember = _membersList.AllMembers.FirstOrDefault(m => m.DiscordId == member.DiscordId);
+
+            if (targetMember != null)
+            {
+                switch (division)
+                {
+                    case "1v1":
+                        targetMember.TeamCount1v1 += 1;
+                        break;
+
+                    case "2v2":
+                        targetMember.TeamCount2v2 += 1;
+                        break;
+
+                    case "3v3":
+                        targetMember.TeamCount3v3 += 1;
+                        break;
+                }
+                targetMember.UpdateTotalTeamCount();
+                SaveAndReloadMembersList();
+            }
+        }
+
         public void AddNewMember(Member member)
         {
             _memberData.AddMember(member);
