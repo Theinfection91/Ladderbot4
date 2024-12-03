@@ -45,8 +45,8 @@ namespace Ladderbot4.Commands
         public async Task RemoveTeamAsync(
             [Summary("teamName", "Name of the team to be removed.")] string teamName)
         {
-            string result = _ladderManager.RemoveTeamProcess(teamName);
-            await RespondAsync(result);
+            var result = _ladderManager.RemoveTeamProcess(teamName);
+            await RespondAsync(embed: result);
         }
         #endregion
 

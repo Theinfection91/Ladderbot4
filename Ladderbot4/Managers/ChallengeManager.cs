@@ -1,4 +1,5 @@
-﻿using Discord.WebSocket;
+﻿using Discord;
+using Discord.WebSocket;
 using Ladderbot4.Data;
 using Ladderbot4.Models;
 using System;
@@ -213,6 +214,44 @@ namespace Ladderbot4.Managers
 
             return sb.ToString();
         }
+
+        public Embed GetChallengesEmbed(string division)
+        {
+            // Load the database
+            LoadChallengesDatabase();
+
+            List<Challenge> challenges = GetChallengesByDivision(division);
+
+            // Create the embed
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"⚔️ Active Challenges for {division} Division")
+                .WithColor(Color.Orange)
+                .WithDescription($"Current active challenges in the **{division} Division**:");
+
+            // Format the challenge data
+            if (challenges.Count > 0)
+            {
+                foreach (Challenge challenge in challenges)
+                {
+                    embedBuilder.AddField(
+                        $"Challenger: {challenge.Challenger}",
+                        $"*Challenged:* *{challenge.Challenged}*\n> Created On: {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
+                        inline: false // Stacked vertically for readability
+                    );
+                }
+            }
+            else
+            {
+                embedBuilder.WithDescription($"There are no active challenges in the **{division} Division** at this time.");
+            }
+
+            // Add a footer with timestamp
+            embedBuilder.WithFooter("Last Updated")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
 
         public List<Challenge> GetChallengesByDivision(string division)
         {

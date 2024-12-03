@@ -105,15 +105,15 @@ namespace Ladderbot4.Managers
 
             // Create the embed
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"> 🏆 ```Standings for {division} Division```")
-                .WithColor(Color.Green)
+                .WithTitle($"🏆 Standings for {division} Division")
+                .WithColor(Color.Gold)
                 .WithDescription($"Current {division} standings:");
 
             // Format the standings
             foreach (Team team in divisionTeams)
             {
                 embedBuilder.AddField(
-                    $"```#{team.Rank} {team.TeamName}```",
+                    $"#{team.Rank} {team.TeamName}",
                     $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}**",
                     inline: false // Stacked vertically for better readability
                 );
@@ -141,6 +141,37 @@ namespace Ladderbot4.Managers
 
             return sb.ToString();
         }
+
+        public Embed GetTeamsEmbed(string division)
+        {
+            // Load the database
+            LoadTeamsDatabase();
+
+            List<Team> divisionTeams = GetTeamsByDivision(division);
+
+            // Create the embed
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"🛡️ Teams for {division} Division")
+                .WithColor(Color.Blue)
+                .WithDescription($"Current teams in the **{division} Division**:");
+
+            // Format the team data
+            foreach (Team team in divisionTeams)
+            {
+                embedBuilder.AddField(
+                    $"{team.TeamName}",
+                    $"*Members:* {team.GetAllMemberNamesToStr()}",
+                    inline: false // Stacked vertically for readability
+                );
+            }
+
+            // Add a footer with timestamp
+            embedBuilder.WithFooter("Updated")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
 
         public int GetTeamCount(string division)
         {

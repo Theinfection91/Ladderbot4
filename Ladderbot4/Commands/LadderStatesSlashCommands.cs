@@ -24,10 +24,10 @@ namespace Ladderbot4.Commands
             [Summary("division", "The division of Ladder to try and start (1v1, 2v2, 3v3)")]string division)
         {
             // Initiate Logic from LadderManager
-            string result = _ladderManager.StartLadderByDivisionProcess(division.Trim().ToLower());
+            var result = _ladderManager.StartLadderByDivisionProcess(division.Trim().ToLower());
 
             // Send the response
-            await RespondAsync(result);
+            await RespondAsync(embed: result);
         }
 
         [SlashCommand("end", "Ends the ladder in the given division type if it's not already running.")]
@@ -36,10 +36,10 @@ namespace Ladderbot4.Commands
             [Summary("division", "The division of Ladder to try and end (1v1, 2v2, 3v3)")] string division)
         {
             // Initiate Logic from LadderManager
-            string result = _ladderManager.EndLadderByDivisionProcess(division.Trim().ToLower());
+            var result = _ladderManager.EndLadderByDivisionProcess(division.Trim().ToLower());
 
             // Send the response
-            await RespondAsync(result);
+            await RespondAsync(embed: result);
         }
     }
 }

@@ -345,7 +345,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Start/End Ladder Logic
-        public string StartLadderByDivisionProcess(string division)
+        public Embed StartLadderByDivisionProcess(string division)
         {
             _statesManager.LoadStatesDatabase();
 
@@ -361,15 +361,15 @@ namespace Ladderbot4.Managers
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```The ladder in the {division} division has started!```";
+                return _embedManager.StartLadderSuccessEmbed(division);
             }
             else
             {
-                return $"```The ladder in the {division} division is already running...```";
+                return _embedManager.StartLadderAlreadyRunningEmbed(division);
             }  
         }
 
-        public string EndLadderByDivisionProcess(string division)
+        public Embed EndLadderByDivisionProcess(string division)
         {
             _statesManager.LoadStatesDatabase();
 
@@ -385,11 +385,11 @@ namespace Ladderbot4.Managers
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```The ladder in the {division} division has ended!```";
+                return _embedManager.EndLadderSuccessEmbed(division);
             }
             else
             {
-                return $"```The ladder in the {division} division hasn't started yet...```";
+                return _embedManager.EndLadderNotRunningEmbed(division);
             }
         }
         #endregion
@@ -487,7 +487,7 @@ namespace Ladderbot4.Managers
         /// </summary>
         /// <param name="teamName">Name of team to try and remove from database</param>
         /// <returns>String for the bot that will cover error handling and confirmation of removal.</returns>
-        public string RemoveTeamProcess(string teamName)
+        public Embed RemoveTeamProcess(string teamName)
         {
             // Load latest save of Teams database
             _teamManager.LoadTeamsDatabase();
@@ -514,10 +514,12 @@ namespace Ladderbot4.Managers
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```Team {teamReference.TeamName} removed from {teamReference.Division} division.```";
+                // Return a success embed
+                return _embedManager.RemoveTeamSuccessEmbed(teamReference);
 
             }
-            return $"```Given Team Name does not exist in the teams database: {teamName} - Please try again.```";
+            // Return an error embed if the team does not exist
+            return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
         }
         #endregion
 
@@ -529,103 +531,96 @@ namespace Ladderbot4.Managers
         /// <param name="challengerTeam">The name of the team initiating the challenge.</param>
         /// <param name="challengedTeam">The name of the team who is receiving the challenge.</param>
         /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
-        public string ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
-            // Load latest save of Challenges database
+            // Load the latest save of the Challenges database
             _challengeManager.LoadChallengesDatabase();
 
-            // Check if both teams actually exist in entire Teams database
+            // Check if both teams exist in the database
             if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
             {
-                // Grab Team object references
+                // Get team object references
                 Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
                 Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
 
-                // Check if ladder is running in Challenger's division
+                // Check if the ladder is running in the challenger's division
                 if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
                 {
-                    return $"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.";
+                    return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division, and challenges may not be initiated yet.");
                 }
-                
-                // Grab Discord Id of user who invoked this command
+
+                // Grab Discord ID of the user who invoked the command
                 ulong discordId = context.User.Id;
 
-                // Check if user who invoked command is actually on challenger team
+                // Check if the user is on the challenger team
                 if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
                 {
-
-                    // If both are real and user is on challengerTeam then compare the two teams division types
+                    // Check if the teams are in the same division
                     if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
                     {
-
-                        // If in the same division then check ranks to make sure challenger isnt above and also isnt more than 2 below challenged in rank
+                        // Ensure the ranks are within range
                         if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
                         {
-
-                            // If ranks are in correct range then make sure challenger hasnt issued another challenge to be resolved first
+                            // Check if the challenger has no pending challenges
                             if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
                             {
-
-                                // If challenger has no open challenges, check if challengedTeam is currently under a challenge
+                                // Check if the challenged team has no pending challenges
                                 if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
                                 {
-                                    // If all checks are passed, create and save the new Challenge object, save Challenges database
+                                    // Create and save the new Challenge
                                     _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
-
-                                    // Save and reload Challenges database
                                     _challengeManager.SaveAndReloadChallenges();
-
-                                    // Backup the database to Git
                                     _backupManager.CopyAndBackupFilesToGit();
 
-                                    // Grab new Challenge object reference
+                                    // Get the newly created challenge
                                     Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
 
-                                    // TODO - Send challenged notification
+                                    // Notify the challenged team
                                     foreach (Member member in objectChallengedTeam.Members)
                                     {
                                         _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge);
                                     }
 
-                                    return $"```Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
+                                    // Return a success embed
+                                    return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
                                 }
                                 else
                                 {
-                                    return $"```Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is already awaiting a challenge match. Please try again later.");
                                 }
                             }
                             else
                             {
-                                return $"```Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is already awaiting a challenge match. Please try again later.");
                             }
                         }
                         else
                         {
                             if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
                             {
-                                return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
                             }
                             else
                             {
-                                return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
                             }
                         }
                     }
                     else
                     {
-                        return $"```Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division} - Please try again.```";
+                        return _embedManager.ChallengeErrorEmbed($"The teams are not in the same division. Challenger Division: {objectChallengerTeam.Division}, Challenged Division: {objectChallengedTeam.Division}. Please try again.");
                     }
                 }
                 else
                 {
-                    return $"```You are not part of Team {objectChallengerTeam.TeamName}. Please try again.```";
+                    return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.TeamName}. Please try again.");
                 }
             }
 
-            return "```One or both team names not found in the database. Please try again.```";
+            return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
         }
 
-        public string CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             // Load latest save of Challenges database
             _challengeManager.LoadChallengesDatabase();
@@ -639,7 +634,7 @@ namespace Ladderbot4.Managers
                 // Check if ladder is running in Challenger's division
                 if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
                 {
-                    return $"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.";
+                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
                 }
 
                 // Check if invoker is part of challengerTeam, as this is the user-level logic
@@ -657,22 +652,22 @@ namespace Ladderbot4.Managers
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
-                        return $"```{challengerTeamObject.TeamName}(#{challengerTeamObject.Rank}) has canceled the challenge they sent out in the {challengerTeamObject.Division} division.```";
+                        return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
                     }
                     else
                     {
-                        return $"```Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.```";
+                        return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
                     }
                 }
                 else
                 {
-                    return $"```You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}```";
+                    return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
                 }
             }
-            return $"```No team found by the name of: {challengerTeam} - Please try again.```";
+            return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam}");
         }
 
-        public string AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Load latest save of Challenges database
             _challengeManager.LoadChallengesDatabase();
@@ -687,7 +682,7 @@ namespace Ladderbot4.Managers
                 // Check if ladder is running in Challenger's division
                 if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
                 {
-                    return $"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.";
+                    return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.");
                 }
 
                 // Check if both teams are in the same division
@@ -711,39 +706,39 @@ namespace Ladderbot4.Managers
                                 // Backup the database to Git
                                 _backupManager.CopyAndBackupFilesToGit();
 
-                                return $"```An Admin({context.User.GlobalName}) has initiated a challenge: Team {objectChallengerTeam.TeamName}(#{objectChallengerTeam.Rank}) has challenged Team {objectChallengedTeam.TeamName}(#{objectChallengedTeam.Rank}) in the {objectChallengerTeam.Division} division!```";
+                                return _embedManager.AdminChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, context);
                             }
                             else
                             {
-                                return $"```Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
                             }
                         }
                         else
                         {
-                            return $"```Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated. Please try again.```";
+                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
                         }
                     }
                     else
                     {
                         if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
                         {
-                            return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated. Please try again.```";
+                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated.");
                         }
                         else
                         {
-                            return $"```Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them. Please try again.```";
+                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them.");
                         }
                     }
                 }
                 else
                 {
-                    return $"```Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division} - Please try again.```";
+                    return _embedManager.ChallengeErrorEmbed($"Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division}");
                 }
             }
-            return $"```One or both team names not found in the database. Please try again.```";
+            return _embedManager.ChallengeErrorEmbed($"One or both team names not found in the database.");
         }
 
-        public string AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        public Embed AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             // Load latest save of Challenges database
             _challengeManager.LoadChallengesDatabase();
@@ -757,7 +752,7 @@ namespace Ladderbot4.Managers
                 // Check if ladder is running in Challenger's division
                 if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
                 {
-                    return $"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.";
+                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
                 }
 
                 // Check if Team has a challenge sent out to actually cancel
@@ -772,14 +767,14 @@ namespace Ladderbot4.Managers
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
-                    return $"```Team {challengerTeamObject.TeamName}(#{challengerTeamObject.Rank})'s challenge in the {challengerTeamObject.Division} division has been canceled by an Admin ({context.User.GlobalName})```";
+                    return _embedManager.AdminCancelChallengeSuccessEmbed(challengerTeamObject, context);
                 }
                 else
                 {
-                    return $"```Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.```";
+                    return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
                 }
             }
-            return $"```No team found by the name of: {challengerTeam} - Please try again.```";
+            return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam} - Please try again.");
         }
         #endregion
 
@@ -919,11 +914,12 @@ namespace Ladderbot4.Managers
 
         public Embed ShowAllHistoryByDivisionProcess(string division)
         {
+            // Embed testing
             var embed = new EmbedBuilder()
-            .WithTitle("Embed with Footer")
-    .WithFooter("Generated by Ladderbot4", "https://example.com/icon.png")
-    .WithTimestamp(DateTimeOffset.Now)
-    .Build();
+                .WithTitle("Embed with Footer")
+                .WithFooter("Generated by Ladderbot4", "https://example.com/icon.png")
+                .WithTimestamp(DateTimeOffset.Now)
+                .Build();
             return embed;
         }
 
@@ -933,18 +929,17 @@ namespace Ladderbot4.Managers
 
         public Embed PostStandingsProcess(SocketInteractionContext context, string division)
         {
-            // Return all the data as one string
             return _teamManager.GetStandingsEmbed(division);
         }
 
-        public string PostTeamsProcess(SocketInteractionContext context, string division)
+        public Embed PostTeamsProcess(SocketInteractionContext context, string division)
         {
-            return _teamManager.GetTeamsData(division);
+            return _teamManager.GetTeamsEmbed(division);
         }
 
-        public string PostChallengesProcess(SocketInteractionContext context, string division)
+        public Embed PostChallengesProcess(SocketInteractionContext context, string division)
         {
-            return _challengeManager.GetChallengesData(division);
+            return _challengeManager.GetChallengesEmbed(division);
         }
 
         #endregion
