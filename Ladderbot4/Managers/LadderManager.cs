@@ -127,11 +127,12 @@ namespace Ladderbot4.Managers
                     continue;
                 }
 
-                // Get the standings for the division
-                string standings = _challengeManager.GetChallengesData(division) + $"Updated: {DateTime.Now}";
+                // Get the embed for the challenges in the division
+                Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division);
 
-                if (string.IsNullOrEmpty(standings))
+                if (challengesEmbed == null)
                 {
+                    Console.WriteLine($"No challenges to display for the {division} division.");
                     continue;
                 }
 
@@ -145,20 +146,20 @@ namespace Ladderbot4.Managers
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message
-                            await existingMessage.ModifyAsync(msg => msg.Content = standings);
+                            // Edit the existing message with the new embed
+                            await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
                         }
                         else
                         {
                             // Message was deleted, send a new one
-                            var newMessage = await channel.SendMessageAsync(standings);
+                            var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
                             _standingsMessageMap[channelId] = newMessage.Id;
                         }
                     }
                     else
                     {
                         // No existing message, send a new one
-                        var newMessage = await channel.SendMessageAsync(standings);
+                        var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
                         _standingsMessageMap[channelId] = newMessage.Id;
                     }
                 }
@@ -213,7 +214,13 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the standings embed for the division
-                var standingsEmbed = _teamManager.GetStandingsEmbed(division);
+                Embed standingsEmbed = _teamManager.GetStandingsEmbed(division);
+
+                if (standingsEmbed == null)
+                {
+                    Console.WriteLine($"No standings to display for the {division} division.");
+                    continue;
+                }
 
                 try
                 {
@@ -252,7 +259,6 @@ namespace Ladderbot4.Managers
                 }
             }
         }
-
         #endregion
 
         #region --Teams
@@ -298,11 +304,12 @@ namespace Ladderbot4.Managers
                     continue;
                 }
 
-                // Get the standings for the division
-                string standings = _teamManager.GetTeamsData(division) + $"Updated: {DateTime.Now}";
+                // Get the teams embed for the division
+                Embed teamsEmbed = _teamManager.GetTeamsEmbed(division);
 
-                if (string.IsNullOrEmpty(standings))
+                if (teamsEmbed == null)
                 {
+                    Console.WriteLine($"No teams to display for the {division} division.");
                     continue;
                 }
 
@@ -316,30 +323,33 @@ namespace Ladderbot4.Managers
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message
-                            await existingMessage.ModifyAsync(msg => msg.Content = standings);
+                            // Edit the existing message with the new embed
+                            await existingMessage.ModifyAsync(msg =>
+                            {
+                                msg.Embed = teamsEmbed;
+                                msg.Content = string.Empty; // Clear any existing text content
+                            });
                         }
                         else
                         {
                             // Message was deleted, send a new one
-                            var newMessage = await channel.SendMessageAsync(standings);
+                            var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
                             _teamsMessageMap[channelId] = newMessage.Id;
                         }
                     }
                     else
                     {
                         // No existing message, send a new one
-                        var newMessage = await channel.SendMessageAsync(standings);
+                        var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
                         _teamsMessageMap[channelId] = newMessage.Id;
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
+                    Console.WriteLine($"Error updating teams in channel {channelId}: {ex.Message}");
                 }
             }
         }
-
         #endregion
 
         #endregion
@@ -780,7 +790,7 @@ namespace Ladderbot4.Managers
 
         #region Reporting Logic
 
-        public string ReportWinProcess(SocketInteractionContext context, string winningTeamName)
+        public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
         {
             // Check if given team name exists
             if (!_teamManager.IsTeamNameUnique(winningTeamName))
@@ -792,7 +802,7 @@ namespace Ladderbot4.Managers
                 // Check if ladder is running in Challenger's division
                 if (!_statesManager.IsLadderRunning(winningTeam.Division))
                 {
-                    return $"```The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.```";
+                    return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
                 }
 
                 // Is the invoker on the team, using context
@@ -857,7 +867,9 @@ namespace Ladderbot4.Managers
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
 
-                            return $"```Team {winningTeam.TeamName} has won the challenge they initiated against Team {losingTeam.TeamName} in the {winningTeam.Division} division and taken their rank of (#{winningTeam.Rank})! Team {losingTeam.TeamName} drops down one in the ranks to (#{losingTeam.Rank}). All other ranks are adjusted accordingly.```";
+                            // Return Success Embed with true, showing rank change
+                            return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, true, winningTeam.Division);
+
                         }
                         // If winningTeam is challenged, no rank change will occur
                         else
@@ -892,21 +904,23 @@ namespace Ladderbot4.Managers
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
 
-                            return $"```Team {winningTeam.TeamName}(#{winningTeam.Rank}) has defeated Team {losingTeam.TeamName}(#{losingTeam.Rank}) and defended their rank in the {winningTeam.Division} division. No rank change has occured.```";
+                            // Return Success Embed with false, showing no rank change
+                            return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, false, winningTeam.Division);
+
                         }
                     }
                     else
                     {
-                        return $"```Team {winningTeam.TeamName} is not currently waiting on a challenge match.```";
+                        return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
                     }
                 }
                 else
                 {
-                    return $"```You are not part of Team {winningTeam.TeamName}.```";
+                    return _embedManager.ReportWinErrorEmbed($"You are not part of Team {winningTeam.TeamName}.");
                 }
             }
 
-            return $"```The given team name not found in the database: {winningTeamName}```";
+            return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
         }
         #endregion
 
@@ -1008,34 +1022,12 @@ namespace Ladderbot4.Managers
 
         #region Set Standings/Challenges/Teams Channel Logic
 
-        public string SetChallengesChannelIdProcess(string division, IMessageChannel channel)
+        public Embed SetChallengesChannelIdProcess(string division, IMessageChannel channel)
         {
             switch (division)
             {
                 case "1v1":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetChallengesChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Challenges.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "2v2":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetChallengesChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Challenges.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "3v3":
                     if (channel.Id != 0)
                     {
@@ -1044,43 +1036,21 @@ namespace Ladderbot4.Managers
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
-                        return $"{channel.Id} was set for {division} Challenges.";
+                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Challenges");
                     }
-                    return $"{channel.Id} is incorrect for a channel Id.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", $"{channel.Id} is incorrect for a channel Id.");
 
                 default:
-                    return "Incorrect division type given.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", "Incorrect division type given.");
             }
         }
 
-        public string SetStandingsChannelIdProcess(string division, IMessageChannel channel)
+        public Embed SetStandingsChannelIdProcess(string division, IMessageChannel channel)
         {
             switch (division)
             {
                 case "1v1":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetStandingsChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Standings.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "2v2":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetStandingsChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Standings.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "3v3":
                     if (channel.Id != 0)
                     {
@@ -1089,43 +1059,21 @@ namespace Ladderbot4.Managers
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
-                        return $"{channel.Id} was set for {division} Standings.";
+                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Standings");
                     }
-                    return $"{channel.Id} is incorrect for a channel Id.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", $"{channel.Id} is incorrect for a channel Id.");
 
                 default:
-                    return "Incorrect division type given.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", "Incorrect division type given.");
             }
         }
 
-        public string SetTeamsChannelIdProcess(string division, IMessageChannel channel)
+        public Embed SetTeamsChannelIdProcess(string division, IMessageChannel channel)
         {
             switch (division)
             {
                 case "1v1":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetTeamsChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Teams.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "2v2":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetTeamsChannelId(division, channel.Id);
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return $"{channel.Id} was set for {division} Teams.";
-                    }
-                    return $"{channel.Id} is incorrect for a channel Id.";
-
                 case "3v3":
                     if (channel.Id != 0)
                     {
@@ -1134,12 +1082,12 @@ namespace Ladderbot4.Managers
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
-                        return $"{channel.Id} was set for {division} Teams.";
+                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Teams");
                     }
-                    return $"{channel.Id} is incorrect for a channel Id.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", $"{channel.Id} is incorrect for a channel Id.");
 
                 default:
-                    return "Incorrect division type given.";
+                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", "Incorrect division type given.");
             }
         }
 
@@ -1148,7 +1096,7 @@ namespace Ladderbot4.Managers
         #region Add/Subtract Win/Loss Logic
 
         // For Admin command use, ReportWin logic uses directly to TeamManager
-        public string AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
+        public Embed AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
             // Check if team name exists in database
             if (!_teamManager.IsTeamNameUnique(teamName))
@@ -1165,12 +1113,12 @@ namespace Ladderbot4.Managers
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```Team {team.TeamName} has had {numberOfWins} win(s) added to their win count by an Admin({context.User.GlobalName})```";
+                return _embedManager.AddToWinCountSuccessEmbed(team, numberOfWins, context);
             }
-            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
 
-        public string SubtractFromWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
+        public Embed SubtractFromWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
             // Check if team name exists in database
             if (!_teamManager.IsTeamNameUnique(teamName))
@@ -1191,18 +1139,17 @@ namespace Ladderbot4.Managers
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
-                    return $"```Team {team.TeamName} has had {numberOfWins} win(s) subtracted from their win count by an Admin({context.User.GlobalName})```";
+                    return _embedManager.SubtractFromWinCountSuccessEmbed(team, numberOfWins, context);
                 }
                 else
                 {
-                    return $"```Subtracting {numberOfWins} win(s) from Team {team.TeamName}'s {team.Wins} wins would result in a negative number. Please try again.```";
+                    return _embedManager.NegativeCountErrorEmbed(team, numberOfWins, "Wins");
                 }
-
             }
-            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
 
-        public string AddToLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
+        public Embed AddToLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
         {
             // Check if team name exists in database
             if (!_teamManager.IsTeamNameUnique(teamName))
@@ -1219,12 +1166,12 @@ namespace Ladderbot4.Managers
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) added to their losses count by an Admin({context.User.GlobalName})```";
+                return _embedManager.AddToLossCountSuccessEmbed(team, numberOfLosses, context);
             }
-            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
 
-        public string SubtractFromLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
+        public Embed SubtractFromLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
         {
             // Check if team name exists in database
             if (!_teamManager.IsTeamNameUnique(teamName))
@@ -1245,15 +1192,15 @@ namespace Ladderbot4.Managers
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
-                    return $"```Team {team.TeamName} has had {numberOfLosses} loss(es) subtracted from their losses count by an Admin({context.User.GlobalName})```";
+                    return _embedManager.SubtractFromWinCountSuccessEmbed(team, numberOfLosses, context);
                 }
                 else
                 {
-                    return $"```Subtracting {numberOfLosses} loss(es) from Team {team.TeamName}'s {team.Losses} losses would result in a negative number. Please try again.```";
+                    return _embedManager.NegativeCountErrorEmbed(team, numberOfLosses, "Losses");
                 }
 
             }
-            return $"```Given team name not found in the database: {teamName} - Please try again.```";
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
 
         #endregion
@@ -1277,7 +1224,7 @@ namespace Ladderbot4.Managers
 
         #region Settings Logic
 
-        public string SetGuildId(SocketCommandContext context)
+        public Embed SetGuildId(SocketCommandContext context)
         {
             // Grab Guild Id command was invoked from
             ulong guildId = context.Guild.Id;
@@ -1287,29 +1234,29 @@ namespace Ladderbot4.Managers
             _settingsManager.SaveSettings();
             _settingsManager.LoadSettingsData();
 
-            return $"```Set GuildId in config.json to {guildId} - If this is the first time setting the GuildId for Slash Commands, then please restart the bot now.```";
+            return _embedManager.SetGuildIdSuccessEmbed(guildId);
         }
 
-        public string SetSuperAdminModeOnOffProcess(string onOrOff)
+        public Embed SetSuperAdminModeOnOffProcess(string onOrOff)
         {
             switch (onOrOff.Trim().ToLower())
             {
                 case "on":
                     _settingsManager.SetSuperAdminModeOnOff(true);
                     _settingsManager.SaveAndReloadSettingsDatabase();
-                    return $"```Super Admin Mode is on.```";
+                    return _embedManager.SuperAdminModeOnEmbed();
 
                 case "off":
                     _settingsManager.SetSuperAdminModeOnOff(false);
                     _settingsManager.SaveAndReloadSettingsDatabase();
-                    return $"```Super Admin Mode is off```";
+                    return _embedManager.SuperAdminModeOffEmbed();
 
                 default:
-                    return $"```Incorrent variable given.```";
+                    return _embedManager.SuperAdminInvalidInputEmbed();
             }
         }
 
-        public string AddSuperAdminIdProcess(IUser user)
+        public Embed AddSuperAdminIdProcess(IUser user)
         {
             // Grab discord Id of given user to make Super Admin
             ulong newAdminId = user.Id;
@@ -1318,13 +1265,12 @@ namespace Ladderbot4.Managers
             { 
                 _settingsManager.AddSuperAdminId(newAdminId);
                 _settingsManager.SaveAndReloadSettingsDatabase();
-                return $"```New Super Admin Id added to Settings config.json: {newAdminId}```";
-                
+                return _embedManager.AddSuperAdminIdSuccessEmbed(user);                
             }
-            return $"```{newAdminId} was already found among the Super Admin List in Settings config.json and can not be added again.```";
+            return _embedManager.AddSuperAdminIdAlreadyExistsEmbed(user);
         }
 
-        public string RemoveSuperAdminIdProcess(IUser user)
+        public Embed RemoveSuperAdminIdProcess(IUser user)
         {
             // Grab discord Id of user to remove from Super Admin list
             ulong adminId = user.Id;
@@ -1333,9 +1279,9 @@ namespace Ladderbot4.Managers
             {
                 _settingsManager.RemoveSuperAdminId(adminId);
                 _settingsManager.SaveAndReloadSettingsDatabase();
-                return $"```{adminId} was removed from the Super Admin Id from Settings config.json.```";
+                return _embedManager.RemoveSuperAdminIdSuccessEmbed(user);
             }
-            return $"```{adminId} was not found among the Super Admin List in Settings config.json.```";
+            return _embedManager.RemoveSuperAdminIdNotFoundEmbed(user);
         }
         #endregion
     }

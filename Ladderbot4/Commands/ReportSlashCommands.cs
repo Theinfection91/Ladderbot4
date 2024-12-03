@@ -21,8 +21,8 @@ namespace Ladderbot4.Commands
         [SlashCommand("win", "User-level command to report who won in a match.")]
         public async Task ReportWinAsync(string winningTeamName)
         {
-            string result = _ladderManager.ReportWinProcess(Context, winningTeamName);
-            await RespondAsync(result);
+            var result = _ladderManager.ReportWinProcess(Context, winningTeamName);
+            await RespondAsync(embed: result);
         }
     }
 }

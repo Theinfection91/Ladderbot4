@@ -36,20 +36,13 @@ namespace Ladderbot4.Models
 
         public string GetAllMemberNamesToStr()
         {
-            switch (Members.Count)
+            return Members.Count switch
             {
-                case 1:
-                    return $"{Members[0].DisplayName}";
-
-                case 2:
-                    return $"{Members[0].DisplayName}, {Members[1].DisplayName}";
-
-                case 3:
-                    return $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}";
-
-                default:
-                    return $"Incorrect member count. Count: {Members.Count}";
-            }
+                1 => $"{Members[0].DisplayName}",
+                2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
+                3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}",
+                _ => $"Incorrect member count. Count: {Members.Count}",
+            };
         }
     }
 }

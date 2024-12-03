@@ -68,8 +68,8 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to add wins to.")] string teamName,
                 [Summary("numberOfWins", "The number of wins to add to the team.")] int numberOfWins)
             {
-                string result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
-                await RespondAsync(result);
+                var result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
+                await RespondAsync(embed: result);
             }
 
             [SlashCommand("loss", "Admin command to add numberOfWins to given team")]
@@ -78,8 +78,8 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to add losses to.")] string teamName,
                 [Summary("numberOfLosses", "The number of losses to add to the team.")] int numberOfLosses)
             {
-                string result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
-                await RespondAsync(result);
+                var result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
+                await RespondAsync(embed: result);
             }
             #endregion
         }
@@ -102,8 +102,8 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to subtract wins from.")] string teamName,
                 [Summary("numerOfWins", "The number of wins to subtract from team.")] int numberOfWins)
             {
-                string result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
-                await RespondAsync(result);
+                var result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
+                await RespondAsync(embed: result);
             }
 
             [SlashCommand("loss", "Admin command to subtract numberOfLosses from given team")]
@@ -112,8 +112,8 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to subtract losses from.")] string teamName,
                 [Summary("numberOfLosses", "The number of losses to subtract from team.")] int numberOfLosses)
             {
-                string result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
-                await RespondAsync(result);
+                var result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
+                await RespondAsync(embed: result);
             }
             #endregion
         }

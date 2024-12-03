@@ -22,8 +22,8 @@ namespace Ladderbot4.Commands
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetGuildIdAsync()
         {
-            string result = _ladderManager.SetGuildId(Context);
-            await ReplyAsync(result);
+            var result = _ladderManager.SetGuildId(Context);
+            await ReplyAsync(embed: result);
         }
     }
 }

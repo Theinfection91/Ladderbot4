@@ -34,8 +34,8 @@ namespace Ladderbot4.Commands
             [Summary("division", "Which division channel to set.")] string division,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
-            string result = _ladderManager.SetChallengesChannelIdProcess(division, channel);
-            await RespondAsync(result);
+            var result = _ladderManager.SetChallengesChannelIdProcess(division, channel);
+            await RespondAsync(embed: result);
         }
 
         [SlashCommand("standings_channel_id", "For Admins to set the dynamic standings message.")]
@@ -44,8 +44,8 @@ namespace Ladderbot4.Commands
             [Summary("division", "Which division channel to set.")] string division,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
-            string result = _ladderManager.SetStandingsChannelIdProcess(division, channel);
-            await RespondAsync(result);
+            var result = _ladderManager.SetStandingsChannelIdProcess(division, channel);
+            await RespondAsync(embed: result);
         }
 
         [SlashCommand("teams_channel_id", "For Admins to set the dynamic teams message.")]
@@ -54,8 +54,8 @@ namespace Ladderbot4.Commands
             [Summary("division", "Which division channel to set.")] string division,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
-            string result = _ladderManager.SetTeamsChannelIdProcess(division, channel);
-            await RespondAsync(result);
+            var result = _ladderManager.SetTeamsChannelIdProcess(division, channel);
+            await RespondAsync(embed: result);
         }
     }
 }

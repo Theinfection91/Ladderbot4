@@ -203,5 +203,240 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
+        public Embed ReportWinErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Match Reporting Error")
+                .WithColor(Color.Red)
+                .WithDescription(errorMessage)
+                .WithFooter("Please resolve the issue and try again.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed ReportWinSuccessEmbed(Team winningTeam, Team losingTeam, bool rankChange, string division)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("🏆 Match Result Reported!")
+                .WithColor(Color.Green)
+                .WithDescription(rankChange
+                    ? $"Team **{winningTeam.TeamName}** has won the challenge they initiated against **{losingTeam.TeamName}** in the **{division} Division** and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.TeamName}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly."
+                    : $"Team **{winningTeam.TeamName}** has defeated **{losingTeam.TeamName}** in the **{division} Division** and defended their rank. No rank changes occurred.")
+                .AddField("Winning Team", $"{winningTeam.TeamName} (Rank #{winningTeam.Rank})", inline: true)
+                .AddField("Losing Team", $"{losingTeam.TeamName} (Rank #{losingTeam.Rank})", inline: true)
+                .WithFooter("Match successfully reported")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddToWinCountSuccessEmbed(Team team, int numberOfWins, SocketInteractionContext context)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Wins Added Successfully!")
+                .WithColor(Color.Green)
+                .WithDescription($"**{numberOfWins}** win(s) have been added to **{team.TeamName}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.TeamName, inline: true)
+                .AddField("New Win Count", team.Wins.ToString(), inline: true)
+                .WithFooter("Win count updated successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SubtractFromWinCountSuccessEmbed(Team team, int numberOfWins, SocketInteractionContext context)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Wins Subtracted Successfully!")
+                .WithColor(Color.Green)
+                .WithDescription($"**{numberOfWins}** win(s) have been subtracted from **{team.TeamName}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.TeamName, inline: true)
+                .AddField("New Win Count", team.Wins.ToString(), inline: true)
+                .WithFooter("Win count updated successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddToLossCountSuccessEmbed(Team team, int numberOfLosses, SocketInteractionContext context)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Losses Added Successfully!")
+                .WithColor(Color.Green)
+                .WithDescription($"**{numberOfLosses}** loss(es) have been added to **{team.TeamName}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.TeamName, inline: true)
+                .AddField("New Loss Count", team.Losses.ToString(), inline: true)
+                .WithFooter("Loss count updated successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SubtractFromLossCountSuccessEmbed(Team team, int numberOfLosses, SocketInteractionContext context)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Losses Subtracted Successfully!")
+                .WithColor(Color.Green)
+                .WithDescription($"**{numberOfLosses}** loss(es) have been subtracted from **{team.TeamName}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.TeamName, inline: true)
+                .AddField("New Loss Count", team.Losses.ToString(), inline: true)
+                .WithFooter("Loss count updated successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed TeamNotFoundErrorEmbed(string teamName)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Team Not Found")
+                .WithColor(Color.Red)
+                .WithDescription($"The team **{teamName}** was not found in the database. Please try again.")
+                .WithFooter("Team name verification failed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed NegativeCountErrorEmbed(Team team, int attemptedChange, string statType)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Invalid Operation")
+                .WithColor(Color.Red)
+                .WithDescription($"Attempting to subtract **{attemptedChange}** {statType.ToLower()}(s) from **{team.TeamName}**'s current {statType.ToLower()} count of **{(statType == "Wins" ? team.Wins : team.Losses)}** would result in a negative number. Operation aborted.")
+                .AddField("Team", team.TeamName, inline: true)
+                .AddField("Current Count", (statType == "Wins" ? team.Wins : team.Losses).ToString(), inline: true)
+                .WithFooter($"{statType} update failed due to invalid count.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetGuildIdSuccessEmbed(ulong guildId)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Guild ID Set Successfully")
+                .WithColor(Color.Green)
+                .WithDescription($"The Guild ID has been set to **{guildId}** in `config.json`.")
+                .WithFooter("If this is the first time setting the Guild ID, please restart the bot.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SuperAdminModeOnEmbed()
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Super Admin Mode Enabled")
+                .WithColor(Color.Green)
+                .WithDescription("Super Admin Mode is now **ON**.")
+                .WithFooter("All Super Admin privileges are active.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SuperAdminModeOffEmbed()
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Super Admin Mode Disabled")
+                .WithColor(Color.Green)
+                .WithDescription("Super Admin Mode is now **OFF**.")
+                .WithFooter("Super Admin privileges have been disabled.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SuperAdminInvalidInputEmbed()
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Invalid Input")
+                .WithColor(Color.Red)
+                .WithDescription("The input provided for enabling or disabling Super Admin Mode is invalid. Please use `on` or `off`.")
+                .WithFooter("Operation aborted.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddSuperAdminIdSuccessEmbed(IUser user)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Super Admin Added")
+                .WithColor(Color.Green)
+                .WithDescription($"**{user.Username}** (ID: **{user.Id}**) has been added to the Super Admin list.")
+                .WithFooter("Super Admin added successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed RemoveSuperAdminIdNotFoundEmbed(IUser user)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Super Admin Not Found")
+                .WithColor(Color.Red)
+                .WithDescription($"**{user.Username}** (ID: **{user.Id}**) is not in the Super Admin list and cannot be removed.")
+                .WithFooter("No changes made.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed RemoveSuperAdminIdSuccessEmbed(IUser user)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Super Admin Removed")
+                .WithColor(Color.Green)
+                .WithDescription($"**{user.Username}** (ID: **{user.Id}**) has been removed from the Super Admin list.")
+                .WithFooter("Super Admin removed successfully.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddSuperAdminIdAlreadyExistsEmbed(IUser user)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Super Admin Already Exists")
+                .WithColor(Color.Red)
+                .WithDescription($"**{user.Username}** (ID: **{user.Id}**) is already in the Super Admin list and cannot be added again.")
+                .WithFooter("No changes made.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetChannelIdSuccessEmbed(string division, IMessageChannel channel, string type)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Channel Set Successfully")
+                .WithColor(Color.Green)
+                .WithDescription($"The {type} channel for the **{division} Division** has been set successfully.")
+                .AddField("Channel Name", channel.Name, inline: true)
+                .AddField("Channel ID", channel.Id.ToString(), inline: true)
+                .AddField("Division", division, inline: true)
+                .WithFooter("Channel configuration updated")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetChannelIdErrorEmbed(string division, IMessageChannel channel, string type, string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Channel Set Error")
+                .WithColor(Color.Red)
+                .WithDescription($"Failed to set the {type} channel for the **{division} Division**.")
+                .AddField("Error", errorMessage, inline: false)
+                .AddField("Attempted Channel ID", channel.Id.ToString(), inline: true)
+                .AddField("Division", division, inline: true)
+                .WithFooter("Channel configuration failed")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
     }
 }
