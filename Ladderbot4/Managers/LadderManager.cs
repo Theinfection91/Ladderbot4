@@ -80,7 +80,6 @@ namespace Ladderbot4.Managers
             {
                 _backupManager.CopyJsonFilesToBackupRepo();
                 _backupManager.ForceBackupFiles();
-                Console.WriteLine("Sending automated backup to designated GitHub Repo");
             }
         }
 
@@ -415,7 +414,7 @@ namespace Ladderbot4.Managers
         /// <param name="teamName">Desired team name</param>
         /// <param name="divisionType">Which division to place the team in</param>
         /// <param name="members">The members for the new team</param>
-        /// <returns>String for the bot that will cover error handling and confirmation of registration.</returns>
+        /// <returns>Embed message from the bot that will cover error handling and confirmation of registration.</returns>
         public Embed RegisterTeamProcess(SocketInteractionContext context, string teamName, string divisionType, List<IUser> members)
         {
             // Load latest save of Teams database
@@ -500,7 +499,7 @@ namespace Ladderbot4.Managers
         /// Starts the process of trying to remove a team
         /// </summary>
         /// <param name="teamName">Name of team to try and remove from database</param>
-        /// <returns>String for the bot that will cover error handling and confirmation of removal.</returns>
+        /// <returns>Embed from the bot that will cover error handling and confirmation of removal.</returns>
         public Embed RemoveTeamProcess(string teamName)
         {
             // Load latest save of Teams database
