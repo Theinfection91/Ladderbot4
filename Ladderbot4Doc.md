@@ -34,6 +34,43 @@ How to set the Discord Token, Git PAT Token and HTTPS Url Path, and the Guild ID
 ---
 
 ## Using Commands
-Extensive information and how to use the various commands in Ladderbot4
+Extensive information and how to use the various commands in Ladderbot4:
+
+## Team Slash Commands
+
+### `/team register`
+
+**Description**:  
+Registers a new team in the specified division. This command can only be used by administrators.
+
+#### **Command Syntax**:
+
+```/team register <teamName> <division> <member1> [member2] [member3]```
+
+#### **Parameters**:
+- **teamName**: The unique name of the team to register.
+- **division**: The division type: `1v1`, `2v2`, or `3v3`.
+- **member1**: The first member of the team.
+- **member2** (optional): The second member, required for `2v2` and `3v3`.
+- **member3** (optional): The third member, required for `3v3`.
+
+#### **How It Works**:
+1. Validates the team name and division type.
+2. Confirms the correct number of members for the division.
+3. Ensures members are not already in another team in the same division.
+4. Creates the team, assigns it a rank, and saves it to the database.
+5. Provides a success or error response.
+
+#### **Example**:
+**Command**:  
+
+```/team register "Team Phoenix" 2v2 @Player1 @Player2```
+
+**Response**:  
+A success embed showing:
+- Team Name: Team Phoenix
+- Division: 2v2
+- Rank: Assigned automatically
+- Members: Player1, Player2
 
 ---
