@@ -21,14 +21,14 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 
 ### New/In-Progress Functionalities:
 
-- **(NEW) Git Backup Storage (Implemented, But Need Some Polishing)**:
+- **(NEW) Git Backup Storage (Implemented And Working, But Needs Some Polishing)**:
   - The ability to use an owned GitHub Repo as a backup storage hub for the .json database files that are used for teams, challenges, states, and history.
  
-- **(NEW) Match History (In-Progress, Needs User Commands To Read/Write To Discord)**:
+- **(NEW) Match History (In-Progress, Needs User Commands To Read/Write Information To Discord)**:
    - Storing previous match results in the database to cross reference for later use in case messages or channels are deleted. I also plan to use Match History for writing tests.
  
-- **(NEW) Embed Output (In-Progress, Refactoring All Previous Output From String To Embed)**:
-  - Previous versions only used string in Markdown format, **Ladderbot4** will now return embed objects as output to increase the overall beauty for the user.
+- **(NEW) Embed Output (Implemented)**:
+  - Previous versions only used string in Markdown format, **Ladderbot4** will now return embed objects as output to increase the overall readability for the user.
 
 ### Returning Features from Ladderbot3.0:
 
