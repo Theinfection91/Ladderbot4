@@ -169,8 +169,15 @@ namespace Ladderbot4.Managers
 
         public void CopyAndBackupFilesToGit()
         {
-            CopyJsonFilesToBackupRepo();
-            BackupFiles();
+            if (_settingsManager.IsGitPatTokenSet())
+            {
+                CopyJsonFilesToBackupRepo();
+                BackupFiles();
+            }
+            else
+            {
+                Console.WriteLine($"{DateTime.Now} GitBackupManager - Git PAT Token is not set so the backup repo is not set up. Commit was not pushed.");
+            }
         }
 
         public void ForceBackupFiles()

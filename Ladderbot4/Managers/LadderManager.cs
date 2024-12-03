@@ -53,7 +53,7 @@ namespace Ladderbot4.Managers
             StartingTeamsTask();
 
             // Start Automated Backup Task
-            StartAutomatedBackupTask();
+            StartAutomatedBackupTask();   
         }
         #endregion
 
@@ -76,8 +76,12 @@ namespace Ladderbot4.Managers
 
         private async Task SendBackupRepoToGitRepo()
         {
-            _backupManager.CopyJsonFilesToBackupRepo();
-            _backupManager.ForceBackupFiles();
+            if (_settingsManager.IsGitPatTokenSet())
+            {
+                _backupManager.CopyJsonFilesToBackupRepo();
+                _backupManager.ForceBackupFiles();
+                Console.WriteLine("Sending automated backup to designated GitHub Repo");
+            }
         }
 
         #endregion

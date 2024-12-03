@@ -281,11 +281,20 @@ namespace Ladderbot4.Managers
                 // Open a DM channel with the user
                 var dmChannel = await user.CreateDMChannelAsync();
 
-                // Send the message
-                string message = $"Your Team (Team {challenge.Challenged}) was challenged by Team {challenge.Challenger} in the {challenge.Division} division!";
-                await dmChannel.SendMessageAsync(message);
+                // Create the embed
+                var embedBuilder = new EmbedBuilder()
+                    .WithTitle("⚔️ You've Been Challenged!")
+                    .WithColor(Color.Gold)
+                    .WithDescription($"Your team, **Team {challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **Team {challenge.Challenger}(#{challenge.ChallengerRank})** in the **{challenge.Division} Division**.")
+                    .AddField("Challenger Team", challenge.Challenger, inline: true)
+                    .AddField("Your Team", challenge.Challenged, inline: true)
+                    .WithFooter("Prepare for your match!")
+                    .WithTimestamp(DateTimeOffset.Now);
 
-                Console.WriteLine($"Message sent to user {user.Username} (ID: {userId}).");
+                // Send the embed message
+                await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
+
+                Console.WriteLine($"Embed message sent to user {user.Username} (ID: {userId}).");
             }
             catch (Exception ex)
             {
