@@ -31,6 +31,64 @@ With this guide, you'll be ready to set up Ladderbot4 in your Discord server and
 ## Configuring The Bot
 How to set the Discord Token, Git PAT Token and HTTPS Url Path, and the Guild ID for SlashCommands:
 
+## How To Generate a GitHub PAT Token
+
+To use a GitHub repository as a backup storage system for the database `.json` files, you need to generate a **GitHub PAT Token** that targets the repository. Follow the instructions below:
+
+---
+
+### Step 1: Access Settings
+On the GitHub Desktop site, navigate to your **Settings**.
+
+![Step 1: Access Settings](examples/GitRepoSetup/1.png)
+
+---
+
+### Step 2: Open Developer Settings
+In the left-hand menu, scroll down and select **Developer settings**.
+
+![Step 2: Developer Settings](examples/GitRepoSetup/2.png)
+
+---
+
+### Step 3: Generate a New Fine-Grained Token
+Click on **Fine-grained tokens** and then select **Generate new token**.
+
+![Step 3: Generate Token](examples/GitRepoSetup/3.png)
+
+---
+
+### Step 4: Configure Token Details
+1. **Name**: Enter a name for the token. This can be any descriptive name and is not used in the program.
+2. **Expiration**: Choose an expiration date. It is recommended to set **"No expiration"** since the token will be used for long-term backups. This is optional and depends on your security needs.
+3. **Repository Access**: Under **Repository Access**, select **Only select repositories** and choose the specific repository the token will target.
+
+![Step 4: Configure Token Details](examples/GitRepoSetup/4.png)
+
+---
+
+### Step 5: Set Repository Permissions
+Under **Repository Permissions**, locate **Contents** and set it to **Read and Write**. This will automatically enable **Metadata** as a required permission. You should now have **2 permissions** selected: **Contents** and **Metadata**.
+
+![Step 5: Set Permissions](examples/GitRepoSetup/5.png)
+
+---
+
+### Step 6: Generate the Token
+Click **Generate Token** to finalize the process.
+
+![Step 6: Generate Token](examples/GitRepoSetup/6.png)
+
+---
+
+### Step 7: Save Your Token
+Once the token is generated, **copy the token string** and store it securely. If you lose this token, you will need to regenerate it.
+
+![Step 7: Save Token](examples/GitRepoSetup/7.png)
+
+> **Note:** The generated token is required for the program to connect to GitHub and perform backup operations. It must be stored in your program’s configuration file securely.
+
+   
 ---
 
 ## Using Commands
