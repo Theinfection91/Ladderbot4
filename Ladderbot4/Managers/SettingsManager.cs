@@ -95,8 +95,8 @@ namespace Ladderbot4.Managers
             {
                 if (!IsValidBotTokenSet())
                 {
-                    Console.WriteLine("\nIncorrect Bot Token found in Settings\\config.json");
-                    Console.WriteLine("Please enter your Bot Token now (This can be changed manually in Settings\\config.json as well if entered incorrectly and a connection can not be established): ");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Incorrect Bot Token found in Settings\\config.json");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Please enter your Bot Token now (This can be changed manually in Settings\\config.json as well if entered incorrectly and a connection can not be established): ");
                     string? botToken = Console.ReadLine();
                     if (IsValidBotToken(botToken))
                     {
@@ -123,9 +123,9 @@ namespace Ladderbot4.Managers
             {                
                 if (!IsGuildIdSet())
                 {
-                    Console.WriteLine("Incorrect Guild Id found in Settings\\config.json");
-                    Console.WriteLine("Please set a valid Guild ID for SlashCommands.");
-                    Console.WriteLine("Select a guild from the list below: ");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Incorrect Guild Id found in Settings\\config.json");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Please set a valid Guild ID for SlashCommands.");
+                    Console.WriteLine($"{DateTime.Now} SettingsManager - Select a guild from the list below: ");
                     foreach (var guild in _client.Guilds)
                     {
                         Console.WriteLine($"Guild: {guild.Name} (ID: {guild.Id})");
