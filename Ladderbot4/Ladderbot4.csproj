@@ -5,12 +5,17 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>lb4icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="lb4icon.ico" />
   </ItemGroup>
 
   <ItemGroup>
