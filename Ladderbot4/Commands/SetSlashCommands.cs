@@ -20,6 +20,7 @@ namespace Ladderbot4.Commands
         }
 
         [SlashCommand("rank", "Sets the specified rank to the given team")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetRankAsync(
             [Summary("teamName", "The team that will have their rank changed")] string teamName,
             [Summary("rank", "The new rank the team will be awarded.")] int rank)

@@ -925,6 +925,12 @@ namespace Ladderbot4.Managers
 
             return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
         }
+
+        public Embed ReportWinAdminProcess(SocketInteractionContext context, string winningTeamName)
+        {
+           // TODO - Placeholder for final return
+           return _embedManager.TeamNotFoundErrorEmbed(winningTeamName);
+        }
         #endregion
 
         #region History Logic

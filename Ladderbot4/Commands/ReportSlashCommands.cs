@@ -24,5 +24,24 @@ namespace Ladderbot4.Commands
             var result = _ladderManager.ReportWinProcess(Context, winningTeamName);
             await RespondAsync(embed: result);
         }
+
+        [Group("admin", "Admin slash commands related to challenges.")]
+        public class AdminChallengeSlashCommands : InteractionModuleBase<SocketInteractionContext>
+        {
+            private readonly LadderManager _ladderManager;
+
+            public AdminChallengeSlashCommands(LadderManager ladderManager)
+            {
+                _ladderManager = ladderManager;
+            }
+        }
+
+        [SlashCommand("win", "User-level command to report who won in a match.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task ReportWinAdminAsync(string winningTeamName)
+        {
+            var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
+            await RespondAsync(embed: result);
+        }
     }
 }

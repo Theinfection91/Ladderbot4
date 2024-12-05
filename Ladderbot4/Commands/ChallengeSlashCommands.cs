@@ -47,6 +47,7 @@ namespace Ladderbot4.Commands
             }
 
             [SlashCommand("send", "Attempts to send a challenge from one team to another team as Admin.")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task ChallengeAsync(
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
@@ -56,6 +57,7 @@ namespace Ladderbot4.Commands
             }
 
             [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task CancelChallengeAsync(
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
             {
