@@ -231,6 +231,22 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
+        public Embed ReportWinAdminSuccessEmbed(SocketInteractionContext context, Team winningTeam, Team losingTeam, bool rankChange, string division)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("🏆 Match Result Reported By Admin!")
+                .WithColor(Color.Green)
+                .WithDescription(rankChange
+                    ? $"Team **{winningTeam.TeamName}** has won the challenge they initiated against **{losingTeam.TeamName}** in the **{division} Division** and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.TeamName}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly. This report was created by an Admin (**{context.User.GlobalName ?? context.User.Username}**) "
+                    : $"Team **{winningTeam.TeamName}** has defeated **{losingTeam.TeamName}** in the **{division} Division** and defended their rank. No rank changes occurred.")
+                .AddField("Winning Team", $"{winningTeam.TeamName} (Rank #{winningTeam.Rank})", inline: true)
+                .AddField("Losing Team", $"{losingTeam.TeamName} (Rank #{losingTeam.Rank})", inline: true)
+                .WithFooter("Match successfully reported by Admin")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
         public Embed AddToWinCountSuccessEmbed(Team team, int numberOfWins, SocketInteractionContext context)
         {
             var embedBuilder = new EmbedBuilder()

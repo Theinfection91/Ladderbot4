@@ -34,14 +34,14 @@ namespace Ladderbot4.Commands
             {
                 _ladderManager = ladderManager;
             }
-        }
 
-        [SlashCommand("win", "User-level command to report who won in a match.")]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task ReportWinAdminAsync(string winningTeamName)
-        {
-            var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
-            await RespondAsync(embed: result);
+            [SlashCommand("win", "Admin-level command to report who won in a match.")]
+            [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+            public async Task ReportWinAdminAsync(string winningTeamName)
+            {
+                var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
+                await RespondAsync(embed: result);
+            }
         }
     }
 }

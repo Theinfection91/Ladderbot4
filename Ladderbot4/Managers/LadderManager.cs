@@ -922,14 +922,132 @@ namespace Ladderbot4.Managers
                     return _embedManager.ReportWinErrorEmbed($"You are not part of Team {winningTeam.TeamName}.");
                 }
             }
-
             return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
         }
 
         public Embed ReportWinAdminProcess(SocketInteractionContext context, string winningTeamName)
         {
-           // TODO - Placeholder for final return
-           return _embedManager.TeamNotFoundErrorEmbed(winningTeamName);
+            // Check if given team name exists
+            if (!_teamManager.IsTeamNameUnique(winningTeamName))
+            {
+                // Grab winningTeam object, add placeholder for losingTeam object
+                Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
+                Team losingTeam;
+
+                // Check if ladder is running in Challenger's division
+                if (!_statesManager.IsLadderRunning(winningTeam.Division))
+                {
+                    return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
+                }
+
+                // Is the team part of an active challenge (Challenger or Challenged)
+                if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
+                {
+                    // Grab challenge object for reference
+                    Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
+
+                    // Determine if winningTeam is Challenger or Challenged
+                    bool isWinningTeamChallenger;
+                    if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        isWinningTeamChallenger = true;
+                        losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
+                    }
+                    else
+                    {
+                        isWinningTeamChallenger = false;
+                        losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
+                    }
+
+                    // If winningTeam is challenger, rank change will occur
+                    if (isWinningTeamChallenger)
+                    {
+                        // The winning team takes the rank of the losing team
+                        winningTeam.Rank = losingTeam.Rank;
+                        losingTeam.Rank++;
+
+                        // Reassign ranks for the entire division
+                        ReassignRanks(winningTeam.Division);
+
+                        // Assign win and loss correctly
+                        _teamManager.AddToWins(winningTeam, 1);
+                        _teamManager.AddToLosses(losingTeam, 1);
+
+                        // Add to members wins and losses
+                        foreach (Member member in winningTeam.Members)
+                        {
+                            _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                        }
+
+                        foreach (Member member in losingTeam.Members)
+                        {
+                            _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+                        }
+
+                        // TODO: Create Match object to add to History (Past Matches)
+                        // Create correct match ID from division
+                        int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+
+                        _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+
+                        // Save the updated teams database and reload
+                        _teamManager.SaveAndReloadTeamsDatabase();
+
+                        // Remove the challenge
+                        _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
+                        // Return Success Embed with true, showing rank change
+                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, true, winningTeam.Division);
+                    }
+                    // If winningTeam is challenged, no rank change will occur
+                    else
+                    {
+                        // Assign win and loss correctly
+                        _teamManager.AddToWins(winningTeam, 1);
+                        _teamManager.AddToLosses(losingTeam, 1);
+
+                        // Add to members wins and losses
+                        foreach (Member member in winningTeam.Members)
+                        {
+                            _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                        }
+
+                        foreach (Member member in losingTeam.Members)
+                        {
+                            _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+                        }
+
+                        // TODO: Create Match object to add to History (Past Matches)
+                        // Create correct match ID from division
+                        int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+
+                        _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+
+                        // Save the updated teams data and reload
+                        _teamManager.SaveAndReloadTeamsDatabase();
+
+                        // If the challenged team wins, no rank change
+                        _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
+                        // Return Success Embed with false, showing no rank change
+                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, false, winningTeam.Division);
+
+                    }
+
+                }
+                else
+                {
+                    return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
+                }
+
+            }
+            return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
         }
         #endregion
 
