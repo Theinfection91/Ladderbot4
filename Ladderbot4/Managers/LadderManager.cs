@@ -582,6 +582,12 @@ namespace Ladderbot4.Managers
                                 {
                                     // Create and save the new Challenge
                                     _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
+
+                                    // Change IsChallengeable of both teams to false
+                                    _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+                                    _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+                                    _teamManager.SaveAndReloadTeamsDatabase();
+
                                     _challengeManager.SaveAndReloadChallenges();
                                     _backupManager.CopyAndBackupFilesToGit();
 
@@ -656,6 +662,15 @@ namespace Ladderbot4.Managers
                     // Check if Team has a challenge sent out to actually cancel
                     if (_challengeManager.IsTeamChallenger(challengerTeamObject))
                     {
+                        // Grab challenge object to use to change challenged team IsChallengeable status
+                        Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
+                        Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
+
+                        // Set IsChallengeable for both teams back to true
+                        _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+                        _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+                        _teamManager.SaveAndReloadTeamsDatabase();
+
                         // Cancel the challenge, save challenges database and reload it
                         _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
 
@@ -712,6 +727,11 @@ namespace Ladderbot4.Managers
                             {
                                 // If all checks are passed, create and save the new Challenge object
                                 _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
+
+                                // Change IsChallengeable of both teams to false
+                                _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+                                _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+                                _teamManager.SaveAndReloadTeamsDatabase();
 
                                 // Save and reload Challenges database
                                 _challengeManager.SaveAndReloadChallenges();
@@ -771,6 +791,15 @@ namespace Ladderbot4.Managers
                 // Check if Team has a challenge sent out to actually cancel
                 if (_challengeManager.IsTeamChallenger(challengerTeamObject))
                 {
+                    // Grab challenge object to use to change challenged team IsChallengeable status
+                    Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
+                    Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
+
+                    // Set IsChallengeable for both teams back to true
+                    _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+                    _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+                    _teamManager.SaveAndReloadTeamsDatabase();
+
                     // Cancel the challenge, save challenges database and reload it
                     _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
 
@@ -861,7 +890,9 @@ namespace Ladderbot4.Managers
 
                             _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                            // Save the updated teams database and reload
+                            // Set IsChallengeable status of both teams back to true
+                            _teamManager.ChangeChallengeStatus(winningTeam, true);
+                            _teamManager.ChangeChallengeStatus(losingTeam, true);
                             _teamManager.SaveAndReloadTeamsDatabase();
 
                             // Remove the challenge
@@ -898,7 +929,9 @@ namespace Ladderbot4.Managers
 
                             _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                            // Save the updated teams data and reload
+                            // Set IsChallengeable status of both teams back to true
+                            _teamManager.ChangeChallengeStatus(winningTeam, true);
+                            _teamManager.ChangeChallengeStatus(losingTeam, true);
                             _teamManager.SaveAndReloadTeamsDatabase();
 
                             // If the challenged team wins, no rank change
@@ -990,6 +1023,10 @@ namespace Ladderbot4.Managers
 
                         _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
+                        // Set IsChallengeable status of both teams back to true
+                        _teamManager.ChangeChallengeStatus(winningTeam, true);
+                        _teamManager.ChangeChallengeStatus(losingTeam, true);
+
                         // Save the updated teams database and reload
                         _teamManager.SaveAndReloadTeamsDatabase();
 
@@ -1025,6 +1062,10 @@ namespace Ladderbot4.Managers
                         int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
 
                         _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+
+                        // Set IsChallengeable status of both teams back to true
+                        _teamManager.ChangeChallengeStatus(winningTeam, true);
+                        _teamManager.ChangeChallengeStatus(losingTeam, true);
 
                         // Save the updated teams data and reload
                         _teamManager.SaveAndReloadTeamsDatabase();

@@ -112,9 +112,10 @@ namespace Ladderbot4.Managers
             // Format the standings
             foreach (Team team in divisionTeams)
             {
+                string status = team.IsChallengeable ? "Free" : "Challenged";
                 embedBuilder.AddField(
                     $"#{team.Rank} {team.TeamName}",
-                    $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}**",
+                    $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}** | *Status:* **{status}**",
                     inline: false // Stacked vertically for better readability
                 );
             }
@@ -222,6 +223,22 @@ namespace Ladderbot4.Managers
 
             // If no team is found
             return null;
+        }
+
+        public void ChangeChallengeStatus(Team team, bool trueOrFalse)
+        {
+            switch (trueOrFalse)
+            {
+                case true:
+                    Console.WriteLine("Set to false");
+                    team.IsChallengeable = true;
+                    break;
+
+                case false:
+                    Console.WriteLine("Set to false");
+                    team.IsChallengeable = false;
+                    break;
+            }
         }
 
         public void AddToWins(Team team, int numberOfWins)

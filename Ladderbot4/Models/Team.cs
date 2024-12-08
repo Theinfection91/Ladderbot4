@@ -21,6 +21,9 @@ namespace Ladderbot4.Models
         public int WinStreak { get; set; }
         public int LoseStreak { get; set; }
 
+        // TODO - Adding an IsChallengeable bool property so I can easily display if a team has been "Challenged" or is "Free"
+        public bool IsChallengeable { get; set; }
+
         // W/L Ratio
         public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
@@ -32,6 +35,7 @@ namespace Ladderbot4.Models
             Wins = wins;
             Losses = losses;
             Members = members;
+            IsChallengeable = true;
         }
 
         public string GetAllMemberNamesToStr()
