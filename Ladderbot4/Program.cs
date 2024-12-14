@@ -16,7 +16,6 @@ namespace Ladderbot4
 {
     public class Program
     {
-        // new pc test
         private DiscordSocketClient _client;
         private CommandService _commands;
         private IServiceProvider _services;
