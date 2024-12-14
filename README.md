@@ -56,21 +56,21 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ---
 
 ## Planned Features
+2. **Multiple Divisions Of The Same Type**:
+   - I want to add the ability to have multiple divisions of the same type running at the same time (Example: Two 1v1's, three 2v2's or even 100 3v3's if need be)
 
-1. **Stat Tracking and Achievements** (Began Background Work):
+2. **Stat Tracking and Achievements** (Began Background Work):
    - Track team and individual stats, possible stat ideas:
      - Number of matches played.
      - Rank changes during a ladder's lifetime.
      - Player achievements, such as participating in a champion team.
    - Implement achievements tied to Discord IDs and store data in the bot's database.
 
-
-
 3. **Logging System** (Enhanced):
    - Plans to integrate bot commands to filter and view logs dynamically in Discord.
    - Logs command invocations, parameters, and errors
      
-5. **Creative Additions**:
+4. **Creative Additions**:
    - Open to suggestions for new features or improvements to the bot's current functionality.
 
 ---
