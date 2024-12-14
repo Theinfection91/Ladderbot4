@@ -56,7 +56,7 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ---
 
 ## Planned Features
-2. **Multiple Divisions Of The Same Type**:
+1. **Multiple Divisions Of The Same Type**:
    - I want to add the ability to have multiple divisions of the same type running at the same time (Example: Two 1v1's, three 2v2's or even 100 3v3's if need be)
 
 2. **Stat Tracking and Achievements** (Began Background Work):
