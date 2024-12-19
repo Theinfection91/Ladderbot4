@@ -54,6 +54,18 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsValidDivisionType(string divisionType)
+        {
+            foreach (string division in new[] { "1v1", "2v2", "3v3" })
+            {
+                if (divisionType.ToLower().Equals(division))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public League GetLeagueByName(string leagueName)
         {
             foreach (var league in _leaguesByDivision.Leagues1v1)

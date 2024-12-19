@@ -108,18 +108,6 @@ namespace Ladderbot4.Managers
             return true;
         }
 
-        public bool IsValidDivisionType(string divisionType)
-        {
-            foreach (string division in new[] { "1v1", "2v2", "3v3" })
-            {
-                if (divisionType.ToLower().Equals(division))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
         public string GetStandingsData(string division)
         {
             // Load database
@@ -366,12 +354,24 @@ namespace Ladderbot4.Managers
             LoadTeamsDatabase();
         }
 
+        public void AddNewTeamToLeague(Team newTeam, League league)
+        {
+            _leagueData.AddTeamToLeague(newTeam, league);
+
+            LoadLeaguesDatabase();
+        }
+
         public void RemoveTeam(string teamName, string division)
         {
             _teamData.RemoveTeam(teamName, division);
 
             // Loads newest save of the database to backing field
             LoadTeamsDatabase();
+        }
+
+        public void RemoveTeamFromLeague(Team team, League league)
+        {
+            // TODO in LeagueData
         }
     }
 }

@@ -476,7 +476,7 @@ namespace Ladderbot4.Managers
             if (_teamManager.IsTeamNameUnique(teamName))
             {
                 // Checks if a correct division type is given
-                if (_teamManager.IsValidDivisionType(divisionType))
+                if (_leagueManager.IsValidDivisionType(divisionType))
                 {
                     // Convert User Context Info into Member objects
                     List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
@@ -507,18 +507,6 @@ namespace Ladderbot4.Managers
                         foreach (Member member in newMemberList)
                         {
                             _memberManager.AddToDivisionTeamCount(member, divisionType);
-                        }
-
-                        foreach (Member member in newMemberList)
-                        {
-                            _achievementManager.LoadMembersAchievements();
-                            if (member.TotalTeamCount >= 1)
-                            {
-                                Console.WriteLine("Test");
-                                YourFirstWin yourFirstWin = new();
-                                _achievementManager.AddAchievementToMember(member, yourFirstWin);
-                                _achievementManager.SendAchievementNotification(member.DiscordId, yourFirstWin);
-                            }
                         }
 
                         // All members are eligible, all conditions passed, add the new team to the database.
@@ -928,7 +916,7 @@ namespace Ladderbot4.Managers
                             // Add to members wins and losses
                             foreach (Member member in winningTeam.Members)
                             {
-                                _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                                _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
                             }
 
                             foreach (Member member in losingTeam.Members)
@@ -967,7 +955,7 @@ namespace Ladderbot4.Managers
                             // Add to members wins and losses
                             foreach (Member member in winningTeam.Members)
                             {
-                                _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                                _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
                             }
 
                             foreach (Member member in losingTeam.Members)
@@ -1061,7 +1049,7 @@ namespace Ladderbot4.Managers
                         // Add to members wins and losses
                         foreach (Member member in winningTeam.Members)
                         {
-                            _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                            _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
                         }
 
                         foreach (Member member in losingTeam.Members)
@@ -1099,10 +1087,10 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToLosses(losingTeam, 1);
 
                         // Add to members wins and losses
-                        foreach (Member member in winningTeam.Members)
-                        {
-                            _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
-                        }
+                        //foreach (Member member in winningTeam.Members)
+                        //{
+                        //    _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+                        //}
 
                         foreach (Member member in losingTeam.Members)
                         {
