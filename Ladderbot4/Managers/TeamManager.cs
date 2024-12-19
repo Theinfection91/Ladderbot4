@@ -196,7 +196,7 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-
+        // WILL DELETE LATER
         public int GetTeamCount(string division)
         {
             return division switch
@@ -207,6 +207,11 @@ namespace Ladderbot4.Managers
                 _ => 0
             };
             ;
+        }
+
+        public int GetTeamCountInLeague(League league)
+        {
+            return league.Teams.Count;
         }
 
         public List<Team>? GetTeamsByDivision(string division)

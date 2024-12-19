@@ -54,6 +54,29 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public League GetLeagueByName(string leagueName)
+        {
+            foreach (var league in _leaguesByDivision.Leagues1v1)
+            {
+                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    return league;
+            }
+
+            foreach (var league in _leaguesByDivision.Leagues2v2)
+            {
+                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    return league;
+            }
+
+            foreach (var league in _leaguesByDivision.Leagues3v3)
+            {
+                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    return league;
+            }
+
+            return null;
+        }
+
         public League CreateLeagueObject(string leagueName, string leagueDivision)
         {
             return new League(leagueName, leagueDivision);
