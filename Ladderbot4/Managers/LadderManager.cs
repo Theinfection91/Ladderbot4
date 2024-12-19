@@ -424,6 +424,42 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Register/Remove Team Logic
+
+        public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
+        {
+            // Load latest save of the Leagues Database
+            _teamManager.LoadLeaguesDatabase();
+
+            // Check if League by given name exists
+            if (_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab reference of league
+                League leagueReference = _leagueManager.GetLeagueByName(leagueName);
+
+                if (_teamManager.IsTeamNameUnique(teamName))
+                {
+                    // Convert User Context Info into Member objects
+                    List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
+
+                    if (_memberManager.IsMemberCountCorrect(newMemberList, leagueReference.Division) || _settingsManager.IsUserSuperAdmin(context.User.Id))
+                    {
+                        // Grab all teams from League
+                        List<Team>? leagueTeams = _teamManager.GetTeamsInLeague(leagueReference);
+
+                        foreach (Member member in newMemberList)
+                        {
+                            if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
+                            {
+                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the given League ({leagueReference.LeagueName}).");
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _embedManager.RegisterTeamErrorEmbed("TODO");
+        }
+
         /// <summary>
         /// Goes through the process of trying to register a new team with given name, division type, and members.
         /// </summary>

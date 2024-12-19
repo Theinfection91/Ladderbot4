@@ -68,23 +68,43 @@ namespace Ladderbot4.Managers
         }
 
         // Check if the team name is unique across all divisions
+        //public bool IsTeamNameUnique(string teamName)
+        //{
+        //    // Check each division for the team name
+        //    foreach (var division in new[] { _teamsByDivision.Division1v1, _teamsByDivision.Division2v2, _teamsByDivision.Division3v3 })
+        //    {
+        //        // Iterate through the teams in this division
+        //        foreach (Team team in division)
+        //        {
+        //            // Compare team names (case-insensitive)
+        //            if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                return false; // Name is not unique
+        //            }
+        //        }
+        //    }
+
+        //    // If no match was found, the name is unique
+        //    return true;
+        //}
+
         public bool IsTeamNameUnique(string teamName)
         {
-            // Check each division for the team name
-            foreach (var division in new[] { _teamsByDivision.Division1v1, _teamsByDivision.Division2v2, _teamsByDivision.Division3v3 })
+            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
             {
-                // Iterate through the teams in this division
-                foreach (Team team in division)
+                foreach (League league in division)
                 {
-                    // Compare team names (case-insensitive)
-                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                    foreach (Team team in league.Teams)
                     {
-                        return false; // Name is not unique
+                        // Compare team names (case-insensitive)
+                        if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false; // Name is not unique
+                        }
                     }
                 }
             }
 
-            // If no match was found, the name is unique
             return true;
         }
 

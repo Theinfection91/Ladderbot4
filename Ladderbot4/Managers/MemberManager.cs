@@ -97,6 +97,21 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        public bool IsMemberOnTeamInLeague(Member member, List<Team> leagueTeams)
+        {
+            foreach (Team team in leagueTeams)
+            {
+                foreach (Member teamMember in team.Members)
+                {
+                    if (teamMember.Equals(member))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         public bool IsMemberRegisteredToDatabase(Member memberToCheck)
         {
             foreach (Member member in _membersList.AllMembers)
