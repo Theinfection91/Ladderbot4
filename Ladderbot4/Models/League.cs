@@ -29,5 +29,19 @@ namespace Ladderbot4.Models
                 Teams.Add(team);
             }
         }
+
+        public void RemoveTeam(Team teamToRemove)
+        {
+            if (teamToRemove != null)
+            {
+                foreach (var team in Teams)
+                {
+                    if (team.TeamName == teamToRemove.TeamName)
+                    {
+                        Teams.Remove(team);
+                    }
+                }
+            }
+        }
     }
 }

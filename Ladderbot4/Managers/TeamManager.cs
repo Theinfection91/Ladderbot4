@@ -226,6 +226,15 @@ namespace Ladderbot4.Managers
             ;
         }
 
+        public List<Team>? GetTeamsInLeague(League league)
+        {
+            if (league != null)
+            {
+                return league.Teams;
+            }
+            return null;
+        }
+
         public Team GetTeamByName(string teamName)
         {
             // Search in Division1v1
@@ -250,6 +259,41 @@ namespace Ladderbot4.Managers
             }
 
             // If no team is found
+            return null;
+        }
+
+        public Team GetTeamByNameFromLeagues(string teamName)
+        {
+            // Search All 1v1 Leagues
+            foreach (var league in _leaguesByDivision.Leagues1v1)
+            {
+                foreach (var team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        return team;
+                }
+            }
+
+            // Search All 2v2 Leagues
+            foreach (var league in _leaguesByDivision.Leagues2v2)
+            {
+                foreach (var team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        return team;
+                }
+            }
+
+            // Search All 3v3 Leagues
+            foreach (var league in _leaguesByDivision.Leagues3v3)
+            {
+                foreach (var team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        return team;
+                }
+            }
+
             return null;
         }
 

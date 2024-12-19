@@ -117,5 +117,52 @@ namespace Ladderbot4.Data
 
             SaveLeagues(leaguesByDivision);
         }
+
+        public void AddTeamToLeague(Team newTeam, League chosenLeague)
+        {
+            var leaguesByDivision = LoadAllLeagues();
+            
+            switch (newTeam.Division)
+            {
+                case "1v1":
+                    foreach (var league in leaguesByDivision.Leagues1v1)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+
+                case "2v2":
+                    foreach (var league in leaguesByDivision.Leagues2v2)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+
+                case "3v3":
+                    foreach (var league in leaguesByDivision.Leagues3v3)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+            }
+
+            SaveLeagues(leaguesByDivision);
+        }
+
+        public void RemoveTeamFromLeague(Team team, League chosenLeague)
+        {
+            var leaguesByDivision = LoadAllLeagues();
+
+
+        }
     }
 }
