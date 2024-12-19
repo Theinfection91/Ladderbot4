@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 using Ladderbot4.Data;
 using Ladderbot4.Models;
 
@@ -34,6 +35,23 @@ namespace Ladderbot4.Managers
         {
             SaveLeagues();
             LoadLeaguesDatabase();
+        }
+
+        public bool IsLeagueNameUnique(string leagueName)
+        {
+            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            {
+                foreach (League league in division)
+                {
+                    // Compare team names (case-insensitive)
+                    if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false; // Name is not unique
+                    }
+                }
+            }
+
+            return true;
         }
 
         public League CreateLeagueObject(string leagueName, string leagueDivision)

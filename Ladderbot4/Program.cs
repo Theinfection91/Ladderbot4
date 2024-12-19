@@ -54,19 +54,21 @@ namespace Ladderbot4
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
 
-                    services.AddSingleton<ChallengeData>();
-                    services.AddSingleton<EmbedManager>();
+                    services.AddSingleton<ChallengeData>();                   
                     services.AddSingleton<HistoryData>();
                     services.AddSingleton<LadderData>();
+                    services.AddSingleton<LeagueData>();
                     services.AddSingleton<MemberData>();
                     services.AddSingleton<SettingsData>();
                     services.AddSingleton<TeamData>();
 
                     services.AddSingleton<AchievementManager>();
+                    services.AddSingleton<ChallengeManager>();
+                    services.AddSingleton<EmbedManager>();
                     services.AddSingleton<GitBackupManager>();
                     services.AddSingleton<HistoryManager>();
-                    services.AddSingleton<ChallengeManager>();
                     services.AddSingleton<LadderManager>();
+                    services.AddSingleton<LeagueManager>();
                     services.AddSingleton<MemberManager>();
                     services.AddSingleton<StatesManager>();
                     services.AddSingleton<SettingsManager>();

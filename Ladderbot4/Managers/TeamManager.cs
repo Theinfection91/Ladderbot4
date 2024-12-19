@@ -14,12 +14,19 @@ namespace Ladderbot4.Managers
     {
         private readonly TeamData _teamData;
 
+        // Migrating to new LeagueData
+        private readonly LeagueData _leagueData;
+
         private TeamsByDivision _teamsByDivision;
 
-        public TeamManager(TeamData teamData)
+        private LeaguesByDivision _leaguesByDivision;
+
+        public TeamManager(TeamData teamData, LeagueData leagueData)
         {
             _teamData = teamData;
+            _leagueData = leagueData;
             _teamsByDivision = _teamData.LoadAllTeams();
+            _leaguesByDivision = _leagueData.LoadAllLeagues();
         }
 
         public void SaveTeams()
@@ -27,15 +34,31 @@ namespace Ladderbot4.Managers
             _teamData.SaveTeams(_teamsByDivision);
         }
 
+        public void SaveLeagues()
+        {
+            _leagueData.SaveLeagues(_leaguesByDivision);
+        }
+
         public void LoadTeamsDatabase()
         {
             _teamsByDivision = _teamData.LoadAllTeams();
+        }
+
+        public void LoadLeaguesDatabase()
+        {
+            _leaguesByDivision = _leagueData.LoadAllLeagues();
         }
 
         public void SaveAndReloadTeamsDatabase()
         {
             SaveTeams();
             LoadTeamsDatabase();
+        }
+
+        public void SaveAndReloadLeaguesDatabase()
+        {
+            SaveLeagues();
+            LoadLeaguesDatabase();
         }
 
         // Check if two given teams are in the same division
@@ -186,7 +209,7 @@ namespace Ladderbot4.Managers
             ;
         }
 
-        public List<Team> GetTeamsByDivision(string division)
+        public List<Team>? GetTeamsByDivision(string division)
         {
             return division switch
             {

@@ -20,6 +20,7 @@ namespace Ladderbot4.Managers
         private readonly DiscordSocketClient _client;
         private readonly AchievementManager _achievementManager;
         private readonly EmbedManager _embedManager;
+        private readonly LeagueManager _leagueManager;
         private readonly GitBackupManager _backupManager;
         private readonly HistoryManager _historyManager;
         private readonly TeamManager _teamManager;
@@ -34,11 +35,12 @@ namespace Ladderbot4.Managers
         private readonly Dictionary<ulong, ulong> _teamsMessageMap = new();
 
 
-        public LadderManager(DiscordSocketClient client, AchievementManager achievementManager, EmbedManager embedManager, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
+        public LadderManager(DiscordSocketClient client, AchievementManager achievementManager, EmbedManager embedManager, LeagueManager leagueManager, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _client = client;
             _achievementManager = achievementManager;
             _embedManager = embedManager;
+            _leagueManager = leagueManager;
             _backupManager = gitBackupManager;
             _historyManager = historyManager;
             _teamManager = teamManager;
@@ -405,6 +407,20 @@ namespace Ladderbot4.Managers
                 return _embedManager.EndLadderNotRunningEmbed(division);
             }
         }
+        #endregion
+
+        #region Create/Delete League Logic
+
+        public Embed CreateLeagueProcess(string leagueName, string divisionType)
+        {
+            return _embedManager.TeamNotFoundErrorEmbed("null");
+        }
+
+        public Embed DeleteLeagueProcess(string leagueName)
+        {
+            return _embedManager.TeamNotFoundErrorEmbed("null");
+        }
+
         #endregion
 
         #region Register/Remove Team Logic
