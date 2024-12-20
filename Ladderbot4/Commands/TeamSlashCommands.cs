@@ -22,23 +22,48 @@ namespace Ladderbot4.Commands
         }
 
         #region Register/Remove Team Commands
-        [SlashCommand("register", "Admin command to register team in given division.")]
+        [SlashCommand("register", "Admin command to register a team in the specified league.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RegisterTeamAsync(
-            [Summary("teamName", "Name of the team to be registered")] string teamName,
-            [Summary("division", "Division type (1v1, 2v2, 3v3)")] string divisionType,
-            [Summary("member1", "For creating 1v1 team")] IUser member1,
-            [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
-            [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
+        [Summary("teamName", "Name of the team to be registered")] string teamName,
+        [Summary("leagueName", "The league to register the team to")] string leagueName,
+        [Summary("member1", "For creating 1v1 team")] IUser member1,
+        [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
+        [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
         {
-            // Compile member(s) to list
-            var members = new List<IUser> { member1 };
-            if (member2 != null) members.Add(member2);
-            if (member3 != null) members.Add(member3);
+            try
+            {
+                // Defer response if the process might take time
+                await Context.Interaction.DeferAsync();
 
-            var result = _ladderManager.RegisterTeamProcess(Context, teamName, divisionType.Trim().ToLower(), members);
-            await RespondAsync(embed: result);
+                // Compile members into a list
+                var members = new List<IUser> { member1 };
+                if (member2 != null) members.Add(member2);
+                if (member3 != null) members.Add(member3);
+
+                // Ensure league name is standardized (lowercase, trimmed)
+                leagueName = leagueName.Trim().ToLower();
+
+                // Call the LadderManager to process the registration
+                var resultEmbed = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
+
+                // Send the resulting embed
+                await Context.Interaction.FollowupAsync(embed: resultEmbed);
+            }
+            catch (Exception ex)
+            {
+                // Handle unexpected errors
+                var errorEmbed = new EmbedBuilder()
+                    .WithTitle("Error")
+                    .WithColor(Color.Red)
+                    .WithDescription($"An error occurred while registering the team: {ex.Message}")
+                    .WithFooter("Please contact the bot administrator for assistance.")
+                    .Build();
+
+                await Context.Interaction.FollowupAsync(embed: errorEmbed, ephemeral: true);
+            }
         }
+
 
         [SlashCommand("remove", "Admin command to remove team from teams database.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]

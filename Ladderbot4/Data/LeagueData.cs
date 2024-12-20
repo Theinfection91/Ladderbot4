@@ -85,7 +85,7 @@ namespace Ladderbot4.Data
             SaveLeagues(leaguesByDivision);
         }
 
-        public void RemoveLeague(string leagueId, string division)
+        public void RemoveLeague(string leagueName, string division)
         {
             LeaguesByDivision leaguesByDivision = LoadAllLeagues();
 
@@ -104,11 +104,11 @@ namespace Ladderbot4.Data
             }
 
             // Find League
-            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.Id.Equals(leagueId, StringComparison.OrdinalIgnoreCase));
+            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
 
             if (leagueToRemove == null)
             {
-                Console.WriteLine($"The League by the Id of '{leagueId}' was not found.");
+                Console.WriteLine($"The League by the name of '{leagueName}' was not found.");
                 return;
             }
 

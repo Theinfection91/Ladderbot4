@@ -96,6 +96,21 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
+        public Embed RegisterTeamToLeagueSuccessEmbed(Team newTeam, League league)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("🎉 Team Registered Successfully!")
+            .WithColor(Color.Green)
+            .WithDescription($"A new team has been registered to the **{league.LeagueName} League**!")
+            .AddField("Team Name", $"**{newTeam.TeamName}**", inline: true)
+            .AddField("Rank", $"**#{newTeam.Rank}**", inline: true)
+            .AddField("Members", newTeam.GetAllMemberNamesToStr(), inline: false)
+            .WithFooter("Good luck to your team!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
         public Embed RemoveTeamErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()

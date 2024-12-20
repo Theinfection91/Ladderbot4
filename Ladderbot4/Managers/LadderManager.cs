@@ -413,6 +413,26 @@ namespace Ladderbot4.Managers
 
         public Embed CreateLeagueProcess(string leagueName, string divisionType)
         {
+
+            // Check if desired League name is taken
+            if (_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Check if given division type is correct
+                if (_leagueManager.IsValidDivisionType(divisionType))
+                {
+                    // Create new League object
+                    League newLeague = new(leagueName, divisionType);
+
+                    // Add new league to database
+                    _leagueManager.AddNewLeague(newLeague);
+
+                    // Save and reload
+                    _teamManager.SaveAndReloadLeaguesDatabase();
+
+                    // TODO - Create Embeds for League creation/removal
+                    return _embedManager.TeamNotFoundErrorEmbed("created league");
+                }
+            }
             return _embedManager.TeamNotFoundErrorEmbed("null");
         }
 
@@ -428,10 +448,10 @@ namespace Ladderbot4.Managers
         public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
             // Load latest save of the Leagues Database
-            _teamManager.LoadLeaguesDatabase();
+            _leagueManager.LoadLeaguesDatabase();
 
             // Check if League by given name exists
-            if (_leagueManager.IsLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab reference of league
                 League leagueReference = _leagueManager.GetLeagueByName(leagueName);
@@ -446,6 +466,7 @@ namespace Ladderbot4.Managers
                         // Grab all teams from League
                         List<Team>? leagueTeams = _teamManager.GetTeamsInLeague(leagueReference);
 
+                        // Check if any member is already on a team in the given league
                         foreach (Member member in newMemberList)
                         {
                             if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
@@ -453,6 +474,20 @@ namespace Ladderbot4.Managers
                                 return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the given League ({leagueReference.LeagueName}).");
                             }
                         }
+
+                        // Create team object
+                        Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.Division, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
+
+                        // Add team to league
+                        _teamManager.AddNewTeamToLeague(newTeam, leagueReference);
+
+                        // Save and reload Leagues Database
+                        _teamManager.SaveAndReloadLeaguesDatabase();
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
+                        return _embedManager.RegisterTeamToLeagueSuccessEmbed(newTeam, leagueReference);
                     }
                 }
             }

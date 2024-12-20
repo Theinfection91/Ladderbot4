@@ -8,7 +8,6 @@ namespace Ladderbot4.Models
 {
     public class League
     {
-        public string Id { get; set; }
         public string LeagueName { get; set; }
         public string Division { get; set; }
         public DateTime CreatedOn { get; set; }
