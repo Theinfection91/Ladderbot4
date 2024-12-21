@@ -50,7 +50,6 @@ namespace Ladderbot4.Managers
                     }
                 }
             }
-
             return true;
         }
 

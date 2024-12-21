@@ -413,7 +413,6 @@ namespace Ladderbot4.Managers
 
         public Embed CreateLeagueProcess(string leagueName, string divisionType)
         {
-
             // Check if desired League name is taken
             if (_leagueManager.IsLeagueNameUnique(leagueName))
             {
@@ -427,13 +426,14 @@ namespace Ladderbot4.Managers
                     _leagueManager.AddNewLeague(newLeague);
 
                     // Save and reload
-                    _teamManager.SaveAndReloadLeaguesDatabase();
+                    _leagueManager.SaveAndReloadLeaguesDatabase();
 
                     // TODO - Create Embeds for League creation/removal
-                    return _embedManager.TeamNotFoundErrorEmbed("created league");
+                    return _embedManager.CreateLeagueSuccessEmbed(newLeague);
                 }
+                return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given. Choose between 1v1, 2v2, or 3v3.");
             }
-            return _embedManager.TeamNotFoundErrorEmbed("null");
+            return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
         }
 
         public Embed DeleteLeagueProcess(string leagueName)
@@ -447,8 +447,9 @@ namespace Ladderbot4.Managers
 
         public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
-            // Load latest save of the Leagues Database
+            // Load latest save for both Managers
             _leagueManager.LoadLeaguesDatabase();
+            _teamManager.LoadLeaguesDatabase();
 
             // Check if League by given name exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
@@ -471,7 +472,7 @@ namespace Ladderbot4.Managers
                         {
                             if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
                             {
-                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the given League ({leagueReference.LeagueName}).");
+                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {leagueReference.LeagueName} League.");
                             }
                         }
 
@@ -481,7 +482,7 @@ namespace Ladderbot4.Managers
                         // Add team to league
                         _teamManager.AddNewTeamToLeague(newTeam, leagueReference);
 
-                        // Save and reload Leagues Database
+                        // Save and reload Leagues Database from the Team Manager
                         _teamManager.SaveAndReloadLeaguesDatabase();
 
                         // Backup the database to Git
@@ -489,85 +490,11 @@ namespace Ladderbot4.Managers
 
                         return _embedManager.RegisterTeamToLeagueSuccessEmbed(newTeam, leagueReference);
                     }
+                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for specified division type: Division - {leagueReference.Division} | Member Count - {newMemberList.Count}.");
                 }
+                return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
             }
-
-            return _embedManager.RegisterTeamErrorEmbed("TODO");
-        }
-
-        /// <summary>
-        /// Goes through the process of trying to register a new team with given name, division type, and members.
-        /// </summary>
-        /// <param name="teamName">Desired team name</param>
-        /// <param name="divisionType">Which division to place the team in</param>
-        /// <param name="members">The members for the new team</param>
-        /// <returns>Embed message from the bot that will cover error handling and confirmation of registration.</returns>
-        public Embed RegisterTeamProcess(SocketInteractionContext context, string teamName, string divisionType, List<IUser> members)
-        {
-            // Load latest save of Teams database
-            _teamManager.LoadTeamsDatabase();
-
-            // Compares given Team Name against database
-            if (_teamManager.IsTeamNameUnique(teamName))
-            {
-                // Checks if a correct division type is given
-                if (_leagueManager.IsValidDivisionType(divisionType))
-                {
-                    // Convert User Context Info into Member objects
-                    List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
-
-                    if (_memberManager.IsMemberCountCorrect(newMemberList, divisionType) || _settingsManager.IsUserSuperAdmin(context.User.Id))
-                    {
-                        // Grab all teams from correct division to compare with
-                        List<Team> divisionTeams = _teamManager.GetTeamsByDivision(divisionType);
-
-                        foreach (Member member in newMemberList)
-                        {
-                            if (_memberManager.IsMemberOnTeamInDivision(member, divisionTeams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
-                            {
-                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {divisionType} division. Please try again.");
-                            }
-                        }
-                        // TODO - See if each member is in members.json, if not then add them. Ensure no duplicates in database
-                        foreach (Member member in newMemberList)
-                        {
-                            if (!_memberManager.IsMemberRegisteredToDatabase(member))
-                            {
-                                Console.WriteLine($"Adding new member to members.json: {member.DiscordId} - {member.DisplayName}");
-                                _memberManager.AddNewMember(member);
-                            }
-                        }
-
-                        // TODO - Testing Achievements like the first team achievement
-                        foreach (Member member in newMemberList)
-                        {
-                            _memberManager.AddToDivisionTeamCount(member, divisionType);
-                        }
-
-                        // All members are eligible, all conditions passed, add the new team to the database.
-                        Team newTeam = _teamManager.CreateTeamObject(teamName, divisionType, _teamManager.GetTeamCount(divisionType) + 1, newMemberList);
-                        _teamManager.AddNewTeam(newTeam);
-
-                        // Save and reload database
-                        _teamManager.SaveAndReloadTeamsDatabase();
-
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
-
-                        return _embedManager.RegisterTeamSuccessEmbed(newTeam);
-                    }
-                    else
-                    {
-                        return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for specified division type: Division - {divisionType} | Member Count - {newMemberList.Count}.");
-                    }
-                }
-                else
-                {
-                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect division type given: {divisionType}. Please try again.");
-                }
-            }
-
-            return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
+            return _embedManager.RegisterTeamErrorEmbed($"No League was found by the given name of: {leagueName}");
         }
 
         /// <summary>
@@ -1469,7 +1396,7 @@ namespace Ladderbot4.Managers
             List<Team> teamsInLeague = _teamManager.GetTeamsInLeague(league);
 
             // Sort teams by current rank
-            teamsInLeague.Sort((a, b) => a.Rank.CompareTo(b.Rank);
+            teamsInLeague.Sort((a, b) => a.Rank.CompareTo(b.Rank));
 
             // Reassign ranks sequentially
             for (int i = 0; i <  teamsInLeague.Count; i++)

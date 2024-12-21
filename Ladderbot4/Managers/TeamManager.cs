@@ -23,9 +23,7 @@ namespace Ladderbot4.Managers
 
         public TeamManager(TeamData teamData, LeagueData leagueData)
         {
-            _teamData = teamData;
             _leagueData = leagueData;
-            _teamsByDivision = _teamData.LoadAllTeams();
             _leaguesByDivision = _leagueData.LoadAllLeagues();
         }
 

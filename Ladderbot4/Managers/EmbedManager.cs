@@ -68,11 +68,10 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-
-        public Embed RegisterTeamErrorEmbed(string errorMessage)
+        public Embed CreateLeagueErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
-            .WithTitle("⚠️ Registration Error")
+            .WithTitle("⚠️ League Creation Error")
             .WithColor(Color.Red)
             .WithDescription(errorMessage)
             .WithFooter("Please try again.")
@@ -81,16 +80,27 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed RegisterTeamSuccessEmbed(Team newTeam)
+        public Embed CreateLeagueSuccessEmbed(League league)
         {
             var embedBuilder = new EmbedBuilder()
-            .WithTitle("🎉 Team Registered Successfully!")
+            .WithTitle("🏅 League Created Successfully!")
             .WithColor(Color.Green)
-            .WithDescription($"A new team has been created in the **{newTeam.Division} Division**!")
-            .AddField("Team Name", $"**{newTeam.TeamName}**", inline: true)
-            .AddField("Rank", $"**#{newTeam.Rank}**", inline: true)
-            .AddField("Members", newTeam.GetAllMemberNamesToStr(), inline: false)
-            .WithFooter("Good luck to your team!")
+            .WithDescription($"A new {league.Division} League has been created!")
+            .AddField("League Name", $"**{league.LeagueName}**", inline: true)
+            .AddField("Division", $"**{league.Division}**", inline: true)
+            .WithFooter("Let's add some teams and get started!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed RegisterTeamErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ Registration Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
             .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
