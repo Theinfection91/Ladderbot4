@@ -133,13 +133,13 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed RemoveTeamSuccessEmbed(Team team)
+        public Embed RemoveTeamSuccessEmbed(Team team, League league)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Team Removed Successfully")
                 .WithColor(Color.Green)
-                .WithDescription($"The team **{team.TeamName}** has been successfully removed from the **{team.Division} Division**.")
-                .AddField("Division", team.Division, inline: true)
+                .WithDescription($"The team **{team.TeamName}** has been successfully removed from the **{league.LeagueName} League**.")
+                .AddField("Division", league.Division, inline: true)
                 .AddField("Removed Members", team.GetAllMemberNamesToStr(), inline: false)
                 .WithFooter("Team removal is complete.")
                 .WithTimestamp(DateTimeOffset.Now);

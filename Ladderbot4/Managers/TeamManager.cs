@@ -370,6 +370,10 @@ namespace Ladderbot4.Managers
         public void RemoveTeamFromLeague(Team team, League league)
         {
             // TODO in LeagueData
+            _leagueData.RemoveTeamFromLeague(team, league);
+
+            // Load newest save
+            LoadLeaguesDatabase();
         }
     }
 }

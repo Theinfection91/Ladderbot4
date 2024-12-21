@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Discord;
 
 namespace Ladderbot4.Models
 {
@@ -33,9 +34,10 @@ namespace Ladderbot4.Models
         {
             if (teamToRemove != null)
             {
-                foreach (var team in Teams)
+                for (int i = 0; i < Teams.Count; i++)
                 {
-                    if (team.TeamName == teamToRemove.TeamName)
+                    Team team = Teams[i];
+                    if (Teams[i].TeamName == teamToRemove.TeamName)
                     {
                         Teams.Remove(team);
                     }

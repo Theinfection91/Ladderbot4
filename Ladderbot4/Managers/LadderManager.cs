@@ -410,7 +410,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Create/Delete League Logic
-
         public Embed CreateLeagueProcess(string leagueName, string divisionType)
         {
             // Check if desired League name is taken
@@ -431,7 +430,7 @@ namespace Ladderbot4.Managers
                     // TODO - Create Embeds for League creation/removal
                     return _embedManager.CreateLeagueSuccessEmbed(newLeague);
                 }
-                return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given. Choose between 1v1, 2v2, or 3v3.");
+                return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
             }
             return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
         }
@@ -497,6 +496,40 @@ namespace Ladderbot4.Managers
             return _embedManager.RegisterTeamErrorEmbed($"No League was found by the given name of: {leagueName}");
         }
 
+        public Embed RemoveTeamFromLeagueProcess(string teamName)
+        {
+            // Load latest save
+            _teamManager.LoadLeaguesDatabase();
+            _leagueManager.LoadLeaguesDatabase();
+
+            // Check if Team exists in any League
+            if (!_teamManager.IsTeamNameUnique(teamName))
+            {
+                // Grab Team Object
+                Team teamToRemove = _teamManager.GetTeamByNameFromLeagues(teamName);
+                // Grab League object
+                League correctLeague = _leagueManager.GetLeagueFromTeamName(teamName);
+
+                // TODO - Remove all Challenges from Database associated with team
+
+
+                // TODO - Remove the team correctly and correct ranks
+                _teamManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
+                ReassignRanksInLeague(correctLeague);
+
+                // Save and reload
+                _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
+                // Return success embed
+                return _embedManager.RemoveTeamSuccessEmbed(teamToRemove, correctLeague);
+            }
+
+            return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
+        }
+
         /// <summary>
         /// Starts the process of trying to remove a team
         /// </summary>
@@ -530,7 +563,7 @@ namespace Ladderbot4.Managers
                 _backupManager.CopyAndBackupFilesToGit();
 
                 // Return a success embed
-                return _embedManager.RemoveTeamSuccessEmbed(teamReference);
+                return _embedManager.RemoveTeamSuccessEmbed(teamReference, null);
 
             }
             // Return an error embed if the team does not exist

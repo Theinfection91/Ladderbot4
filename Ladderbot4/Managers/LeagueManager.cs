@@ -88,6 +88,48 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public League GetLeagueFromTeamName(string teamName)
+        {
+            League correctLeague;
+            foreach (League league in _leaguesByDivision.Leagues1v1)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        correctLeague = league;
+                        return league;
+                    }
+                }
+            }
+
+            foreach (League league in _leaguesByDivision.Leagues2v2)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        correctLeague = league;
+                        return league;
+                    }
+                }
+            }
+
+            foreach (League league in _leaguesByDivision.Leagues3v3)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        correctLeague = league;
+                        return league;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         public League CreateLeagueObject(string leagueName, string leagueDivision)
         {
             return new League(leagueName, leagueDivision);

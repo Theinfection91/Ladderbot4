@@ -162,7 +162,9 @@ namespace Ladderbot4.Data
         {
             var leaguesByDivision = LoadAllLeagues();
 
+            chosenLeague.RemoveTeam(team);
 
+            SaveLeagues(leaguesByDivision);
         }
     }
 }
