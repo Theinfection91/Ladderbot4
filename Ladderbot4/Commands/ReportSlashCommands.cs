@@ -21,8 +21,8 @@ namespace Ladderbot4.Commands
         [SlashCommand("win", "User-level command to report who won in a match.")]
         public async Task ReportWinAsync(string winningTeamName)
         {
-            var result = _ladderManager.ReportWinProcess(Context, winningTeamName);
-            await RespondAsync(embed: result);
+            //var result = _ladderManager.ReportWinProcess(Context, winningTeamName);
+            //await RespondAsync(embed: result);
         }
 
         [Group("admin", "Admin slash commands related to challenges.")]
@@ -39,8 +39,8 @@ namespace Ladderbot4.Commands
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task ReportWinAdminAsync(string winningTeamName)
             {
-                var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
-                await RespondAsync(embed: result);
+                //var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
+                //await RespondAsync(embed: result);
             }
         }
     }

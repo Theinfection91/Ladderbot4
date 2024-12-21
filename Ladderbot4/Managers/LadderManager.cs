@@ -133,7 +133,7 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the embed for the challenges in the division
-                Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division);
+                Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division, null);
 
                 if (challengesEmbed == null)
                 {
@@ -561,40 +561,40 @@ namespace Ladderbot4.Managers
         /// </summary>
         /// <param name="teamName">Name of team to try and remove from database</param>
         /// <returns>Embed from the bot that will cover error handling and confirmation of removal.</returns>
-        public Embed RemoveTeamProcess(string teamName)
-        {
-            // Load latest save of Teams database
-            _teamManager.LoadTeamsDatabase();
+        //public Embed RemoveTeamProcess(string teamName)
+        //{
+        //    // Load latest save of Teams database
+        //    _teamManager.LoadTeamsDatabase();
 
-            // Check if Team is in database
-            if (!_teamManager.IsTeamNameUnique(teamName))
-            {
-                // Grab object reference to work with
-                Team teamReference = _teamManager.GetTeamByName(teamName);
+        //    // Check if Team is in database
+        //    if (!_teamManager.IsTeamNameUnique(teamName))
+        //    {
+        //        // Grab object reference to work with
+        //        Team teamReference = _teamManager.GetTeamByName(teamName);
 
-                // Remove any challenges related to team, if any
-                if (_challengeManager.IsTeamAwaitingChallengeMatch(teamReference))
-                {
-                    _challengeManager.SudoRemoveChallenge(teamReference.TeamName, teamReference.Division);
-                }
+        //        // Remove any challenges related to team, if any
+        //        if (_challengeManager.IsTeamInChallenge(teamReference))
+        //        {
+        //            _challengeManager.SudoRemoveChallenge(teamReference.TeamName, teamReference.Division);
+        //        }
 
-                // Remove the team correctly, with ranks falling into place programmatically
-                _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
-                ReassignRanks(teamReference.Division);
+        //        // Remove the team correctly, with ranks falling into place programmatically
+        //        _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
+        //        ReassignRanks(teamReference.Division);
 
-                // Save and reload database
-                _teamManager.SaveAndReloadTeamsDatabase();
+        //        // Save and reload database
+        //        _teamManager.SaveAndReloadTeamsDatabase();
 
-                // Backup the database to Git
-                _backupManager.CopyAndBackupFilesToGit();
+        //        // Backup the database to Git
+        //        _backupManager.CopyAndBackupFilesToGit();
 
-                // Return a success embed
-                return _embedManager.RemoveTeamSuccessEmbed(teamReference, null);
+        //        // Return a success embed
+        //        return _embedManager.RemoveTeamSuccessEmbed(teamReference, null);
 
-            }
-            // Return an error embed if the team does not exist
-            return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
-        }
+        //    }
+        //    // Return an error embed if the team does not exist
+        //    return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
+        //}
         #endregion
 
         #region Challenge Based Logic
@@ -605,552 +605,552 @@ namespace Ladderbot4.Managers
         /// <param name="challengerTeam">The name of the team initiating the challenge.</param>
         /// <param name="challengedTeam">The name of the team who is receiving the challenge.</param>
         /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
-        public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
-        {
-            // Load the latest save of the Challenges database
-            _challengeManager.LoadChallengesDatabase();
+        //public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        //{
+        //    // Load the latest save of the Challenges database
+        //    _challengeManager.LoadChallengesDatabase();
 
-            // Check if both teams exist in the database
-            if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
-            {
-                // Get team object references
-                Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
-                Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
+        //    // Check if both teams exist in the database
+        //    if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
+        //    {
+        //        // Get team object references
+        //        Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
+        //        Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
 
-                // Check if the ladder is running in the challenger's division
-                if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
-                {
-                    return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division, and challenges may not be initiated yet.");
-                }
+        //        // Check if the ladder is running in the challenger's division
+        //        if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
+        //        {
+        //            return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division, and challenges may not be initiated yet.");
+        //        }
 
-                // Grab Discord ID of the user who invoked the command
-                ulong discordId = context.User.Id;
+        //        // Grab Discord ID of the user who invoked the command
+        //        ulong discordId = context.User.Id;
 
-                // Check if the user is on the challenger team
-                if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
-                {
-                    // Check if the teams are in the same division
-                    if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
-                    {
-                        // Ensure the ranks are within range
-                        if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
-                        {
-                            // Check if the challenger has no pending challenges
-                            if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
-                            {
-                                // Check if the challenged team has no pending challenges
-                                if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
-                                {
-                                    // Create and save the new Challenge
-                                    _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
+        //        // Check if the user is on the challenger team
+        //        if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
+        //        {
+        //            // Check if the teams are in the same division
+        //            if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
+        //            {
+        //                // Ensure the ranks are within range
+        //                if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+        //                {
+        //                    // Check if the challenger has no pending challenges
+        //                    if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
+        //                    {
+        //                        // Check if the challenged team has no pending challenges
+        //                        if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
+        //                        {
+        //                            // Create and save the new Challenge
+        //                            _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
 
-                                    // Change IsChallengeable of both teams to false
-                                    _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-                                    _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
-                                    _teamManager.SaveAndReloadTeamsDatabase();
+        //                            // Change IsChallengeable of both teams to false
+        //                            _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+        //                            _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+        //                            _teamManager.SaveAndReloadTeamsDatabase();
 
-                                    _challengeManager.SaveAndReloadChallenges();
-                                    _backupManager.CopyAndBackupFilesToGit();
+        //                            _challengeManager.SaveAndReloadChallenges();
+        //                            _backupManager.CopyAndBackupFilesToGit();
 
-                                    // Get the newly created challenge
-                                    Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
+        //                            // Get the newly created challenge
+        //                            Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
 
-                                    // Notify the challenged team
-                                    foreach (Member member in objectChallengedTeam.Members)
-                                    {
-                                        _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge);
-                                    }
+        //                            // Notify the challenged team
+        //                            foreach (Member member in objectChallengedTeam.Members)
+        //                            {
+        //                                _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge);
+        //                            }
 
-                                    // Return a success embed
-                                    return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
-                                }
-                                else
-                                {
-                                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is already awaiting a challenge match. Please try again later.");
-                                }
-                            }
-                            else
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is already awaiting a challenge match. Please try again later.");
-                            }
-                        }
-                        else
-                        {
-                            if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
-                            }
-                            else
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return _embedManager.ChallengeErrorEmbed($"The teams are not in the same division. Challenger Division: {objectChallengerTeam.Division}, Challenged Division: {objectChallengedTeam.Division}. Please try again.");
-                    }
-                }
-                else
-                {
-                    return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.TeamName}. Please try again.");
-                }
-            }
+        //                            // Return a success embed
+        //                            return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
+        //                        }
+        //                        else
+        //                        {
+        //                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is already awaiting a challenge match. Please try again later.");
+        //                        }
+        //                    }
+        //                    else
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is already awaiting a challenge match. Please try again later.");
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
+        //                    }
+        //                    else
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                return _embedManager.ChallengeErrorEmbed($"The teams are not in the same division. Challenger Division: {objectChallengerTeam.Division}, Challenged Division: {objectChallengedTeam.Division}. Please try again.");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.TeamName}. Please try again.");
+        //        }
+        //    }
 
-            return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
-        }
+        //    return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
+        //}
 
-        public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
-        {
-            // Load latest save of Challenges database
-            _challengeManager.LoadChallengesDatabase();
+        //public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        //{
+        //    // Load latest save of Challenges database
+        //    _challengeManager.LoadChallengesDatabase();
 
-            // Check if given team exists
-            if (!_teamManager.IsTeamNameUnique(challengerTeam))
-            {
-                // Grab team reference object
-                Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
+        //    // Check if given team exists
+        //    if (!_teamManager.IsTeamNameUnique(challengerTeam))
+        //    {
+        //        // Grab team reference object
+        //        Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
 
-                // Check if ladder is running in Challenger's division
-                if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
-                {
-                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
-                }
+        //        // Check if ladder is running in Challenger's division
+        //        if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
+        //        {
+        //            return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
+        //        }
 
-                // Check if invoker is part of challengerTeam, as this is the user-level logic
-                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
-                {
-                    // Check if Team has a challenge sent out to actually cancel
-                    if (_challengeManager.IsTeamChallenger(challengerTeamObject))
-                    {
-                        // Grab challenge object to use to change challenged team IsChallengeable status
-                        Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
-                        Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
+        //        // Check if invoker is part of challengerTeam, as this is the user-level logic
+        //        if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
+        //        {
+        //            // Check if Team has a challenge sent out to actually cancel
+        //            if (_challengeManager.IsTeamChallenger(challengerTeamObject))
+        //            {
+        //                // Grab challenge object to use to change challenged team IsChallengeable status
+        //                Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
+        //                Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
 
-                        // Set IsChallengeable for both teams back to true
-                        _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-                        _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
-                        _teamManager.SaveAndReloadTeamsDatabase();
+        //                // Set IsChallengeable for both teams back to true
+        //                _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+        //                _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+        //                _teamManager.SaveAndReloadTeamsDatabase();
 
-                        // Cancel the challenge, save challenges database and reload it
-                        _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
+        //                // Cancel the challenge, save challenges database and reload it
+        //                _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
 
-                        // Save and reload Challenges database
-                        _challengeManager.SaveAndReloadChallenges();
+        //                // Save and reload Challenges database
+        //                _challengeManager.SaveAndReloadChallenges();
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
-                    }
-                    else
-                    {
-                        return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
-                    }
-                }
-                else
-                {
-                    return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
-                }
-            }
-            return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam}");
-        }
+        //                return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
+        //            }
+        //            else
+        //            {
+        //                return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
+        //        }
+        //    }
+        //    return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam}");
+        //}
 
-        public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
-        {
-            // Load latest save of Challenges database
-            _challengeManager.LoadChallengesDatabase();
+        //public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        //{
+        //    // Load latest save of Challenges database
+        //    _challengeManager.LoadChallengesDatabase();
 
-            // Check if both teams actually exist in entire Teams database
-            if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
-            {
-                // Grab Team object references
-                Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
-                Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
+        //    // Check if both teams actually exist in entire Teams database
+        //    if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
+        //    {
+        //        // Grab Team object references
+        //        Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
+        //        Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
 
-                // Check if ladder is running in Challenger's division
-                if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
-                {
-                    return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.");
-                }
+        //        // Check if ladder is running in Challenger's division
+        //        if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
+        //        {
+        //            return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division and challenges may not be initiated yet.");
+        //        }
 
-                // Check if both teams are in the same division
-                if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
-                {
-                    // If in the same division then check ranks to make sure challenger isnt above and also isnt more than 2 below challenged in rank
-                    if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
-                    {
-                        // If ranks are in correct range then make sure challenger hasnt issued another challenge to be resolved first
-                        if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
-                        {
-                            // If challenger has no open challenges, check if challengedTeam is currently under a challenge
-                            if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
-                            {
-                                // If all checks are passed, create and save the new Challenge object
-                                _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
+        //        // Check if both teams are in the same division
+        //        if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
+        //        {
+        //            // If in the same division then check ranks to make sure challenger isnt above and also isnt more than 2 below challenged in rank
+        //            if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+        //            {
+        //                // If ranks are in correct range then make sure challenger hasnt issued another challenge to be resolved first
+        //                if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
+        //                {
+        //                    // If challenger has no open challenges, check if challengedTeam is currently under a challenge
+        //                    if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
+        //                    {
+        //                        // If all checks are passed, create and save the new Challenge object
+        //                        _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
 
-                                // Change IsChallengeable of both teams to false
-                                _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-                                _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
-                                _teamManager.SaveAndReloadTeamsDatabase();
+        //                        // Change IsChallengeable of both teams to false
+        //                        _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+        //                        _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+        //                        _teamManager.SaveAndReloadTeamsDatabase();
 
-                                // Save and reload Challenges database
-                                _challengeManager.SaveAndReloadChallenges();
+        //                        // Save and reload Challenges database
+        //                        _challengeManager.SaveAndReloadChallenges();
 
-                                // Backup the database to Git
-                                _backupManager.CopyAndBackupFilesToGit();
+        //                        // Backup the database to Git
+        //                        _backupManager.CopyAndBackupFilesToGit();
 
-                                return _embedManager.AdminChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, context);
-                            }
-                            else
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
-                            }
-                        }
-                        else
-                        {
-                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
-                        }
-                    }
-                    else
-                    {
-                        if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
-                        {
-                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated.");
-                        }
-                        else
-                        {
-                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them.");
-                        }
-                    }
-                }
-                else
-                {
-                    return _embedManager.ChallengeErrorEmbed($"Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division}");
-                }
-            }
-            return _embedManager.ChallengeErrorEmbed($"One or both team names not found in the database.");
-        }
+        //                        return _embedManager.AdminChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, context);
+        //                    }
+        //                    else
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is currently waiting for a challenge match to be played, the challenge was not initiated.");
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+        //                {
+        //                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is greater than Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank}, the challenge was not initiated.");
+        //                }
+        //                else
+        //                {
+        //                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank of {objectChallengerTeam.Rank} is not in range of Team {objectChallengedTeam.TeamName}'s rank of {objectChallengedTeam.Rank} to make a challenge, the challenge was not initiated. Teams may only challenge at most TWO ranks above them.");
+        //                }
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.ChallengeErrorEmbed($"Error - The given teams are not in the same division. Challenger Team Division: {objectChallengerTeam.Division} - Challenged Team Division: {objectChallengedTeam.Division}");
+        //        }
+        //    }
+        //    return _embedManager.ChallengeErrorEmbed($"One or both team names not found in the database.");
+        //}
 
-        public Embed AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
-        {
-            // Load latest save of Challenges database
-            _challengeManager.LoadChallengesDatabase();
+        //public Embed AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        //{
+        //    // Load latest save of Challenges database
+        //    _challengeManager.LoadChallengesDatabase();
 
-            // Check if given team exists
-            if (!_teamManager.IsTeamNameUnique(challengerTeam))
-            {
-                // Grab team reference object
-                Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
+        //    // Check if given team exists
+        //    if (!_teamManager.IsTeamNameUnique(challengerTeam))
+        //    {
+        //        // Grab team reference object
+        //        Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
 
-                // Check if ladder is running in Challenger's division
-                if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
-                {
-                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
-                }
+        //        // Check if ladder is running in Challenger's division
+        //        if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
+        //        {
+        //            return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
+        //        }
 
-                // Check if Team has a challenge sent out to actually cancel
-                if (_challengeManager.IsTeamChallenger(challengerTeamObject))
-                {
-                    // Grab challenge object to use to change challenged team IsChallengeable status
-                    Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
-                    Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
+        //        // Check if Team has a challenge sent out to actually cancel
+        //        if (_challengeManager.IsTeamChallenger(challengerTeamObject))
+        //        {
+        //            // Grab challenge object to use to change challenged team IsChallengeable status
+        //            Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
+        //            Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
 
-                    // Set IsChallengeable for both teams back to true
-                    _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-                    _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
-                    _teamManager.SaveAndReloadTeamsDatabase();
+        //            // Set IsChallengeable for both teams back to true
+        //            _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+        //            _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+        //            _teamManager.SaveAndReloadTeamsDatabase();
 
-                    // Cancel the challenge, save challenges database and reload it
-                    _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
+        //            // Cancel the challenge, save challenges database and reload it
+        //            _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
 
-                    // Save and reload Challenges database
-                    _challengeManager.SaveAndReloadChallenges();
+        //            // Save and reload Challenges database
+        //            _challengeManager.SaveAndReloadChallenges();
 
-                    // Backup the database to Git
-                    _backupManager.CopyAndBackupFilesToGit();
+        //            // Backup the database to Git
+        //            _backupManager.CopyAndBackupFilesToGit();
 
-                    return _embedManager.AdminCancelChallengeSuccessEmbed(challengerTeamObject, context);
-                }
-                else
-                {
-                    return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
-                }
-            }
-            return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam} - Please try again.");
-        }
+        //            return _embedManager.AdminCancelChallengeSuccessEmbed(challengerTeamObject, context);
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
+        //        }
+        //    }
+        //    return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam} - Please try again.");
+        //}
         #endregion
 
         #region Reporting Logic
 
-        public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
-        {
-            // Check if given team name exists
-            if (!_teamManager.IsTeamNameUnique(winningTeamName))
-            {
-                // Grab winningTeam object, add placeholder for losingTeam object
-                Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
-                Team losingTeam;
+        //public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
+        //{
+        //    // Check if given team name exists
+        //    if (!_teamManager.IsTeamNameUnique(winningTeamName))
+        //    {
+        //        // Grab winningTeam object, add placeholder for losingTeam object
+        //        Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
+        //        Team losingTeam;
 
-                // Check if ladder is running in Challenger's division
-                if (!_statesManager.IsLadderRunning(winningTeam.Division))
-                {
-                    return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
-                }
+        //        // Check if ladder is running in Challenger's division
+        //        if (!_statesManager.IsLadderRunning(winningTeam.Division))
+        //        {
+        //            return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
+        //        }
 
-                // Is the invoker on the team, using context
-                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
-                {
-                    // Is the team part of an active challenge (Challenger or Challenged)
-                    if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
-                    {
-                        // Grab challenge object for reference
-                        Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
+        //        // Is the invoker on the team, using context
+        //        if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
+        //        {
+        //            // Is the team part of an active challenge (Challenger or Challenged)
+        //            if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
+        //            {
+        //                // Grab challenge object for reference
+        //                Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
 
-                        // Determine if winningTeam is Challenger or Challenged
-                        bool isWinningTeamChallenger;
-                        if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            isWinningTeamChallenger = true;
-                            losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
-                        }
-                        else
-                        {
-                            isWinningTeamChallenger = false;
-                            losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
-                        }
+        //                // Determine if winningTeam is Challenger or Challenged
+        //                bool isWinningTeamChallenger;
+        //                if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
+        //                {
+        //                    isWinningTeamChallenger = true;
+        //                    losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
+        //                }
+        //                else
+        //                {
+        //                    isWinningTeamChallenger = false;
+        //                    losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
+        //                }
 
-                        // If winningTeam is challenger, rank change will occur
-                        if (isWinningTeamChallenger)
-                        {
-                            // The winning team takes the rank of the losing team
-                            winningTeam.Rank = losingTeam.Rank;
-                            losingTeam.Rank++;
+        //                // If winningTeam is challenger, rank change will occur
+        //                if (isWinningTeamChallenger)
+        //                {
+        //                    // The winning team takes the rank of the losing team
+        //                    winningTeam.Rank = losingTeam.Rank;
+        //                    losingTeam.Rank++;
 
-                            // Reassign ranks for the entire division
-                            ReassignRanks(winningTeam.Division);
+        //                    // Reassign ranks for the entire division
+        //                    ReassignRanks(winningTeam.Division);
 
-                            // Assign win and loss correctly
-                            _teamManager.AddToWins(winningTeam, 1);
-                            _teamManager.AddToLosses(losingTeam, 1);
+        //                    // Assign win and loss correctly
+        //                    _teamManager.AddToWins(winningTeam, 1);
+        //                    _teamManager.AddToLosses(losingTeam, 1);
 
-                            // Add to members wins and losses
-                            foreach (Member member in winningTeam.Members)
-                            {
-                                _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
-                            }
+        //                    // Add to members wins and losses
+        //                    foreach (Member member in winningTeam.Members)
+        //                    {
+        //                        _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
+        //                    }
 
-                            foreach (Member member in losingTeam.Members)
-                            {
-                                _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
-                            }
+        //                    foreach (Member member in losingTeam.Members)
+        //                    {
+        //                        _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+        //                    }
 
-                            // TODO: Create Match object to add to History (Past Matches)
-                            // Create correct match ID from division
-                            int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+        //                    // TODO: Create Match object to add to History (Past Matches)
+        //                    // Create correct match ID from division
+        //                    int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
 
-                            _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+        //                    _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                            // Set IsChallengeable status of both teams back to true
-                            _teamManager.ChangeChallengeStatus(winningTeam, true);
-                            _teamManager.ChangeChallengeStatus(losingTeam, true);
-                            _teamManager.SaveAndReloadTeamsDatabase();
+        //                    // Set IsChallengeable status of both teams back to true
+        //                    _teamManager.ChangeChallengeStatus(winningTeam, true);
+        //                    _teamManager.ChangeChallengeStatus(losingTeam, true);
+        //                    _teamManager.SaveAndReloadTeamsDatabase();
 
-                            // Remove the challenge
-                            _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+        //                    // Remove the challenge
+        //                    _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
 
-                            // Backup the database to Git
-                            _backupManager.CopyAndBackupFilesToGit();
+        //                    // Backup the database to Git
+        //                    _backupManager.CopyAndBackupFilesToGit();
 
-                            // Return Success Embed with true, showing rank change
-                            return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, true, winningTeam.Division);
+        //                    // Return Success Embed with true, showing rank change
+        //                    return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, true, winningTeam.Division);
 
-                        }
-                        // If winningTeam is challenged, no rank change will occur
-                        else
-                        {
-                            // Assign win and loss correctly
-                            _teamManager.AddToWins(winningTeam, 1);
-                            _teamManager.AddToLosses(losingTeam, 1);
+        //                }
+        //                // If winningTeam is challenged, no rank change will occur
+        //                else
+        //                {
+        //                    // Assign win and loss correctly
+        //                    _teamManager.AddToWins(winningTeam, 1);
+        //                    _teamManager.AddToLosses(losingTeam, 1);
 
-                            // Add to members wins and losses
-                            foreach (Member member in winningTeam.Members)
-                            {
-                                _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
-                            }
+        //                    // Add to members wins and losses
+        //                    foreach (Member member in winningTeam.Members)
+        //                    {
+        //                        _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
+        //                    }
 
-                            foreach (Member member in losingTeam.Members)
-                            {
-                                _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
-                            }
+        //                    foreach (Member member in losingTeam.Members)
+        //                    {
+        //                        _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+        //                    }
 
-                            // TODO: Create Match object to add to History (Past Matches)
-                            // Create correct match ID from division
-                            int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+        //                    // TODO: Create Match object to add to History (Past Matches)
+        //                    // Create correct match ID from division
+        //                    int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
 
-                            _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+        //                    _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                            // Set IsChallengeable status of both teams back to true
-                            _teamManager.ChangeChallengeStatus(winningTeam, true);
-                            _teamManager.ChangeChallengeStatus(losingTeam, true);
-                            _teamManager.SaveAndReloadTeamsDatabase();
+        //                    // Set IsChallengeable status of both teams back to true
+        //                    _teamManager.ChangeChallengeStatus(winningTeam, true);
+        //                    _teamManager.ChangeChallengeStatus(losingTeam, true);
+        //                    _teamManager.SaveAndReloadTeamsDatabase();
 
-                            // If the challenged team wins, no rank change
-                            _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+        //                    // If the challenged team wins, no rank change
+        //                    _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
 
-                            // Backup the database to Git
-                            _backupManager.CopyAndBackupFilesToGit();
+        //                    // Backup the database to Git
+        //                    _backupManager.CopyAndBackupFilesToGit();
 
-                            // Return Success Embed with false, showing no rank change
-                            return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, false, winningTeam.Division);
+        //                    // Return Success Embed with false, showing no rank change
+        //                    return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, false, winningTeam.Division);
 
-                        }
-                    }
-                    else
-                    {
-                        return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
-                    }
-                }
-                else
-                {
-                    return _embedManager.ReportWinErrorEmbed($"You are not part of Team {winningTeam.TeamName}.");
-                }
-            }
-            return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
-        }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.ReportWinErrorEmbed($"You are not part of Team {winningTeam.TeamName}.");
+        //        }
+        //    }
+        //    return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
+        //}
 
-        public Embed ReportWinAdminProcess(SocketInteractionContext context, string winningTeamName)
-        {
-            // Check if given team name exists
-            if (!_teamManager.IsTeamNameUnique(winningTeamName))
-            {
-                // Grab winningTeam object, add placeholder for losingTeam object
-                Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
-                Team losingTeam;
+        //public Embed ReportWinAdminProcess(SocketInteractionContext context, string winningTeamName)
+        //{
+        //    // Check if given team name exists
+        //    if (!_teamManager.IsTeamNameUnique(winningTeamName))
+        //    {
+        //        // Grab winningTeam object, add placeholder for losingTeam object
+        //        Team winningTeam = _teamManager.GetTeamByName(winningTeamName);
+        //        Team losingTeam;
 
-                // Check if ladder is running in Challenger's division
-                if (!_statesManager.IsLadderRunning(winningTeam.Division))
-                {
-                    return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
-                }
+        //        // Check if ladder is running in Challenger's division
+        //        if (!_statesManager.IsLadderRunning(winningTeam.Division))
+        //        {
+        //            return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in the {winningTeam.Division} division so there are no matches to report on yet.");
+        //        }
 
-                // Is the team part of an active challenge (Challenger or Challenged)
-                if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
-                {
-                    // Grab challenge object for reference
-                    Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
+        //        // Is the team part of an active challenge (Challenger or Challenged)
+        //        if (_challengeManager.IsTeamAwaitingChallengeMatch(winningTeam))
+        //        {
+        //            // Grab challenge object for reference
+        //            Challenge? challenge = _challengeManager.GetChallengeByTeamObject(winningTeam);
 
-                    // Determine if winningTeam is Challenger or Challenged
-                    bool isWinningTeamChallenger;
-                    if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
-                    {
-                        isWinningTeamChallenger = true;
-                        losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
-                    }
-                    else
-                    {
-                        isWinningTeamChallenger = false;
-                        losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
-                    }
+        //            // Determine if winningTeam is Challenger or Challenged
+        //            bool isWinningTeamChallenger;
+        //            if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                isWinningTeamChallenger = true;
+        //                losingTeam = _teamManager.GetTeamByName(challenge.Challenged);
+        //            }
+        //            else
+        //            {
+        //                isWinningTeamChallenger = false;
+        //                losingTeam = _teamManager.GetTeamByName(challenge.Challenger);
+        //            }
 
-                    // If winningTeam is challenger, rank change will occur
-                    if (isWinningTeamChallenger)
-                    {
-                        // The winning team takes the rank of the losing team
-                        winningTeam.Rank = losingTeam.Rank;
-                        losingTeam.Rank++;
+        //            // If winningTeam is challenger, rank change will occur
+        //            if (isWinningTeamChallenger)
+        //            {
+        //                // The winning team takes the rank of the losing team
+        //                winningTeam.Rank = losingTeam.Rank;
+        //                losingTeam.Rank++;
 
-                        // Reassign ranks for the entire division
-                        ReassignRanks(winningTeam.Division);
+        //                // Reassign ranks for the entire division
+        //                ReassignRanks(winningTeam.Division);
 
-                        // Assign win and loss correctly
-                        _teamManager.AddToWins(winningTeam, 1);
-                        _teamManager.AddToLosses(losingTeam, 1);
+        //                // Assign win and loss correctly
+        //                _teamManager.AddToWins(winningTeam, 1);
+        //                _teamManager.AddToLosses(losingTeam, 1);
 
-                        // Add to members wins and losses
-                        foreach (Member member in winningTeam.Members)
-                        {
-                            _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
-                        }
+        //                // Add to members wins and losses
+        //                foreach (Member member in winningTeam.Members)
+        //                {
+        //                    _memberManager.AddToMemberWins(null, winningTeam.Division, 1);
+        //                }
 
-                        foreach (Member member in losingTeam.Members)
-                        {
-                            _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
-                        }
+        //                foreach (Member member in losingTeam.Members)
+        //                {
+        //                    _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+        //                }
 
-                        // TODO: Create Match object to add to History (Past Matches)
-                        // Create correct match ID from division
-                        int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+        //                // TODO: Create Match object to add to History (Past Matches)
+        //                // Create correct match ID from division
+        //                int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
 
-                        _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+        //                _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                        // Set IsChallengeable status of both teams back to true
-                        _teamManager.ChangeChallengeStatus(winningTeam, true);
-                        _teamManager.ChangeChallengeStatus(losingTeam, true);
+        //                // Set IsChallengeable status of both teams back to true
+        //                _teamManager.ChangeChallengeStatus(winningTeam, true);
+        //                _teamManager.ChangeChallengeStatus(losingTeam, true);
 
-                        // Save the updated teams database and reload
-                        _teamManager.SaveAndReloadTeamsDatabase();
+        //                // Save the updated teams database and reload
+        //                _teamManager.SaveAndReloadTeamsDatabase();
 
-                        // Remove the challenge
-                        _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+        //                // Remove the challenge
+        //                _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        // Return Success Embed with true, showing rank change
-                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, true, winningTeam.Division);
-                    }
-                    // If winningTeam is challenged, no rank change will occur
-                    else
-                    {
-                        // Assign win and loss correctly
-                        _teamManager.AddToWins(winningTeam, 1);
-                        _teamManager.AddToLosses(losingTeam, 1);
+        //                // Return Success Embed with true, showing rank change
+        //                return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, true, winningTeam.Division);
+        //            }
+        //            // If winningTeam is challenged, no rank change will occur
+        //            else
+        //            {
+        //                // Assign win and loss correctly
+        //                _teamManager.AddToWins(winningTeam, 1);
+        //                _teamManager.AddToLosses(losingTeam, 1);
 
-                        // Add to members wins and losses
-                        //foreach (Member member in winningTeam.Members)
-                        //{
-                        //    _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
-                        //}
+        //                // Add to members wins and losses
+        //                //foreach (Member member in winningTeam.Members)
+        //                //{
+        //                //    _memberManager.AddToMemberWins(member, winningTeam.Division, 1);
+        //                //}
 
-                        foreach (Member member in losingTeam.Members)
-                        {
-                            _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
-                        }
+        //                foreach (Member member in losingTeam.Members)
+        //                {
+        //                    _memberManager.AddToMemberLosses(member, losingTeam.Division, 1);
+        //                }
 
-                        // TODO: Create Match object to add to History (Past Matches)
-                        // Create correct match ID from division
-                        int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
+        //                // TODO: Create Match object to add to History (Past Matches)
+        //                // Create correct match ID from division
+        //                int matchId = _historyManager.GetDivisionMatchCount(challenge.Division);
 
-                        _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
+        //                _historyManager.AddNewMatch(_historyManager.CreateMatchObject(matchId + 1, challenge.Division, challenge.Challenger, challenge.ChallengerRank, challenge.Challenged, challenge.ChallengedRank, winningTeam.TeamName, losingTeam.TeamName, challenge.CreatedOn));
 
-                        // Set IsChallengeable status of both teams back to true
-                        _teamManager.ChangeChallengeStatus(winningTeam, true);
-                        _teamManager.ChangeChallengeStatus(losingTeam, true);
+        //                // Set IsChallengeable status of both teams back to true
+        //                _teamManager.ChangeChallengeStatus(winningTeam, true);
+        //                _teamManager.ChangeChallengeStatus(losingTeam, true);
 
-                        // Save the updated teams data and reload
-                        _teamManager.SaveAndReloadTeamsDatabase();
+        //                // Save the updated teams data and reload
+        //                _teamManager.SaveAndReloadTeamsDatabase();
 
-                        // If the challenged team wins, no rank change
-                        _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
+        //                // If the challenged team wins, no rank change
+        //                _challengeManager.RemoveChallenge(challenge.Challenger, winningTeam.Division);
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        // Return Success Embed with false, showing no rank change
-                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, false, winningTeam.Division);
+        //                // Return Success Embed with false, showing no rank change
+        //                return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, false, winningTeam.Division);
 
-                    }
+        //            }
 
-                }
-                else
-                {
-                    return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
-                }
+        //        }
+        //        else
+        //        {
+        //            return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
+        //        }
 
-            }
-            return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
-        }
+        //    }
+        //    return _embedManager.ReportWinErrorEmbed($"The given team name was not found in the database: {winningTeamName}");
+        //}
         #endregion
 
         #region History Logic
@@ -1180,10 +1180,10 @@ namespace Ladderbot4.Managers
             return _teamManager.GetTeamsEmbed(division);
         }
 
-        public Embed PostChallengesProcess(SocketInteractionContext context, string division)
-        {
-            return _challengeManager.GetChallengesEmbed(division);
-        }
+        //public Embed PostChallengesProcess(SocketInteractionContext context, string division)
+        //{
+        //    return _challengeManager.GetChallengesEmbed(division);
+        //}
 
         #endregion
 

@@ -24,16 +24,16 @@ namespace Ladderbot4.Commands
             [Summary("challengerTeam", "Name of team sending challenge")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
         {
-            var result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
-            await RespondAsync(embed: result);
+            //var result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
+            //await RespondAsync(embed: result);
         }
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
         public async Task CancelChallengeAsync(
             [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
         {
-            var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
-            await RespondAsync(embed: result);
+            //var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
+            //await RespondAsync(embed: result);
         }
 
         [Group("admin", "Admin slash commands related to challenges.")]
@@ -52,8 +52,8 @@ namespace Ladderbot4.Commands
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
             {
-                var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
-                await RespondAsync(embed:result);
+                //var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
+                //await RespondAsync(embed:result);
             }
 
             [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
@@ -61,8 +61,8 @@ namespace Ladderbot4.Commands
             public async Task CancelChallengeAsync(
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
             {
-                var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
-                await RespondAsync(embed: result);
+                //var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
+                //await RespondAsync(embed: result);
             }
         }
     }

@@ -31,37 +31,22 @@ namespace Ladderbot4.Commands
         [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
         [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
         {
-            try
-            {
-                // Defer response if the process might take time
-                await Context.Interaction.DeferAsync();
+           // Defer response if the process might take time
+           await Context.Interaction.DeferAsync();
 
-                // Compile members into a list
-                var members = new List<IUser> { member1 };
-                if (member2 != null) members.Add(member2);
-                if (member3 != null) members.Add(member3);
+           // Compile members into a list
+           var members = new List<IUser> { member1 };
+           if (member2 != null) members.Add(member2);
+           if (member3 != null) members.Add(member3);
 
-                // Ensure league name is standardized (lowercase, trimmed)
-                leagueName = leagueName.Trim().ToLower();
+           // Ensure league name is standardized (lowercase, trimmed)
+           leagueName = leagueName.Trim().ToLower();
 
-                // Call the LadderManager to process the registration
-                var resultEmbed = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
+           // Call the LadderManager to process the registration
+           var resultEmbed = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
 
-                // Send the resulting embed
-                await Context.Interaction.FollowupAsync(embed: resultEmbed);
-            }
-            catch (Exception ex)
-            {
-                // Handle unexpected errors
-                var errorEmbed = new EmbedBuilder()
-                    .WithTitle("Error")
-                    .WithColor(Color.Red)
-                    .WithDescription($"An error occurred while registering the team: {ex.Message}")
-                    .WithFooter("Please contact the bot administrator for assistance.")
-                    .Build();
-
-                await Context.Interaction.FollowupAsync(embed: errorEmbed, ephemeral: true);
-            }
+           // Send the resulting embed
+           await Context.Interaction.FollowupAsync(embed: resultEmbed);
         }
 
 
