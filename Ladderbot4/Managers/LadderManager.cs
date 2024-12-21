@@ -1463,6 +1463,20 @@ namespace Ladderbot4.Managers
                 teamsInDivision[i].Rank = i + 1;
             }
         }
+
+        private void ReassignRanksInLeague(League league)
+        {
+            List<Team> teamsInLeague = _teamManager.GetTeamsInLeague(league);
+
+            // Sort teams by current rank
+            teamsInLeague.Sort((a, b) => a.Rank.CompareTo(b.Rank);
+
+            // Reassign ranks sequentially
+            for (int i = 0; i <  teamsInLeague.Count; i++)
+            {
+                teamsInLeague[i].Rank = i + 1;
+            }
+        }
         #endregion
 
         #region Settings Logic
