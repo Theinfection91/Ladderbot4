@@ -142,9 +142,9 @@ namespace Ladderbot4.Managers
             LoadLeaguesDatabase();
         }
 
-        public void RemoveLeague(string leagueId, string division)
+        public void RemoveLeague(string leagueName, string division)
         {
-            _leagueData.RemoveLeague(leagueId, division);
+            _leagueData.RemoveLeague(leagueName, division);
 
             LoadLeaguesDatabase();
         }

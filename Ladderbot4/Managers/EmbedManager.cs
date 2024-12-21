@@ -94,6 +94,32 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
+        public Embed DeleteLeagueErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ Delete League Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed DeleteLeagueSuccessEmbed(League league)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("✅ League Deleted Successfully!")
+            .WithColor(Color.Green)
+            .WithDescription($"A {league.Division} League was deleted!")
+            .AddField("League Name", $"**{league.LeagueName}**", inline: true)
+            .AddField("Division", $"**{league.Division}**", inline: true)
+            .WithFooter("Create a new league or continue an existing one!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
         public Embed RegisterTeamErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()

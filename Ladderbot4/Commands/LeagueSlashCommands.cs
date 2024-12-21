@@ -25,8 +25,27 @@ namespace Ladderbot4.Commands
             [Summary("leagueName", "Name of the League to be created")] string leagueName,
             [Summary("divisionType", "Division type (1v1, 2v2, 3v3)")] string divisionType)
         {
+            // Defer response if the process might take time
+            await Context.Interaction.DeferAsync();
+
             var result = _ladderManager.CreateLeagueProcess(leagueName, divisionType.Trim().ToLower());
-            await RespondAsync(embed: result);
+
+            // Send the resulting embed
+            await Context.Interaction.FollowupAsync(embed: result);
+        }
+
+        [SlashCommand("delete", "Admin command to delete a League entirely. Use with caution.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task DeleteLeagueAsync(
+            [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
+        {
+            // Defer response if the process might take time
+            await Context.Interaction.DeferAsync();
+
+            var result = _ladderManager.DeleteLeagueProcess(leagueName);
+
+            // Send the resulting embed
+            await Context.Interaction.FollowupAsync(embed: result);
         }
         #endregion
     }

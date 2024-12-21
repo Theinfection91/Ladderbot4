@@ -427,7 +427,7 @@ namespace Ladderbot4.Managers
                     // Save and reload
                     _leagueManager.SaveAndReloadLeaguesDatabase();
 
-                    // TODO - Create Embeds for League creation/removal
+                    // Return success embed
                     return _embedManager.CreateLeagueSuccessEmbed(newLeague);
                 }
                 return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
@@ -437,7 +437,33 @@ namespace Ladderbot4.Managers
 
         public Embed DeleteLeagueProcess(string leagueName)
         {
-            return _embedManager.TeamNotFoundErrorEmbed("null");
+            // Load latest save
+            _leagueManager.LoadLeaguesDatabase();
+
+            // Check if League by given name exist
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league object
+                League leagueToRemove = _leagueManager.GetLeagueByName(leagueName);
+                if (leagueToRemove != null)
+                {
+                    // TODO - Remove all challenges associated with all teams in league
+
+                    // Remove League from leagues.json
+                    _leagueManager.RemoveLeague(leagueToRemove.LeagueName, leagueToRemove.Division);
+
+                    // Save and reload
+                    _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                    // Backup to Git
+                    _backupManager.CopyAndBackupFilesToGit();
+
+                    // Return success embed
+                    return _embedManager.DeleteLeagueSuccessEmbed(leagueToRemove);
+                }
+                return _embedManager.DeleteLeagueErrorEmbed($"The League object that was found was null. Contact the bot's admin.");
+            }
+            return _embedManager.DeleteLeagueErrorEmbed($"No League was found by the given League Name: {leagueName}");
         }
 
         #endregion
