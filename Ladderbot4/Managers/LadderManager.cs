@@ -502,7 +502,7 @@ namespace Ladderbot4.Managers
                         }
 
                         // Create team object
-                        Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.Division, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
+                        Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.LeagueName, leagueReference.Division, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
 
                         // Add team to league
                         _teamManager.AddNewTeamToLeague(newTeam, leagueReference);
@@ -598,6 +598,79 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Challenge Based Logic
+        public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        {
+            // Load the latest save of the Challenges and Leagues database
+            _leagueManager.LoadLeaguesDatabase();
+            _challengeManager.LoadChallengesDatabase();
+
+            // Check if both teams exist in the database
+            if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
+            {
+                // Grab correct league
+                League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
+                Console.WriteLine($"{correctLeague.LeagueName} LEague Name");
+
+                // Grab team objects
+                Team objectChallengerTeam = _teamManager.GetTeamByNameFromLeagues(challengerTeam);
+                Team objectChallengedTeam = _teamManager.GetTeamByNameFromLeagues(challengedTeam);
+
+                // TODO - Add check if ladder is started in League
+
+
+                // Grab Discord ID of the user who invoked the command
+                ulong discordId = context.User.Id;
+
+                // Check if the user is on the challenger team
+                if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
+                {
+                    // Check if teams are in the same League
+                    if (_leagueManager.IsTeamsInSameLeague(correctLeague, objectChallengerTeam, objectChallengedTeam))
+                    {
+                        // Ensure the ranks are within range
+                        if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+                        {
+                            // Check if the challenger has no pending challenges
+                            if (!_challengeManager.IsTeamInChallenge(correctLeague.Division, correctLeague.LeagueName, objectChallengerTeam))
+                            {
+                                // Check if the challenged has no pending challenges
+                                if (!_challengeManager.IsTeamInChallenge(correctLeague.Division, correctLeague.LeagueName, objectChallengedTeam))
+                                {
+                                    // Create and save new Challenge
+                                    _challengeManager.AddNewChallenge(correctLeague.Division, correctLeague.LeagueName, new Challenge(correctLeague.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
+
+                                    // Change IsChallengeable of both teams to false
+                                    _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+                                    _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+                                    _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                                    // Save and reload database
+                                    _challengeManager.SaveChallengesDatabase();
+                                    _challengeManager.LoadChallengesDatabase();
+
+                                    // Backup to git
+                                    _backupManager.CopyAndBackupFilesToGit();
+
+                                    // Grab newly created Challenge object
+                                    Challenge? newChallenge = _challengeManager.GetChallengeForTeam(correctLeague.Division, correctLeague.LeagueName, objectChallengerTeam);
+
+                                    // Notify the challenged team
+                                    foreach (Member member in objectChallengedTeam.Members)
+                                    {
+                                        _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge, correctLeague);
+                                    }
+
+                                    return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
+        }
+        
         /// <summary>
         /// User-level logic used to handle the process of one team challenging another to a match. This logic compares the invoker's Discord Id to the challenger team to make sure they are apart of it. To bypass this, an admin can use the admin_challenge command or enable Super Admin Mode (Check the documentation).
         /// </summary>
@@ -1189,64 +1262,64 @@ namespace Ladderbot4.Managers
 
         #region Set Rank Logic
 
-        public string SetRankProcess(string teamName, int newRank)
-        {
-            // Check if the team exists
-            if (!_teamManager.IsTeamNameUnique(teamName))
-            {
-                // Get the team object
-                Team teamToAdjust = _teamManager.GetTeamByName(teamName);
+        //public string SetRankProcess(string teamName, int newRank)
+        //{
+        //    // Check if the team exists
+        //    if (!_teamManager.IsTeamNameUnique(teamName))
+        //    {
+        //        // Get the team object
+        //        Team teamToAdjust = _teamManager.GetTeamByName(teamName);
 
-                // Get the current rank of the team
-                int currentRank = teamToAdjust.Rank;
+        //        // Get the current rank of the team
+        //        int currentRank = teamToAdjust.Rank;
 
-                // Get all teams in the same division
-                List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(teamToAdjust.Division);
+        //        // Get all teams in the same division
+        //        List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(teamToAdjust.Division);
 
-                if (newRank == currentRank)
-                {
-                    return $"```Team {teamName} is already at rank {newRank}. No changes made.```";
-                }
+        //        if (newRank == currentRank)
+        //        {
+        //            return $"```Team {teamName} is already at rank {newRank}. No changes made.```";
+        //        }
 
-                // Moving the team up in rank (newRank < currentRank)
-                if (newRank < currentRank)
-                {
-                    for (int i = 0; i < teamsInDivision.Count; i++)
-                    {
-                        if (teamsInDivision[i].Rank >= newRank && teamsInDivision[i].Rank < currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
-                        {
-                            teamsInDivision[i].Rank++;
-                        }
-                    }
-                }
-                // Moving the team down in rank (newRank > currentRank)
-                else if (newRank > currentRank)
-                {
-                    for (int i = 0; i < teamsInDivision.Count; i++)
-                    {
-                        if (teamsInDivision[i].Rank <= newRank && teamsInDivision[i].Rank > currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
-                        {
-                            teamsInDivision[i].Rank--;
-                        }
-                    }
-                }
+        //        // Moving the team up in rank (newRank < currentRank)
+        //        if (newRank < currentRank)
+        //        {
+        //            for (int i = 0; i < teamsInDivision.Count; i++)
+        //            {
+        //                if (teamsInDivision[i].Rank >= newRank && teamsInDivision[i].Rank < currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
+        //                {
+        //                    teamsInDivision[i].Rank++;
+        //                }
+        //            }
+        //        }
+        //        // Moving the team down in rank (newRank > currentRank)
+        //        else if (newRank > currentRank)
+        //        {
+        //            for (int i = 0; i < teamsInDivision.Count; i++)
+        //            {
+        //                if (teamsInDivision[i].Rank <= newRank && teamsInDivision[i].Rank > currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
+        //                {
+        //                    teamsInDivision[i].Rank--;
+        //                }
+        //            }
+        //        }
 
-                // Finally, set the new rank for the team
-                teamToAdjust.Rank = newRank;
+        //        // Finally, set the new rank for the team
+        //        teamToAdjust.Rank = newRank;
 
-                // Reassign ranks to ensure consistency
-                ReassignRanks(teamToAdjust.Division);
+        //        // Reassign ranks to ensure consistency
+        //        ReassignRanks(teamToAdjust.Division);
 
-                // Save and reload the teams database
-                _teamManager.SaveAndReloadTeamsDatabase();
+        //        // Save and reload the teams database
+        //        _teamManager.SaveAndReloadTeamsDatabase();
 
-                // Backup the database to Git
-                _backupManager.CopyAndBackupFilesToGit();
+        //        // Backup the database to Git
+        //        _backupManager.CopyAndBackupFilesToGit();
 
-                return $"```Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.```";
-            }
-            return $"```The given team name was not found in the database: {teamName}.```";
-        }
+        //        return $"```Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.```";
+        //    }
+        //    return $"```The given team name was not found in the database: {teamName}.```";
+        //}
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic

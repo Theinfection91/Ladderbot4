@@ -8,7 +8,6 @@ namespace Ladderbot4.Models
 {
     public class Challenge
     {
-        public string Division { get; set; }
         public string Challenger {  get; set; }
         public int ChallengerRank { get; set; }
         public string Challenged {  get; set; }
@@ -17,7 +16,6 @@ namespace Ladderbot4.Models
 
         public Challenge(string division, string challenger, int challengerRank, string challenged, int challengedRank)
         {
-            Division = division;
             Challenger = challenger;
             ChallengerRank = challengerRank;
             Challenged = challenged;
@@ -30,7 +28,7 @@ namespace Ladderbot4.Models
             // Check if the object is a Member
             if (obj is Challenge otherChallenge)
             {
-                return this.Division == otherChallenge.Division && this.Challenger == otherChallenge.Challenger;
+                return this.Challenger == otherChallenge.Challenger && this.Challenged == otherChallenge.Challenged;
             }
             return false;
         }
@@ -38,7 +36,7 @@ namespace Ladderbot4.Models
         public override int GetHashCode()
         {
             // Combine hash codes of Division and Challenger to match override Equals logic
-            return HashCode.Combine(Division, Challenger);
+            return HashCode.Combine(Challenger, Challenged);
         }
     }
 }

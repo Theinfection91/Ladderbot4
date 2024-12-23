@@ -25,13 +25,17 @@ namespace Ladderbot4.Commands
             [Summary("leagueName", "Name of the League to be created")] string leagueName,
             [Summary("divisionType", "Division type (1v1, 2v2, 3v3)")] string divisionType)
         {
-            // Defer response if the process might take time
-            await Context.Interaction.DeferAsync();
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.CreateLeagueProcess(leagueName, divisionType.Trim().ToLower());
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                await Context.Interaction.FollowupAsync($"An error occurred: {ex.Message}");
+            }
 
-            var result = _ladderManager.CreateLeagueProcess(leagueName, divisionType.Trim().ToLower());
-
-            // Send the resulting embed
-            await Context.Interaction.FollowupAsync(embed: result);
         }
 
         [SlashCommand("delete", "Admin command to delete a League entirely. Use with caution.")]

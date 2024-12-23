@@ -25,8 +25,8 @@ namespace Ladderbot4.Commands
             [Summary("teamName", "The team that will have their rank changed")] string teamName,
             [Summary("rank", "The new rank the team will be awarded.")] int rank)
         {
-            string result = _ladderManager.SetRankProcess(teamName, rank);
-            await RespondAsync(result);
+            //string result = _ladderManager.SetRankProcess(teamName, rank);
+            //await RespondAsync(result);
         }
 
         [SlashCommand("challenges_channel_id", "For Admins to set the dynamic challenges message.")]

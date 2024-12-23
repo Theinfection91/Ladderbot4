@@ -99,7 +99,7 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public async void SendChallengeNotification(ulong userId, Challenge challenge)
+        public async void SendChallengeNotification(ulong userId, Challenge challenge, League league)
         {
             try
             {
@@ -116,7 +116,7 @@ namespace Ladderbot4.Managers
                 var embedBuilder = new EmbedBuilder()
                     .WithTitle("⚔️ You've Been Challenged!")
                     .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in the **{challenge.Division} Division**.")
+                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in the **{league.LeagueName} League**.")
                     .AddField("Challenger Team", challenge.Challenger, inline: true)
                     .AddField("Your Team", challenge.Challenged, inline: true)
                     .WithFooter("Prepare for your match!")

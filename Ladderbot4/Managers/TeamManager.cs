@@ -60,10 +60,10 @@ namespace Ladderbot4.Managers
         }
 
         // Check if two given teams are in the same division
-        public bool IsTeamsInSameDivision(Team teamOne, Team teamTwo)
-        {
-            return teamOne.Division == teamTwo.Division;
-        }
+        //public bool IsTeamsInSameDivision(Team teamOne, Team teamTwo)
+        //{
+        //    return teamOne.Division == teamTwo.Division;
+        //}
 
         // Check if the team name is unique across all divisions
         //public bool IsTeamNameUnique(string teamName)
@@ -339,18 +339,18 @@ namespace Ladderbot4.Managers
            team.Losses -= numberOfLosses;
         }
 
-        public Team CreateTeamObject(string teamName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)
+        public Team CreateTeamObject(string teamName, string leagueName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)
         {
-            return new Team(teamName, division, rank, wins, losses, members);
+            return new Team(teamName, leagueName, division, rank, wins, losses, members);
         }
 
-        public void AddNewTeam(Team newTeam)
-        {
-            _teamData.AddTeam(newTeam);
+        //public void AddNewTeam(Team newTeam)
+        //{
+        //    _teamData.AddTeam(newTeam);
 
-            // Loads newest save of the database to backing field
-            LoadTeamsDatabase();
-        }
+        //    // Loads newest save of the database to backing field
+        //    LoadTeamsDatabase();
+        //}
 
         public void AddNewTeamToLeague(Team newTeam, League league)
         {

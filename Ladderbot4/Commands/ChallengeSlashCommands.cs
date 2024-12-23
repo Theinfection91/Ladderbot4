@@ -24,8 +24,9 @@ namespace Ladderbot4.Commands
             [Summary("challengerTeam", "Name of team sending challenge")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
         {
-            //var result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
-            //await RespondAsync(embed: result);
+            await Context.Interaction.DeferAsync();
+            var result = _ladderManager.ChallengeProcess(Context, challengerTeam, challengedTeam);
+            await Context.Interaction.FollowupAsync(embed: result);
         }
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]

@@ -68,27 +68,27 @@ namespace Ladderbot4.Data
         }
 
         // Add a new team to the JSON file
-        public void AddTeam(Team newTeam)
-        {
-            var teamsByDivision = LoadAllTeams();
+        //public void AddTeam(Team newTeam)
+        //{
+        //    var teamsByDivision = LoadAllTeams();
 
-            // Add the team to the appropriate division
-            switch (newTeam.Division)
-            {
-                case "1v1":
-                    teamsByDivision.Division1v1.Add(newTeam);
-                    break;
-                case "2v2":
-                    teamsByDivision.Division2v2.Add(newTeam);
-                    break;
-                case "3v3":
-                    teamsByDivision.Division3v3.Add(newTeam);
-                    break;
-            }
+        //    // Add the team to the appropriate division
+        //    switch (newTeam.Division)
+        //    {
+        //        case "1v1":
+        //            teamsByDivision.Division1v1.Add(newTeam);
+        //            break;
+        //        case "2v2":
+        //            teamsByDivision.Division2v2.Add(newTeam);
+        //            break;
+        //        case "3v3":
+        //            teamsByDivision.Division3v3.Add(newTeam);
+        //            break;
+        //    }
 
-            // Save the updated list of teams back to the file
-            SaveTeams(teamsByDivision);
-        }
+        //    // Save the updated list of teams back to the file
+        //    SaveTeams(teamsByDivision);
+        //}
 
         public void RemoveTeam(string teamName, string division)
         {

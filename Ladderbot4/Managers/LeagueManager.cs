@@ -53,6 +53,18 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsTeamsInSameLeague(League league, Team teamOne, Team teamTwo)
+        {
+            foreach (Team team in league.Teams)
+            {
+                if (teamOne.League.Equals(teamTwo.League, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public bool IsValidDivisionType(string divisionType)
         {
             foreach (string division in new[] { "1v1", "2v2", "3v3" })
