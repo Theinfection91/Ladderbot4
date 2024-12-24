@@ -49,6 +49,14 @@ namespace Ladderbot4.Managers
                 challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
         }
 
+        public bool IsTeamChallenger(string division, string leagueName, Team team)
+        {
+            var challenges = _challengeData.GetChallenges(division, leagueName);
+
+            return challenges.Any(challenge =>
+                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+        }
+
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
         {
             return challengerTeam.Rank > challengedTeam.Rank &&

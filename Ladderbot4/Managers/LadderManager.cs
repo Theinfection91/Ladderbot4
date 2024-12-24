@@ -774,6 +774,61 @@ namespace Ladderbot4.Managers
         //    return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
         //}
 
+        public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        {
+            // Load latest save of Challenges database
+            _challengeManager.LoadChallengesDatabase();
+
+            // Check if team exists
+            if (!_teamManager.IsTeamNameUnique(challengerTeam))
+            {
+                // Grab team reference
+                Team challengerTeamObject = _teamManager.GetTeamByNameFromLeagues(challengerTeam);
+
+                // Grab league reference
+                League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeamObject.TeamName);
+
+                // TODO - Check if ladder is running in given league
+
+
+                // Check if invoker is part of challenger team
+                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
+                {
+                    // Check if Team has a challenge actually sent out
+                    if (_challengeManager.IsTeamChallenger(correctLeague.Division, correctLeague.LeagueName, challengerTeamObject))
+                    {
+                        // Grab challenge object
+                        Challenge? challenge = _challengeManager.GetChallengeForTeam(correctLeague.Division, correctLeague.LeagueName, challengerTeamObject);
+
+                        // Grab challenged team object
+                        Team challengedTeamObject = _teamManager.GetTeamByNameFromLeagues(challenge.Challenged);
+
+                        // Set IsChallengeable for both teams back to true
+                        _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+                        _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+
+                        // Save and reload leagues and its teams
+                        _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                        // Cancel the challenge
+                        _challengeManager.SudoRemoveChallenge(correctLeague.Division, correctLeague.LeagueName, challengerTeamObject.TeamName);
+
+                        // Save and reload Challenges
+                        _challengeManager.SaveChallengesDatabase();
+                        _challengeManager.LoadChallengesDatabase();
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
+                        return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
+                    }
+                    return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
+                }
+                return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
+        }
+
         //public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         //{
         //    // Load latest save of Challenges database

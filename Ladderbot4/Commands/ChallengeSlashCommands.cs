@@ -33,8 +33,9 @@ namespace Ladderbot4.Commands
         public async Task CancelChallengeAsync(
             [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
         {
-            //var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
-            //await RespondAsync(embed: result);
+            await Context.Interaction.DeferAsync();
+            var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam);
+            await Context.Interaction.FollowupAsync(embed: result);
         }
 
         [Group("admin", "Admin slash commands related to challenges.")]
