@@ -81,6 +81,38 @@ namespace Ladderbot4.Data
                 challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase));
         }
 
+        public void RemoveLeagueFromChallenges(string division, string leagueName)
+        {
+            // Load all challenges
+            var challenges = LoadAllChallenges();
+
+            // Check if the division exists
+            if (challenges.Challenges.ContainsKey(division))
+            {
+                var divisionChallenges = challenges.Challenges[division];
+
+                // Check if the league exists within the division
+                if (divisionChallenges.ContainsKey(leagueName))
+                {
+                    // Remove the league entry from the division
+                    divisionChallenges.Remove(leagueName);
+
+                    // Save the updated challenges back to the file
+                    SaveChallenges(challenges);
+
+                    Console.WriteLine($"Removed league {leagueName} from division {division}");
+                }
+                else
+                {
+                    Console.WriteLine($"League {leagueName} not found in division {division}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Division {division} not found.");
+            }
+        }
+
         // Get all challenges for a specific league
         public List<Challenge> GetChallenges(string division, string leagueName)
         {

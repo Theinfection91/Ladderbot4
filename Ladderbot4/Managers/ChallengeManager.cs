@@ -145,5 +145,10 @@ namespace Ladderbot4.Managers
         {
             _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
         }
+
+        public void RemoveLeagueFromChallenges(string division, string leagueName)
+        {
+            _challengeData.RemoveLeagueFromChallenges(division, leagueName);
+        }
     }
 }

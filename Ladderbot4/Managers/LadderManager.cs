@@ -447,7 +447,8 @@ namespace Ladderbot4.Managers
                 League leagueToRemove = _leagueManager.GetLeagueByName(leagueName);
                 if (leagueToRemove != null)
                 {
-                    // TODO - Remove all challenges associated with all teams in league
+                    // TODO - Remove league and all challenges associated with all teams in challenges.json
+                    _challengeManager.RemoveLeagueFromChallenges(leagueToRemove.Division, leagueToRemove.LeagueName);
 
                     // Remove League from leagues.json
                     _leagueManager.RemoveLeague(leagueToRemove.LeagueName, leagueToRemove.Division);
@@ -536,10 +537,10 @@ namespace Ladderbot4.Managers
                 // Grab League object
                 League correctLeague = _leagueManager.GetLeagueFromTeamName(teamName);
 
-                // TODO - Remove all Challenges from Database associated with team
+                // Remove all Challenges from Database associated with team
+                _challengeManager.SudoRemoveChallenge(correctLeague.Division, correctLeague.LeagueName, teamName);
 
-
-                // TODO - Remove the team correctly and correct ranks
+                //Remove the team correctly and correct ranks
                 _teamManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
                 ReassignRanksInLeague(correctLeague);
 

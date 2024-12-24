@@ -104,6 +104,14 @@ namespace Ladderbot4
             _client.InteractionCreated += HandleInteractionAsync;
             _client.MessageReceived += HandleCommandAsync;
 
+            // Add the Disconnected event handler to automatically reconnect
+            _client.Disconnected += async (exception) =>
+            {
+                Console.WriteLine("Disconnected from Discord. Reconnecting...");
+                await Task.Delay(5000); // Wait before reconnecting
+                await _client.StartAsync(); // Reconnect
+            };
+
             // Login and start the bot
             await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
             await _client.StartAsync();
