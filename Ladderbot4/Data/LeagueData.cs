@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace Ladderbot4.Data
 {
     public class LeagueData
-    {
+    { 
         private string _filePath;
 
         public LeagueData()
