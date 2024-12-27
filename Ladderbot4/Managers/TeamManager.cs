@@ -371,7 +371,7 @@ namespace Ladderbot4.Managers
             _teamData.RemoveTeam(teamName, division);
 
             // Loads newest save of the database to backing field
-            LoadTeamsDatabase();
+            LoadTeamsDatabase(); 
         }
 
         public void RemoveTeamFromLeague(Team team, League league)
