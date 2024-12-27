@@ -232,14 +232,21 @@ namespace Ladderbot4.Managers
             ;
         }
 
-        public List<Team>? GetTeamsInLeague(League league)
+        public List<Team>? GetTeamsInLeague(League leagueRef)
         {
-            if (league != null)
+            List<League>? leagues = leagueRef.Division switch
             {
-                return league.Teams;
-            }
-            return null;
+                "1v1" => _leaguesByDivision.Leagues1v1,
+                "2v2" => _leaguesByDivision.Leagues2v2,
+                "3v3" => _leaguesByDivision.Leagues3v3,
+                _ => null
+            };
+
+            if (leagues == null) return null;
+
+            return leagues.FirstOrDefault(l => l.LeagueName == leagueRef.LeagueName)?.Teams;
         }
+
 
         public Team GetTeamByName(string teamName)
         {

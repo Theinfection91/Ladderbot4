@@ -641,8 +641,10 @@ namespace Ladderbot4.Managers
                                     _challengeManager.AddNewChallenge(correctLeague.Division, correctLeague.LeagueName, new Challenge(correctLeague.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
 
                                     // Change IsChallengeable of both teams to false
-                                    _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-                                    _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+                                    Team testChallengerTeamObject = correctLeague.Teams.First(t => t.TeamName == objectChallengerTeam.TeamName);
+                                    Team testChallengedTeamObject = correctLeague.Teams.First(t => t.TeamName == objectChallengedTeam.TeamName);
+                                    _teamManager.ChangeChallengeStatus(testChallengerTeamObject, false);
+                                    _teamManager.ChangeChallengeStatus(testChallengedTeamObject, false);
                                     _leagueManager.SaveAndReloadLeaguesDatabase();
 
                                     // Save and reload database
@@ -663,10 +665,25 @@ namespace Ladderbot4.Managers
 
                                     return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
                                 }
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is already awaiting a challenge match. Please try again later.");
+                            }
+                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is already awaiting a challenge match. Please try again later.");
+                        }
+                        else
+                        {
+                            if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+                            {
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
+                            }
+                            else
+                            {
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
                             }
                         }
                     }
+                return _embedManager.ChallengeErrorEmbed($"The teams are not in the same League. Challenger team's League: {objectChallengerTeam.League}, Challenged team's League: {objectChallengedTeam.League}. Please try again.");
                 }
+                return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.TeamName}. Please try again.");
             }
 
             return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
@@ -804,8 +821,10 @@ namespace Ladderbot4.Managers
                         Team challengedTeamObject = _teamManager.GetTeamByNameFromLeagues(challenge.Challenged);
 
                         // Set IsChallengeable for both teams back to true
-                        _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-                        _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+                        Team testChallengerTeamObject = correctLeague.Teams.First(t => t.TeamName == challengerTeamObject.TeamName);
+                        Team testChallengedTeamObject = correctLeague.Teams.First(t => t.TeamName == challengedTeamObject.TeamName);
+                        _teamManager.ChangeChallengeStatus(testChallengerTeamObject, true);
+                        _teamManager.ChangeChallengeStatus(testChallengedTeamObject, true);
 
                         // Save and reload leagues and its teams
                         _leagueManager.SaveAndReloadLeaguesDatabase();
@@ -1011,6 +1030,136 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Reporting Logic
+
+        public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
+        {
+            // Check if given team name exists
+            if (!_teamManager.IsTeamNameUnique(winningTeamName))
+            {
+                // Grab winningTeam object, add placeholder for losingTeam object
+                Team winningTeam = _teamManager.GetTeamByNameFromLeagues(winningTeamName);
+                Team losingTeam;
+
+                // Grab league object
+                League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
+
+                // TODO - Check if ladder is running
+
+
+                // Is invoker on the winningTeam
+                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
+                {
+                    // Is the team part of an active challenge (Challenger or Challenged)
+                    if (_challengeManager.IsTeamInChallenge(league.Division, league.LeagueName, winningTeam))
+                    {
+                        // Grab challenge object for reference
+                        Challenge? challenge = _challengeManager.GetChallengeForTeam(league.Division, league.LeagueName, winningTeam);
+
+                        // Determine if winningTeam is Challenger or Challenged
+                        bool isWinningTeamChallenger;
+                        if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            isWinningTeamChallenger = true;
+                            losingTeam = _teamManager.GetTeamByNameFromLeagues(challenge.Challenged);
+                        }
+                        else
+                        {
+                            isWinningTeamChallenger = false;
+                            losingTeam = _teamManager.GetTeamByNameFromLeagues(challenge.Challenger);
+                        }
+
+                        // If winningTeam is challenger, rank change will occur
+                        if (isWinningTeamChallenger)
+                        {
+                            // The winning team takes the rank of the losing team
+                            Team winningTeamInLeague = league.Teams.First(t => t.TeamName == winningTeam.TeamName);
+                            Team losingTeamInLeague = league.Teams.First(t => t.TeamName == losingTeam.TeamName);
+
+                            winningTeamInLeague.Rank = losingTeamInLeague.Rank;
+                            losingTeamInLeague.Rank++;
+
+
+                            // Reassign ranks for the entire League
+                            foreach (Team team in league.Teams)
+                            {
+                                Console.WriteLine($"Before rank reassign: {team.TeamName} #{team.Rank}");
+                            }
+                            
+                            ReassignRanksInLeague(league);
+
+                            foreach (Team team in league.Teams)
+                            {
+                                Console.WriteLine($"After rank reassign: {team.TeamName} #{team.Rank}");
+                            }
+
+                            // Add wins and losses correctly
+                            _teamManager.AddToWins(winningTeamInLeague, 1);
+                            _teamManager.AddToLosses(losingTeamInLeague, 1);
+
+                            // TODO - Add wins and losses to Member Profiles
+
+
+                            // TODO - Create Match object to add to History (Past Matches)
+
+
+                            // Set IsChallengeable status of both teams back to true
+                            _teamManager.ChangeChallengeStatus(winningTeamInLeague, true);
+                            _teamManager.ChangeChallengeStatus(losingTeamInLeague, true);
+                            _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                            // Remove the challenge
+                            _challengeManager.SudoRemoveChallenge(league.Division, league.LeagueName, challenge.Challenger);
+
+                            // Save Challenges database
+                            _challengeManager.SaveChallengesDatabase();
+                            _challengeManager.LoadChallengesDatabase();
+
+                            // Backup to Git
+                            _backupManager.CopyAndBackupFilesToGit();
+
+                            // Return Success Embed with true, showing rank change
+                            return _embedManager.ReportWinSuccessEmbed(winningTeamInLeague, losingTeamInLeague, true, league);
+                        }
+                        
+                        // If winningTeam is challenged, no rank change will occur
+                        else
+                        {
+
+                            // The winning team takes the rank of the losing team
+                            Team winningTeamInLeague = league.Teams.First(t => t.TeamName == winningTeam.TeamName);
+                            Team losingTeamInLeague = league.Teams.First(t => t.TeamName == losingTeam.TeamName);
+
+                            // Assign win and loss correctly
+                            _teamManager.AddToWins(winningTeamInLeague, 1);
+                            _teamManager.AddToLosses(losingTeamInLeague, 1);
+
+                            // TODO Add wins and losses to Member Profiles
+
+
+                            // TODO: Create Match object to add to History (Past Matches)
+
+
+                            // Set IsChallengeable status of both teams back to true
+                            _teamManager.ChangeChallengeStatus(winningTeamInLeague, true);
+                            _teamManager.ChangeChallengeStatus(losingTeamInLeague, true);
+                            _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                            // If the challenged team wins, no rank change
+                            _challengeManager.SudoRemoveChallenge(league.Division, league.LeagueName, challenge.Challenger);
+
+                            // Backup the database to Git
+                            _backupManager.CopyAndBackupFilesToGit();
+
+                            // Return Success Embed with false, showing no rank change
+                            return _embedManager.ReportWinSuccessEmbed(winningTeamInLeague, losingTeamInLeague, false, league);
+                        }
+                    }
+                    return _embedManager.ReportWinErrorEmbed($"Team {winningTeam.TeamName} is not currently waiting on a challenge match.");
+                }
+                return _embedManager.ReportWinErrorEmbed($"You are not part of Team {winningTeam.TeamName}.");
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(winningTeamName);
+        }
 
         //public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
         //{
@@ -1564,34 +1713,37 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Helper Methods
-        private void ReassignRanks(string division)
+        private void ReassignRanks()
         {
-            // Get the list of teams in the specified division
-            List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(division);
 
-            // Sort teams by their current rank
-            teamsInDivision.Sort((a, b) => a.Rank.CompareTo(b.Rank));
-
-            // Reassign ranks sequentially
-            for (int i = 0; i < teamsInDivision.Count; i++)
-            {
-                teamsInDivision[i].Rank = i + 1;
-            }
         }
 
         private void ReassignRanksInLeague(League league)
         {
-            List<Team> teamsInLeague = _teamManager.GetTeamsInLeague(league);
+            // Ensure the league is valid
+            if (league == null || league.Teams == null || !league.Teams.Any())
+            {
+                Console.WriteLine("No teams to reassign ranks.");
+                return;
+            }
 
-            // Sort teams by current rank
-            teamsInLeague.Sort((a, b) => a.Rank.CompareTo(b.Rank));
+            // Sort teams in the league by their current rank
+            league.Teams.Sort((a, b) => a.Rank.CompareTo(b.Rank));
 
             // Reassign ranks sequentially
-            for (int i = 0; i <  teamsInLeague.Count; i++)
+            for (int i = 0; i < league.Teams.Count; i++)
             {
-                teamsInLeague[i].Rank = i + 1;
+                league.Teams[i].Rank = i + 1;
+            }
+
+            // Debug output to verify ranks have been reassigned
+            Console.WriteLine($"Ranks reassigned for league: {league.LeagueName}");
+            foreach (var team in league.Teams)
+            {
+                Console.WriteLine($"Team: {team.TeamName}, Rank: {team.Rank}");
             }
         }
+
         #endregion
 
         #region Settings Logic

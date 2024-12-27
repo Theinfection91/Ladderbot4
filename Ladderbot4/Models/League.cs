@@ -44,5 +44,10 @@ namespace Ladderbot4.Models
                 }
             }
         }
+
+        public void SortTeamsByRank()
+        {
+            Teams = Teams.OrderBy(t => t.Rank).ToList();
+        }
     }
 }
