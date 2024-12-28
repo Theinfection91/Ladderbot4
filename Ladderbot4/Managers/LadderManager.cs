@@ -392,30 +392,6 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        //public Embed StartLadderByDivisionProcess(string division)
-        //{
-        //    _statesManager.LoadStatesDatabase();
-
-        //    // Check if ladder is currently running or not
-        //    if (!_statesManager.IsLadderRunning(division))
-        //    {
-        //        // Set ladder running to true in division
-        //        _statesManager.SetLadderRunning(division, true);
-
-        //        // Save and reload the database
-        //        _statesManager.SaveAndReloadStatesDatabase();
-
-        //        // Backup the database to Git
-        //        _backupManager.CopyAndBackupFilesToGit();
-
-        //        return _embedManager.StartLadderSuccessEmbed(division);
-        //    }
-        //    else
-        //    {
-        //        return _embedManager.StartLadderAlreadyRunningEmbed(division);
-        //    }  
-        //}
-
         public Embed EndLeagueLadderProcess(string leagueName)
         {
             _statesManager.LoadStatesDatabase();
@@ -448,30 +424,6 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
-
-        //public Embed EndLadderByDivisionProcess(string division)
-        //{
-        //    _statesManager.LoadStatesDatabase();
-
-        //    // Check if ladder is currently running or not
-        //    if (_statesManager.IsLadderRunning(division))
-        //    {
-        //        // Set ladder running to false in division
-        //        _statesManager.SetLadderRunning(division, false);
-
-        //        // Save and reload the database
-        //        _statesManager.SaveAndReloadStatesDatabase();
-
-        //        // Backup the database to Git
-        //        _backupManager.CopyAndBackupFilesToGit();
-
-        //        return _embedManager.EndLadderSuccessEmbed(division);
-        //    }
-        //    else
-        //    {
-        //        return _embedManager.EndLadderNotRunningEmbed(division);
-        //    }
-        //}
         #endregion
 
         #region Create/Delete League Logic
@@ -590,8 +542,7 @@ namespace Ladderbot4.Managers
                         // Add team to league
                         _leagueManager.AddNewTeamToLeague(newTeam, leagueReference);
 
-                        // Save and reload Leagues Database from the Team Manager
-                        //_teamManager.SaveAndReloadLeaguesDatabase();
+                        // Save and reload Leagues Database
                         _leagueManager.SaveAndReloadLeaguesDatabase();
 
                         // Backup the database to Git
@@ -639,46 +590,6 @@ namespace Ladderbot4.Managers
 
             return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
         }
-
-        /// <summary>
-        /// Starts the process of trying to remove a team
-        /// </summary>
-        /// <param name="teamName">Name of team to try and remove from database</param>
-        /// <returns>Embed from the bot that will cover error handling and confirmation of removal.</returns>
-        //public Embed RemoveTeamProcess(string teamName)
-        //{
-        //    // Load latest save of Teams database
-        //    _teamManager.LoadTeamsDatabase();
-
-        //    // Check if Team is in database
-        //    if (!_teamManager.IsTeamNameUnique(teamName))
-        //    {
-        //        // Grab object reference to work with
-        //        Team teamReference = _teamManager.GetTeamByName(teamName);
-
-        //        // Remove any challenges related to team, if any
-        //        if (_challengeManager.IsTeamInChallenge(teamReference))
-        //        {
-        //            _challengeManager.SudoRemoveChallenge(teamReference.TeamName, teamReference.Division);
-        //        }
-
-        //        // Remove the team correctly, with ranks falling into place programmatically
-        //        _teamManager.RemoveTeam(teamReference.TeamName, teamReference.Division);
-        //        ReassignRanks(teamReference.Division);
-
-        //        // Save and reload database
-        //        _teamManager.SaveAndReloadTeamsDatabase();
-
-        //        // Backup the database to Git
-        //        _backupManager.CopyAndBackupFilesToGit();
-
-        //        // Return a success embed
-        //        return _embedManager.RemoveTeamSuccessEmbed(teamReference, null);
-
-        //    }
-        //    // Return an error embed if the team does not exist
-        //    return _embedManager.RemoveTeamErrorEmbed($"The team '{teamName}' does not exist in the database. Please try again.");
-        //}
         #endregion
 
         #region Challenge Based Logic
@@ -1885,10 +1796,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Testing Methods
-        public Embed CreateTestTeamsProcess()
-        {
-            return null;
-        }
+
 
         #endregion
     }

@@ -25,7 +25,7 @@ namespace Ladderbot4.Models
 
         public override bool Equals(object? obj)
         {
-            // Check if the object is a Member
+            // Check if the object is a Challenge
             if (obj is Challenge otherChallenge)
             {
                 return this.Challenger == otherChallenge.Challenger && this.Challenged == otherChallenge.Challenged;
