@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ladderbot4.Models
 {
@@ -14,9 +11,17 @@ namespace Ladderbot4.Models
 
         public LeaguesByDivision()
         {
-            Leagues1v1 = [];
-            Leagues2v2 = [];
-            Leagues3v3 = [];
+            Leagues1v1 = new List<League>();
+            Leagues2v2 = new List<League>();
+            Leagues3v3 = new List<League>();
+        }
+
+        // Combine all leagues into a single collection for iteration
+        public IEnumerable<League> GetAllLeagues()
+        {
+            foreach (var league in Leagues1v1) yield return league;
+            foreach (var league in Leagues2v2) yield return league;
+            foreach (var league in Leagues3v3) yield return league;
         }
     }
 }

@@ -47,11 +47,11 @@ namespace Ladderbot4.Managers
                     break;
 
                 case "2v2":
-                    states = _statesByDivision.States2v2; // Assuming States2v2 exists
+                    states = _statesByDivision.States2v2;
                     break;
 
                 case "3v3":
-                    states = _statesByDivision.States3v3; // Assuming States3v3 exists
+                    states = _statesByDivision.States3v3;
                     break;
 
                 default:
@@ -101,142 +101,56 @@ namespace Ladderbot4.Managers
             }
         }
 
-        //public bool IsLadderRunning(string division)
-        //{
-        //    LoadStatesDatabase();
+        public ulong GetChallengesChannelId(League leagueRef)
+        {
+            State state = GetStateByLeague(leagueRef);
+            return state?.ChallengesChannelId ?? 0;
+        }
 
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            return _statesByDivision.States1v1.IsLadderRunning;
+        public void SetChallengesChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetStateByLeague(leagueRef);
 
-        //        case "2v2":
-        //            return _statesByDivision.States2v2.IsLadderRunning;
+            if (state != null)
+            {
+                state.ChallengesChannelId = channelId;
+                SaveAndReloadStatesDatabase();
+            }
+        }
 
-        //        case "3v3":
-        //            return _statesByDivision.States3v3.IsLadderRunning;
+        public ulong GetStandingsChannelId(League leagueRef)
+        {
+            State state = GetStateByLeague(leagueRef);
+            return state?.StandingsChannelId ?? 0;
+        }
 
-        //        default:
-        //            throw new ArgumentException("Invalid division type given.");
-        //    }
-        //}
+        public void SetStandingsChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetStateByLeague(leagueRef);
 
-        //public ulong GetChallengesChannelId(string division)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            return _statesByDivision.States1v1.ChallengesChannelId;
+            if (state != null)
+            {
+                state.StandingsChannelId = channelId;
+                SaveAndReloadStatesDatabase();
+            }
+        }
 
-        //        case "2v2":
-        //            return _statesByDivision.States2v2.ChallengesChannelId;
+        public ulong GetTeamsChannelId(League leagueRef)
+        {
+            State state = GetStateByLeague(leagueRef);
+            return state?.TeamsChannelId ?? 0;
+        }
 
-        //        case "3v3":
-        //            return _statesByDivision.States3v3.ChallengesChannelId;
+        public void SetTeamsChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetStateByLeague(leagueRef);
 
-        //        default:
-        //            return 0;
-        //    }
-        //}
-
-        //public void SetChallengesChannelId(string division, ulong channelId)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            _statesByDivision.States1v1.ChallengesChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "2v2":
-        //            _statesByDivision.States2v2.ChallengesChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "3v3":
-        //            _statesByDivision.States3v3.ChallengesChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-        //    }
-        //}
-
-        //public ulong GetStandingsChannelId(string division)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            return _statesByDivision.States1v1.StandingsChannelId;
-
-        //        case "2v2":
-        //            return _statesByDivision.States2v2.StandingsChannelId;
-
-        //        case "3v3":
-        //            return _statesByDivision.States3v3.StandingsChannelId;
-
-        //        default:
-        //            return 0;
-        //    }
-        //}
-
-        //public void SetStandingsChannelId(string division, ulong channelId)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            _statesByDivision.States1v1.StandingsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "2v2":
-        //            _statesByDivision.States2v2.StandingsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "3v3":
-        //            _statesByDivision.States3v3.StandingsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-        //    }
-        //}
-
-        //public ulong GetTeamsChannelId(string division)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            return _statesByDivision.States1v1.TeamsChannelId;
-
-        //        case "2v2":
-        //            return _statesByDivision.States2v2.TeamsChannelId;
-
-        //        case "3v3":
-        //            return _statesByDivision.States3v3.TeamsChannelId;
-
-        //        default:
-        //            return 0;
-        //    }
-        //}
-
-        //public void SetTeamsChannelId(string division, ulong channelId)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            _statesByDivision.States1v1.TeamsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "2v2":
-        //            _statesByDivision.States2v2.TeamsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-
-        //        case "3v3":
-        //            _statesByDivision.States3v3.TeamsChannelId = channelId;
-        //            SaveAndReloadStatesDatabase();
-        //            break;
-        //    }
-        //}
+            if (state != null)
+            {
+                state.TeamsChannelId = channelId;
+                SaveAndReloadStatesDatabase();
+            }
+        }
 
         public void SetLadderRunning(League leagueRef, bool trueOrFalse)
         {
@@ -298,23 +212,5 @@ namespace Ladderbot4.Managers
 
             LoadStatesDatabase();
         }
-
-        //public void SetLadderRunning(string division, bool trueOrFalse)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //            _statesByDivision.States1v1.IsLadderRunning = trueOrFalse;
-        //            break;
-
-        //        case "2v2":
-        //            _statesByDivision.States2v2.IsLadderRunning = trueOrFalse;
-        //            break;
-
-        //        case "3v3":
-        //            _statesByDivision.States3v3.IsLadderRunning = trueOrFalse;
-        //            break;
-        //    }
-        //}
     }
 }

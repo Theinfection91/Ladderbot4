@@ -51,7 +51,7 @@ namespace Ladderbot4.Managers
 
             // Begin Channel Update Tasks
             //StartingChallengesTask();
-            //StartingStandingsTask();
+            StartStandingsTask();
             //StartingTeamsTask();
 
             // Start Automated Backup Task
@@ -185,6 +185,90 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region --Standings
+        public void StartStandingsTask()
+        {
+            Task.Run(() => RunStandingsUpdateTaskAsync());
+        }
+
+        private async Task RunStandingsUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                await SendStandingsToChannelsAsync();
+            }
+        }
+
+        private async Task SendStandingsToChannelsAsync()
+        {
+            // Get all leagues from LeagueManager
+            foreach (var league in _leagueManager.GetAllLeagues())
+            {
+                ulong channelId = _statesManager.GetStandingsChannelId(league);
+
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"No channel ID set for standings in league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
+
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+
+                if (channel == null)
+                {
+                    Console.WriteLine($"Channel not found for ID {channelId} in league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
+
+                // Get the standings embed for the league
+                Embed standingsEmbed = _embedManager.PostStandingsEmbed(league);
+
+                if (standingsEmbed == null)
+                {
+                    Console.WriteLine($"No standings to display for league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
+
+                try
+                {
+                    // Check if a message already exists in the channel
+                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message with the new embed
+                            await existingMessage.ModifyAsync(msg =>
+                            {
+                                msg.Embed = standingsEmbed;
+                                msg.Content = string.Empty; // Clear any existing text content
+                            });
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
+                            _standingsMessageMap[channelId] = newMessage.Id;
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
+                        _standingsMessageMap[channelId] = newMessage.Id;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating standings in channel {channelId} for league {league.LeagueName}: {ex.Message}");
+                }
+            }
+        }
+
+
         //public void StartingStandingsTask()
         //{
         //    Task.Run(() => RunStandingsUpdateTaskAsync());
@@ -1553,6 +1637,22 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic
+
+        public Embed SetStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
+        {
+            // Check if league exists
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league object
+                League league = _leagueManager.GetLeagueByName(leagueName);
+
+                // Set channel Id
+                _statesManager.SetStandingsChannelId(league, channel.Id);
+
+                return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Standings");
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
 
         //public Embed SetChallengesChannelIdProcess(string division, IMessageChannel channel)
         //{

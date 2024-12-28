@@ -45,7 +45,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("challenges_channel_id", "For Admins to set the dynamic challenges message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetChallengesChannelIdAsync(
-            [Summary("division", "Which division channel to set.")] string division,
+            [Summary("leagueName", "League name for challenges data.")] string division,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
             //var result = _ladderManager.SetChallengesChannelIdProcess(division, channel);
@@ -55,17 +55,29 @@ namespace Ladderbot4.Commands
         [SlashCommand("standings_channel_id", "For Admins to set the dynamic standings message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetStandingsChannelIdAsync(
-            [Summary("division", "Which division channel to set.")] string division,
+            [Summary("leagueName", "League name for standings data.")] string leagueName,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
-            //var result = _ladderManager.SetStandingsChannelIdProcess(division, channel);
-            //await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.SetStandingsChannelIdProcess(leagueName, channel);
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [SlashCommand("teams_channel_id", "For Admins to set the dynamic teams message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetTeamsChannelIdAsync(
-            [Summary("division", "Which division channel to set.")] string division,
+            [Summary("leagueName", "League name for teams data.")] string leagueName,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
             //var result = _ladderManager.SetTeamsChannelIdProcess(division, channel);

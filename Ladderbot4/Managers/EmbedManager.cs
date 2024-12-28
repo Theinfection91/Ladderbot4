@@ -660,30 +660,30 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Channel
-        public Embed SetChannelIdSuccessEmbed(string division, IMessageChannel channel, string type)
+        public Embed SetChannelIdSuccessEmbed(League league, IMessageChannel channel, string type)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Channel Set Successfully")
                 .WithColor(Color.Green)
-                .WithDescription($"The {type} channel for the **{division} Division** has been set successfully.")
+                .WithDescription($"The {type} channel for **{league.LeagueName}** ({league.Division} League) has been successfully set.")
                 .AddField("Channel Name", channel.Name, inline: true)
                 .AddField("Channel ID", channel.Id.ToString(), inline: true)
-                .AddField("Division", division, inline: true)
+                .AddField("League", league.LeagueName, inline: true)
                 .WithFooter("Channel configuration updated")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
 
-        public Embed SetChannelIdErrorEmbed(string division, IMessageChannel channel, string type, string errorMessage)
+        public Embed SetChannelIdErrorEmbed(League league, IMessageChannel channel, string type, string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Channel Set Error")
                 .WithColor(Color.Red)
-                .WithDescription($"Failed to set the {type} channel for the **{division} Division**.")
+                .WithDescription($"Failed to set the {type} channel for **{league.LeagueName}** ({league.Division} League).")
                 .AddField("Error", errorMessage, inline: false)
                 .AddField("Attempted Channel ID", channel.Id.ToString(), inline: true)
-                .AddField("Division", division, inline: true)
+                .AddField("League", league.LeagueName, inline: true)
                 .WithFooter("Channel configuration failed")
                 .WithTimestamp(DateTimeOffset.Now);
 

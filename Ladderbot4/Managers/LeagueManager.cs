@@ -36,6 +36,13 @@ namespace Ladderbot4.Managers
             SaveLeagues();
             LoadLeaguesDatabase();
         }
+        public IEnumerable<League> GetAllLeagues()
+        {
+            // Combine leagues from all divisions into a single list
+            return _leaguesByDivision.Leagues1v1
+                .Concat(_leaguesByDivision.Leagues2v2)
+                .Concat(_leaguesByDivision.Leagues3v3);
+        }
 
         public bool IsLeagueNameUnique(string leagueName)
         {
@@ -95,11 +102,6 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
-        }
-
-        public LeaguesByDivision GetAllLeagues()
-        {
-            return _leaguesByDivision;
         }
 
         public League GetLeagueByName(string leagueName)
