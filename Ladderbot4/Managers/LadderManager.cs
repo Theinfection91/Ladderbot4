@@ -55,8 +55,16 @@ namespace Ladderbot4.Managers
             //StartingTeamsTask();
 
             // Start Automated Backup Task
-            StartAutomatedBackupTask();   
+            StartAutomatedBackupTask();
         }
+        #endregion
+
+        #region Try-Catch Error Logic
+        public Embed ExceptionErrorHandlingProcess(Exception ex)
+        {
+            return _embedManager.CreateErrorEmbed(ex);
+        }
+
         #endregion
 
         #region Automated Backup Logic
@@ -1430,6 +1438,28 @@ namespace Ladderbot4.Managers
         //{
         //    return _teamManager.GetStandingsEmbed(division);
         //}
+        
+        public Embed PostChallengesProcess(SocketInteractionContext context, string leagueName)
+        {
+            _challengeManager.LoadChallengesDatabase();
+
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league reference
+                League league = _leagueManager.GetLeagueByName(leagueName);
+
+                // Grab List of challenges for given League
+                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
+
+                return _embedManager.PostChallengesEmbed(league, challenges);
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
+
+        public Embed PostLeaguesProcess(SocketInteractionContext context, string divisionType)
+        {
+            return null;
+        }
 
         public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
         {

@@ -63,6 +63,11 @@ namespace Ladderbot4.Managers
                    challengerTeam.Rank <= challengedTeam.Rank + 2;
         }
 
+        public List<Challenge> GetChallengesForLeague(League league)
+        {
+            return _challengeData.GetChallenges(league.Division, league.LeagueName);
+        }
+
         public string GetChallengesData(string division, string leagueName)
         {
             var challenges = _challengeData.GetChallenges(division, leagueName);

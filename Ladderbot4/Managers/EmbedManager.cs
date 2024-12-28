@@ -16,6 +16,22 @@ namespace Ladderbot4.Managers
 
         }
 
+        #region Try-Catch Error
+        public Embed CreateErrorEmbed(Exception ex)
+        {
+            return new EmbedBuilder()
+                .WithTitle("🚨 Error Encountered")
+                .WithColor(Color.Red)
+                .WithDescription("An unexpected error occurred. Please contact the admin or try again later.")
+                .AddField("Error Message", ex.Message, inline: false)
+                .AddField("Error Type", ex.GetType().Name, inline: false)
+                .WithFooter("Error logged")
+                .WithTimestamp(DateTimeOffset.Now)
+                .Build();
+        }
+
+        #endregion
+
         #region Start/End Ladder
         public Embed StartLadderSuccessEmbed(League leagueRef)
         {
@@ -335,6 +351,33 @@ namespace Ladderbot4.Managers
             embedBuilder.WithFooter("Updated")
                         .WithTimestamp(DateTimeOffset.Now);
 
+            return embedBuilder.Build();
+        }
+
+        public Embed PostChallengesEmbed(League league, List<Challenge> challenges)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"⚔️ Active Challenges - {league.LeagueName}")
+                .WithColor(Color.Orange)
+                .WithDescription($"Here are the current active challenges in **{league.LeagueName}** League ({league.Division}):");
+
+            if (challenges.Count > 0)
+            {
+                foreach (var challenge in challenges)
+                {
+                    embedBuilder.AddField(
+                        $"{challenge.Challenger} (Rank {challenge.ChallengerRank}) 🆚 {challenge.Challenged} (Rank {challenge.ChallengedRank})",
+                        $"**Created On:** {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
+                        inline: false
+                    );
+                }
+            }
+            else
+            {
+                embedBuilder.WithDescription($"🔎 No active challenges in **{league.LeagueName}** ({league.Division} Division) at this time.");
+            }
+
+            embedBuilder.WithFooter("Last Updated").WithTimestamp(DateTimeOffset.Now);
             return embedBuilder.Build();
         }
 
