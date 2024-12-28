@@ -16,52 +16,52 @@ namespace Ladderbot4.Managers
 
         }
 
-        public Embed StartLadderSuccessEmbed(string division)
+        public Embed StartLadderSuccessEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Started!")
                 .WithColor(Color.Green)
-                .WithDescription($"The ladder for the **{division} Division** has been successfully started.")
-                .AddField("Division", division, inline: true)
+                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League has been successfully started.")
+                .AddField("Division Type", leagueRef.Division, inline: true)
                 .WithFooter("Good luck to all teams!")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
 
-        public Embed StartLadderAlreadyRunningEmbed(string division)
+        public Embed StartLadderAlreadyRunningEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Ladder Already Running")
                 .WithColor(Color.Red)
-                .WithDescription($"The ladder for the **{division} Division** is already running.")
-                .AddField("Division", division, inline: true)
+                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League is already running.")
+                .AddField("Division Type", leagueRef.Division, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
 
-        public Embed EndLadderSuccessEmbed(string division)
+        public Embed EndLadderSuccessEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Ended")
                 .WithColor(Color.Green)
-                .WithDescription($"The ladder for the **{division} Division** has been successfully ended.")
-                .AddField("Division", division, inline: true)
+                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League has successfully ended.")
+                .AddField("Division Type", leagueRef.Division, inline: true)
                 .WithFooter("Thank you for participating!")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
 
-        public Embed EndLadderNotRunningEmbed(string division)
+        public Embed EndLadderNotRunningEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Ladder Not Running")
                 .WithColor(Color.Red)
-                .WithDescription($"The ladder for the **{division} Division** hasn't started yet.")
-                .AddField("Division", division, inline: true)
+                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League is already running.")
+                .AddField("Division Type", leagueRef.Division, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -361,6 +361,18 @@ namespace Ladderbot4.Managers
                 .WithColor(Color.Red)
                 .WithDescription($"The team **{teamName}** was not found in the database. Please try again.")
                 .WithFooter("Team name verification failed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed LeagueNotFoundErrorEmbed(string leagueName)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ League Not Found")
+                .WithColor(Color.Red)
+                .WithDescription($"The League **{leagueName}** was not found in the database. Please try again.")
+                .WithFooter("League name verification failed.")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();

@@ -18,28 +18,32 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [SlashCommand("start", "Starts the ladder in the given division type if it's not already running.")]
+        [SlashCommand("start", "Starts the ladder in the given League if it's not already running.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task StartLadderAsync(
-            [Summary("division", "The division of Ladder to try and start (1v1, 2v2, 3v3)")]string division)
+            [Summary("leagueName", "The League you want to start the ladder in.")]string leagueName)
         {
+            await Context.Interaction.DeferAsync();
+
             // Initiate Logic from LadderManager
-            var result = _ladderManager.StartLadderByDivisionProcess(division.Trim().ToLower());
+            var result = _ladderManager.StartLeagueLadderProcess(leagueName.Trim().ToLower());
 
             // Send the response
-            await RespondAsync(embed: result);
+            await Context.Interaction.FollowupAsync(embed: result);
         }
 
-        [SlashCommand("end", "Ends the ladder in the given division type if it's not already running.")]
+        [SlashCommand("end", "Ends the ladder in the given League if it's not already running.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task EndLadderAsync(
-            [Summary("division", "The division of Ladder to try and end (1v1, 2v2, 3v3)")] string division)
+            [Summary("leagueName", "The League you want to end the ladder in.")] string leagueName)
         {
+            await Context.Interaction.DeferAsync();
+
             // Initiate Logic from LadderManager
-            var result = _ladderManager.EndLadderByDivisionProcess(division.Trim().ToLower());
+            var result = _ladderManager.EndLeagueLadderProcess(leagueName.Trim().ToLower());
 
             // Send the response
-            await RespondAsync(embed: result);
+            await Context.Interaction.FollowupAsync(embed: result);
         }
     }
 }

@@ -50,9 +50,9 @@ namespace Ladderbot4.Managers
             _statesManager = statesManager;
 
             // Begin Channel Update Tasks
-            StartingChallengesTask();
-            StartingStandingsTask();
-            StartingTeamsTask();
+            //StartingChallengesTask();
+            //StartingStandingsTask();
+            //StartingTeamsTask();
 
             // Start Automated Backup Task
             StartAutomatedBackupTask();   
@@ -91,322 +91,387 @@ namespace Ladderbot4.Managers
 
         #region --Challenges
 
-        public void StartingChallengesTask()
-        {
-            Task.Run(() => RunChallengesUpdateTaskAsync());
-        }
+        //public void StartingChallengesTask()
+        //{
+        //    Task.Run(() => RunChallengesUpdateTaskAsync());
+        //}
 
-        private async Task RunChallengesUpdateTaskAsync()
-        {
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(15));
-                await SendChallengesToChannelAsync();
-            }
-        }
+        //private async Task RunChallengesUpdateTaskAsync()
+        //{
+        //    while (true)
+        //    {
+        //        await Task.Delay(TimeSpan.FromSeconds(15));
+        //        await SendChallengesToChannelAsync();
+        //    }
+        //}
 
-        private async Task SendChallengesToChannelAsync()
-        {
-            // Map divisions to their respective channel IDs
-            var divisionChannelMap = new Dictionary<string, ulong>
-            {
-                { "1v1", _statesManager.GetChallengesChannelId("1v1") },
-                { "2v2", _statesManager.GetChallengesChannelId("2v2") },
-                { "3v3", _statesManager.GetChallengesChannelId("3v3") }
-            };
+        //private async Task SendChallengesToChannelAsync()
+        //{
+        //    // Map divisions to their respective channel IDs
+        //    var divisionChannelMap = new Dictionary<string, ulong>
+        //    {
+        //        { "1v1", _statesManager.GetChallengesChannelId("1v1") },
+        //        { "2v2", _statesManager.GetChallengesChannelId("2v2") },
+        //        { "3v3", _statesManager.GetChallengesChannelId("3v3") }
+        //    };
 
-            foreach (var division in divisionChannelMap.Keys)
-            {
-                ulong channelId = divisionChannelMap[division];
+        //    foreach (var division in divisionChannelMap.Keys)
+        //    {
+        //        ulong channelId = divisionChannelMap[division];
 
-                if (channelId == 0)
-                {
-                    continue;
-                }
+        //        if (channelId == 0)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the channel from the client
-                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+        //        // Get the channel from the client
+        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
 
-                if (channel == null)
-                {
-                    continue;
-                }
+        //        if (channel == null)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the embed for the challenges in the division
-                Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division, null);
+        //        // Get the embed for the challenges in the division
+        //        Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division, null);
 
-                if (challengesEmbed == null)
-                {
-                    Console.WriteLine($"No challenges to display for the {division} division.");
-                    continue;
-                }
+        //        if (challengesEmbed == null)
+        //        {
+        //            Console.WriteLine($"No challenges to display for the {division} division.");
+        //            continue;
+        //        }
 
-                try
-                {
-                    // Check if a message already exists in the channel
-                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
-                    {
-                        // Try to fetch the existing message
-                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+        //        try
+        //        {
+        //            // Check if a message already exists in the channel
+        //            if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+        //            {
+        //                // Try to fetch the existing message
+        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
-                        if (existingMessage != null)
-                        {
-                            // Edit the existing message with the new embed
-                            await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
-                        }
-                        else
-                        {
-                            // Message was deleted, send a new one
-                            var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-                            _standingsMessageMap[channelId] = newMessage.Id;
-                        }
-                    }
-                    else
-                    {
-                        // No existing message, send a new one
-                        var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-                        _standingsMessageMap[channelId] = newMessage.Id;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error updating challenges in channel {channelId}: {ex.Message}");
-                }
-            }
-        }
+        //                if (existingMessage != null)
+        //                {
+        //                    // Edit the existing message with the new embed
+        //                    await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
+        //                }
+        //                else
+        //                {
+        //                    // Message was deleted, send a new one
+        //                    var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
+        //                    _standingsMessageMap[channelId] = newMessage.Id;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // No existing message, send a new one
+        //                var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
+        //                _standingsMessageMap[channelId] = newMessage.Id;
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error updating challenges in channel {channelId}: {ex.Message}");
+        //        }
+        //    }
+        //}
         #endregion
 
         #region --Standings
-        public void StartingStandingsTask()
-        {
-            Task.Run(() => RunStandingsUpdateTaskAsync());
-        }
+        //public void StartingStandingsTask()
+        //{
+        //    Task.Run(() => RunStandingsUpdateTaskAsync());
+        //}
 
-        private async Task RunStandingsUpdateTaskAsync()
-        {
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(15));
-                await SendStandingsToChannelAsync();
-            }
-        }
+        //private async Task RunStandingsUpdateTaskAsync()
+        //{
+        //    while (true)
+        //    {
+        //        await Task.Delay(TimeSpan.FromSeconds(15));
+        //        await SendStandingsToChannelAsync();
+        //    }
+        //}
 
-        private async Task SendStandingsToChannelAsync()
-        {
-            // Map divisions to their respective channel IDs
-            var divisionChannelMap = new Dictionary<string, ulong>
-            {
-                { "1v1", _statesManager.GetStandingsChannelId("1v1") },
-                { "2v2", _statesManager.GetStandingsChannelId("2v2") },
-                { "3v3", _statesManager.GetStandingsChannelId("3v3") }
-            };
+        //private async Task SendStandingsToChannelAsync()
+        //{
+        //    // Map divisions to their respective channel IDs
+        //    var divisionChannelMap = new Dictionary<string, ulong>
+        //    {
+        //        { "1v1", _statesManager.GetStandingsChannelId("1v1") },
+        //        { "2v2", _statesManager.GetStandingsChannelId("2v2") },
+        //        { "3v3", _statesManager.GetStandingsChannelId("3v3") }
+        //    };
 
-            foreach (var division in divisionChannelMap.Keys)
-            {
-                ulong channelId = divisionChannelMap[division];
+        //    foreach (var division in divisionChannelMap.Keys)
+        //    {
+        //        ulong channelId = divisionChannelMap[division];
 
-                if (channelId == 0)
-                {
-                    continue;
-                }
+        //        if (channelId == 0)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the channel from the client
-                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+        //        // Get the channel from the client
+        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
 
-                if (channel == null)
-                {
-                    continue;
-                }
+        //        if (channel == null)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the standings embed for the division
-                Embed standingsEmbed = _teamManager.GetStandingsEmbed(division);
+        //        // Get the standings embed for the division
+        //        Embed standingsEmbed = _teamManager.GetStandingsEmbed(division);
 
-                if (standingsEmbed == null)
-                {
-                    Console.WriteLine($"No standings to display for the {division} division.");
-                    continue;
-                }
+        //        if (standingsEmbed == null)
+        //        {
+        //            Console.WriteLine($"No standings to display for the {division} division.");
+        //            continue;
+        //        }
 
-                try
-                {
-                    // Check if a message already exists in the channel
-                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
-                    {
-                        // Try to fetch the existing message
-                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+        //        try
+        //        {
+        //            // Check if a message already exists in the channel
+        //            if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+        //            {
+        //                // Try to fetch the existing message
+        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
-                        if (existingMessage != null)
-                        {
-                            // Edit the existing message with the new embed
-                            await existingMessage.ModifyAsync(msg =>
-                            {
-                                msg.Embed = standingsEmbed;
-                                msg.Content = string.Empty; // Clear any existing text content
-                            });
-                        }
-                        else
-                        {
-                            // Message was deleted, send a new one
-                            var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                            _standingsMessageMap[channelId] = newMessage.Id;
-                        }
-                    }
-                    else
-                    {
-                        // No existing message, send a new one
-                        var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                        _standingsMessageMap[channelId] = newMessage.Id;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
-                }
-            }
-        }
+        //                if (existingMessage != null)
+        //                {
+        //                    // Edit the existing message with the new embed
+        //                    await existingMessage.ModifyAsync(msg =>
+        //                    {
+        //                        msg.Embed = standingsEmbed;
+        //                        msg.Content = string.Empty; // Clear any existing text content
+        //                    });
+        //                }
+        //                else
+        //                {
+        //                    // Message was deleted, send a new one
+        //                    var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
+        //                    _standingsMessageMap[channelId] = newMessage.Id;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // No existing message, send a new one
+        //                var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
+        //                _standingsMessageMap[channelId] = newMessage.Id;
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
+        //        }
+        //    }
+        //}
         #endregion
 
         #region --Teams
 
-        public void StartingTeamsTask()
-        {
-            Task.Run(() => RunTeamsUpdateTaskAsync());
-        }
+        //public void StartingTeamsTask()
+        //{
+        //    Task.Run(() => RunTeamsUpdateTaskAsync());
+        //}
 
-        private async Task RunTeamsUpdateTaskAsync()
-        {
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(15));
-                await SendTeamsToChannelAsync();
-            }
-        }
+        //private async Task RunTeamsUpdateTaskAsync()
+        //{
+        //    while (true)
+        //    {
+        //        await Task.Delay(TimeSpan.FromSeconds(15));
+        //        await SendTeamsToChannelAsync();
+        //    }
+        //}
 
-        private async Task SendTeamsToChannelAsync()
-        {
-            // Map divisions to their respective channel IDs
-            var divisionChannelMap = new Dictionary<string, ulong>
-            {
-                { "1v1", _statesManager.GetTeamsChannelId("1v1") },
-                { "2v2", _statesManager.GetTeamsChannelId("2v2") },
-                { "3v3", _statesManager.GetTeamsChannelId("3v3") }
-            };
+        //private async Task SendTeamsToChannelAsync()
+        //{
+        //    // Map divisions to their respective channel IDs
+        //    var divisionChannelMap = new Dictionary<string, ulong>
+        //    {
+        //        { "1v1", _statesManager.GetTeamsChannelId("1v1") },
+        //        { "2v2", _statesManager.GetTeamsChannelId("2v2") },
+        //        { "3v3", _statesManager.GetTeamsChannelId("3v3") }
+        //    };
 
-            foreach (var division in divisionChannelMap.Keys)
-            {
-                ulong channelId = divisionChannelMap[division];
+        //    foreach (var division in divisionChannelMap.Keys)
+        //    {
+        //        ulong channelId = divisionChannelMap[division];
 
-                if (channelId == 0)
-                {
-                    continue;
-                }
+        //        if (channelId == 0)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the channel from the client
-                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+        //        // Get the channel from the client
+        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
 
-                if (channel == null)
-                {
-                    continue;
-                }
+        //        if (channel == null)
+        //        {
+        //            continue;
+        //        }
 
-                // Get the teams embed for the division
-                Embed teamsEmbed = _teamManager.GetTeamsEmbed(division);
+        //        // Get the teams embed for the division
+        //        Embed teamsEmbed = _teamManager.GetTeamsEmbed(division);
 
-                if (teamsEmbed == null)
-                {
-                    Console.WriteLine($"No teams to display for the {division} division.");
-                    continue;
-                }
+        //        if (teamsEmbed == null)
+        //        {
+        //            Console.WriteLine($"No teams to display for the {division} division.");
+        //            continue;
+        //        }
 
-                try
-                {
-                    // Check if a message already exists in the channel
-                    if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
-                    {
-                        // Try to fetch the existing message
-                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+        //        try
+        //        {
+        //            // Check if a message already exists in the channel
+        //            if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
+        //            {
+        //                // Try to fetch the existing message
+        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
-                        if (existingMessage != null)
-                        {
-                            // Edit the existing message with the new embed
-                            await existingMessage.ModifyAsync(msg =>
-                            {
-                                msg.Embed = teamsEmbed;
-                                msg.Content = string.Empty; // Clear any existing text content
-                            });
-                        }
-                        else
-                        {
-                            // Message was deleted, send a new one
-                            var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-                            _teamsMessageMap[channelId] = newMessage.Id;
-                        }
-                    }
-                    else
-                    {
-                        // No existing message, send a new one
-                        var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-                        _teamsMessageMap[channelId] = newMessage.Id;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error updating teams in channel {channelId}: {ex.Message}");
-                }
-            }
-        }
+        //                if (existingMessage != null)
+        //                {
+        //                    // Edit the existing message with the new embed
+        //                    await existingMessage.ModifyAsync(msg =>
+        //                    {
+        //                        msg.Embed = teamsEmbed;
+        //                        msg.Content = string.Empty; // Clear any existing text content
+        //                    });
+        //                }
+        //                else
+        //                {
+        //                    // Message was deleted, send a new one
+        //                    var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
+        //                    _teamsMessageMap[channelId] = newMessage.Id;
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // No existing message, send a new one
+        //                var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
+        //                _teamsMessageMap[channelId] = newMessage.Id;
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error updating teams in channel {channelId}: {ex.Message}");
+        //        }
+        //    }
+        //}
         #endregion
 
         #endregion
 
         #region Start/End Ladder Logic
-        public Embed StartLadderByDivisionProcess(string division)
+        public Embed StartLeagueLadderProcess(string leagueName)
         {
             _statesManager.LoadStatesDatabase();
 
-            // Check if ladder is currently running or not
-            if (!_statesManager.IsLadderRunning(division))
+            // Check if League by name exists
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
-                // Set ladder running to true in division
-                _statesManager.SetLadderRunning(division, true);
+                // Grab league reference
+                League leagueRef = _leagueManager.GetLeagueByName(leagueName);
 
-                // Save and reload the database
-                _statesManager.SaveAndReloadStatesDatabase();
+                // Grab associated State for League
+                State state = _statesManager.GetStateByLeague(leagueRef);
 
-                // Backup the database to Git
-                _backupManager.CopyAndBackupFilesToGit();
+                // Check ladder running status of league
+                if (!_statesManager.IsLadderRunning(leagueRef))
+                {
+                    // Set ladder running to true
+                    _statesManager.SetLadderRunning(leagueRef, true);
 
-                return _embedManager.StartLadderSuccessEmbed(division);
+                    // Save and reload States database
+                    _statesManager.SaveAndReloadStatesDatabase();
+
+                    // Backup database to Git
+                    _backupManager.CopyAndBackupFilesToGit();
+
+                    return _embedManager.StartLadderSuccessEmbed(leagueRef);
+                }
+                return _embedManager.StartLadderAlreadyRunningEmbed(leagueRef);
             }
-            else
-            {
-                return _embedManager.StartLadderAlreadyRunningEmbed(division);
-            }  
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed EndLadderByDivisionProcess(string division)
+        //public Embed StartLadderByDivisionProcess(string division)
+        //{
+        //    _statesManager.LoadStatesDatabase();
+
+        //    // Check if ladder is currently running or not
+        //    if (!_statesManager.IsLadderRunning(division))
+        //    {
+        //        // Set ladder running to true in division
+        //        _statesManager.SetLadderRunning(division, true);
+
+        //        // Save and reload the database
+        //        _statesManager.SaveAndReloadStatesDatabase();
+
+        //        // Backup the database to Git
+        //        _backupManager.CopyAndBackupFilesToGit();
+
+        //        return _embedManager.StartLadderSuccessEmbed(division);
+        //    }
+        //    else
+        //    {
+        //        return _embedManager.StartLadderAlreadyRunningEmbed(division);
+        //    }  
+        //}
+
+        public Embed EndLeagueLadderProcess(string leagueName)
         {
             _statesManager.LoadStatesDatabase();
 
-            // Check if ladder is currently running or not
-            if (_statesManager.IsLadderRunning(division))
+            // Check if League by name exists
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
-                // Set ladder running to false in division
-                _statesManager.SetLadderRunning(division, false);
+                // Grab league reference
+                League leagueRef = _leagueManager.GetLeagueByName(leagueName);
 
-                // Save and reload the database
-                _statesManager.SaveAndReloadStatesDatabase();
+                // Grab associated State for League
+                State state = _statesManager.GetStateByLeague(leagueRef);
 
-                // Backup the database to Git
-                _backupManager.CopyAndBackupFilesToGit();
+                // Check ladder running status of league
+                if (_statesManager.IsLadderRunning(leagueRef))
+                {
+                    // Set ladder running to false in League
+                    _statesManager.SetLadderRunning(leagueRef, false);
 
-                return _embedManager.EndLadderSuccessEmbed(division);
+                    // Save and reload the database
+                    _statesManager.SaveAndReloadStatesDatabase();
+
+                    // Backup the database to Git
+                    _backupManager.CopyAndBackupFilesToGit();
+
+                    // Return success embed
+                    return _embedManager.EndLadderSuccessEmbed(leagueRef);
+                }
+                return _embedManager.EndLadderNotRunningEmbed(leagueRef);
             }
-            else
-            {
-                return _embedManager.EndLadderNotRunningEmbed(division);
-            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
+
+        //public Embed EndLadderByDivisionProcess(string division)
+        //{
+        //    _statesManager.LoadStatesDatabase();
+
+        //    // Check if ladder is currently running or not
+        //    if (_statesManager.IsLadderRunning(division))
+        //    {
+        //        // Set ladder running to false in division
+        //        _statesManager.SetLadderRunning(division, false);
+
+        //        // Save and reload the database
+        //        _statesManager.SaveAndReloadStatesDatabase();
+
+        //        // Backup the database to Git
+        //        _backupManager.CopyAndBackupFilesToGit();
+
+        //        return _embedManager.EndLadderSuccessEmbed(division);
+        //    }
+        //    else
+        //    {
+        //        return _embedManager.EndLadderNotRunningEmbed(division);
+        //    }
+        //}
         #endregion
 
         #region Create/Delete League Logic
@@ -1519,74 +1584,74 @@ namespace Ladderbot4.Managers
 
         #region Set Standings/Challenges/Teams Channel Logic
 
-        public Embed SetChallengesChannelIdProcess(string division, IMessageChannel channel)
-        {
-            switch (division)
-            {
-                case "1v1":
-                case "2v2":
-                case "3v3":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetChallengesChannelId(division, channel.Id);
+        //public Embed SetChallengesChannelIdProcess(string division, IMessageChannel channel)
+        //{
+        //    switch (division)
+        //    {
+        //        case "1v1":
+        //        case "2v2":
+        //        case "3v3":
+        //            if (channel.Id != 0)
+        //            {
+        //                _statesManager.SetChallengesChannelId(division, channel.Id);
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Challenges");
-                    }
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", $"{channel.Id} is incorrect for a channel Id.");
+        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Challenges");
+        //            }
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", $"{channel.Id} is incorrect for a channel Id.");
 
-                default:
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", "Incorrect division type given.");
-            }
-        }
+        //        default:
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", "Incorrect division type given.");
+        //    }
+        //}
 
-        public Embed SetStandingsChannelIdProcess(string division, IMessageChannel channel)
-        {
-            switch (division)
-            {
-                case "1v1":
-                case "2v2":
-                case "3v3":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetStandingsChannelId(division, channel.Id);
+        //public Embed SetStandingsChannelIdProcess(string division, IMessageChannel channel)
+        //{
+        //    switch (division)
+        //    {
+        //        case "1v1":
+        //        case "2v2":
+        //        case "3v3":
+        //            if (channel.Id != 0)
+        //            {
+        //                _statesManager.SetStandingsChannelId(division, channel.Id);
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Standings");
-                    }
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", $"{channel.Id} is incorrect for a channel Id.");
+        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Standings");
+        //            }
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", $"{channel.Id} is incorrect for a channel Id.");
 
-                default:
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", "Incorrect division type given.");
-            }
-        }
+        //        default:
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", "Incorrect division type given.");
+        //    }
+        //}
 
-        public Embed SetTeamsChannelIdProcess(string division, IMessageChannel channel)
-        {
-            switch (division)
-            {
-                case "1v1":
-                case "2v2":
-                case "3v3":
-                    if (channel.Id != 0)
-                    {
-                        _statesManager.SetTeamsChannelId(division, channel.Id);
+        //public Embed SetTeamsChannelIdProcess(string division, IMessageChannel channel)
+        //{
+        //    switch (division)
+        //    {
+        //        case "1v1":
+        //        case "2v2":
+        //        case "3v3":
+        //            if (channel.Id != 0)
+        //            {
+        //                _statesManager.SetTeamsChannelId(division, channel.Id);
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Teams");
-                    }
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", $"{channel.Id} is incorrect for a channel Id.");
+        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Teams");
+        //            }
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", $"{channel.Id} is incorrect for a channel Id.");
 
-                default:
-                    return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", "Incorrect division type given.");
-            }
-        }
+        //        default:
+        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", "Incorrect division type given.");
+        //    }
+        //}
 
         #endregion
 
