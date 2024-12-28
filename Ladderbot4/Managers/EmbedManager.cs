@@ -434,6 +434,33 @@ namespace Ladderbot4.Managers
 
         #endregion
 
+        #region Set Rank
+        public Embed SetRankErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ Set Rank Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetRankSuccessEmbed(Team team, League league)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Set Rank Success")
+                .WithColor(Color.Green)
+                .WithDescription($"Team {team.TeamName} has been moved to rank {team.Rank} in **{league.LeagueName}** ({league.Division} League). All ranks have been adjusted accordingly.")
+                .WithFooter("Team rank successfully changed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        #endregion
+
         #region Add/Subtract Win/Loss
         public Embed AddToWinCountSuccessEmbed(Team team, int numberOfWins, SocketInteractionContext context)
         {

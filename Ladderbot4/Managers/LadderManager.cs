@@ -1484,66 +1484,72 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region Set Rank Logic
+        #region Set Rank Logic        
+        public Embed SetRankProcess(SocketInteractionContext context, string teamName, int newRank)
+        {
+            // Check if team exists
+            if (!_leagueManager.IsTeamNameUnique(teamName))
+            {
+                // Get league object
+                League league = _leagueManager.GetLeagueFromTeamName(teamName);
 
-        //public string SetRankProcess(string teamName, int newRank)
-        //{
-        //    // Check if the team exists
-        //    if (!_teamManager.IsTeamNameUnique(teamName))
-        //    {
-        //        // Get the team object
-        //        Team teamToAdjust = _teamManager.GetTeamByName(teamName);
+                // Get team object
+                Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
-        //        // Get the current rank of the team
-        //        int currentRank = teamToAdjust.Rank;
+                // Get current rank of team
+                int currentRank = teamToAdjust.Rank;
 
-        //        // Get all teams in the same division
-        //        List<Team> teamsInDivision = _teamManager.GetTeamsByDivision(teamToAdjust.Division);
+                // Get all teams in league
+                List<Team>? teamsInLeague = _teamManager.GetTeamsInLeague(league);
 
-        //        if (newRank == currentRank)
-        //        {
-        //            return $"```Team {teamName} is already at rank {newRank}. No changes made.```";
-        //        }
+                if (newRank == currentRank)
+                {
+                    return _embedManager.SetRankErrorEmbed($"Team {teamName} is already at rank {newRank}. No changes were made.");
+                }
 
-        //        // Moving the team up in rank (newRank < currentRank)
-        //        if (newRank < currentRank)
-        //        {
-        //            for (int i = 0; i < teamsInDivision.Count; i++)
-        //            {
-        //                if (teamsInDivision[i].Rank >= newRank && teamsInDivision[i].Rank < currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
-        //                {
-        //                    teamsInDivision[i].Rank++;
-        //                }
-        //            }
-        //        }
-        //        // Moving the team down in rank (newRank > currentRank)
-        //        else if (newRank > currentRank)
-        //        {
-        //            for (int i = 0; i < teamsInDivision.Count; i++)
-        //            {
-        //                if (teamsInDivision[i].Rank <= newRank && teamsInDivision[i].Rank > currentRank && teamsInDivision[i].TeamName != teamToAdjust.TeamName)
-        //                {
-        //                    teamsInDivision[i].Rank--;
-        //                }
-        //            }
-        //        }
+                if (newRank > teamsInLeague.Count)
+                {
+                    return _embedManager.SetRankErrorEmbed($"You can not enter a rank greater than the number of teams in a league.\nTeam Count: {teamsInLeague.Count}");
+                }
 
-        //        // Finally, set the new rank for the team
-        //        teamToAdjust.Rank = newRank;
+                // Moving the team up in rank
+                if (newRank < currentRank)
+                {
+                    for (int i = 0; i < teamsInLeague.Count; i++)
+                    {
+                        if (teamsInLeague[i].Rank >= newRank && teamsInLeague[i].Rank < currentRank && teamsInLeague[i].TeamName != teamToAdjust.TeamName)
+                        {
+                            teamsInLeague[i].Rank++;
+                        }
+                    }
+                }
+                // Moving the team down in rank
+                else if (newRank > currentRank)
+                {
+                    for (int i = 0; i < teamsInLeague.Count; i++)
+                    {
+                        if (teamsInLeague[i].Rank <= newRank && teamsInLeague[i].Rank > currentRank && teamsInLeague[i].TeamName != teamToAdjust.TeamName)
+                        {
+                            teamsInLeague[i].Rank--;
+                        }
+                    }
+                }
+                // Set the new rank for the team
+                teamToAdjust.Rank = newRank;
 
-        //        // Reassign ranks to ensure consistency
-        //        ReassignRanks(teamToAdjust.Division);
+                // Reassign ranks to ensure consistency
+                ReassignRanksInLeague(league);
 
-        //        // Save and reload the teams database
-        //        _teamManager.SaveAndReloadTeamsDatabase();
+                // Save and reload database
+                _leagueManager.SaveAndReloadLeaguesDatabase();
 
-        //        // Backup the database to Git
-        //        _backupManager.CopyAndBackupFilesToGit();
+                // Backup to Git
+                _backupManager.CopyAndBackupFilesToGit();
 
-        //        return $"```Team {teamName} has been moved to rank {newRank} in the {teamToAdjust.Division} division.```";
-        //    }
-        //    return $"```The given team name was not found in the database: {teamName}.```";
-        //}
+                return _embedManager.SetRankSuccessEmbed(teamToAdjust, league);
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        }
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic

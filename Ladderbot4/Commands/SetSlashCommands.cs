@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,20 @@ namespace Ladderbot4.Commands
             [Summary("teamName", "The team that will have their rank changed")] string teamName,
             [Summary("rank", "The new rank the team will be awarded.")] int rank)
         {
-            //string result = _ladderManager.SetRankProcess(teamName, rank);
-            //await RespondAsync(result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.SetRankProcess(Context, teamName.Trim().ToLower(), rank);
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [SlashCommand("challenges_channel_id", "For Admins to set the dynamic challenges message.")]
