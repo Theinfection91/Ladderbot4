@@ -60,9 +60,9 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Try-Catch Error Logic
-        public Embed ExceptionErrorHandlingProcess(Exception ex)
+        public Embed ExceptionErrorHandlingProcess(Exception ex, string commandName)
         {
-            return _embedManager.CreateErrorEmbed(ex);
+            return _embedManager.CreateErrorEmbed(ex, commandName);
         }
 
         #endregion
@@ -532,9 +532,6 @@ namespace Ladderbot4.Managers
 
                     if (_memberManager.IsMemberCountCorrect(newMemberList, leagueReference.Division) || _settingsManager.IsUserSuperAdmin(context.User.Id))
                     {
-                        // Grab all teams from League
-                        List<Team>? leagueTeams = _teamManager.GetTeamsInLeague(leagueReference);
-
                         // Check if any member is already on a team in the given league
                         foreach (Member member in newMemberList)
                         {
@@ -1432,13 +1429,7 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region Post Standings/Challenges/Teams Logic
-
-        //public Embed PostStandingsProcess(SocketInteractionContext context, string division)
-        //{
-        //    return _teamManager.GetStandingsEmbed(division);
-        //}
-        
+        #region Post Standings/Challenges/Teams Logic        
         public Embed PostChallengesProcess(SocketInteractionContext context, string leagueName)
         {
             _challengeManager.LoadChallengesDatabase();
@@ -1476,15 +1467,20 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        //public Embed PostTeamsProcess(SocketInteractionContext context, string division)
-        //{
-        //    return _teamManager.GetTeamsEmbed(division);
-        //}
+        public Embed PostTeamsProcess(SocketInteractionContext context, string leagueName)
+        {
+            if (_leagueManager.IsTeamNameUnique(leagueName))
+            {
+                // Grab league reference
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
-        //public Embed PostChallengesProcess(SocketInteractionContext context, string division)
-        //{
-        //    return _challengeManager.GetChallengesEmbed(division);
-        //}
+                // Grab list of teams from league
+                List<Team>? teams = _teamManager.GetTeamsInLeague(league);
+
+                return _embedManager.PostTeamsEmbed(league, teams);
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
 
         #endregion
 

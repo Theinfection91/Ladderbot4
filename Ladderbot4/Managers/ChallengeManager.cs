@@ -129,14 +129,14 @@ namespace Ladderbot4.Managers
                 var embedBuilder = new EmbedBuilder()
                     .WithTitle("⚔️ You've Been Challenged!")
                     .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in the **{league.LeagueName} League**.")
+                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.LeagueName}** ({league.Division} League).")
                     .AddField("Challenger Team", challenge.Challenger, inline: true)
                     .AddField("Your Team", challenge.Challenged, inline: true)
                     .WithFooter("Prepare for your match!")
                     .WithTimestamp(DateTimeOffset.Now);
 
                 await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
-                Console.WriteLine($"Notification sent to user {user.Username} (ID: {userId}).");
+                Console.WriteLine($"{DateTime.Now} ChallengeManager - Notification sent to user {user.Username} (ID: {userId}).");
             }
             catch (Exception ex)
             {
