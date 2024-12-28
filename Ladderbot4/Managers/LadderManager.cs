@@ -484,13 +484,25 @@ namespace Ladderbot4.Managers
                 if (_leagueManager.IsValidDivisionType(divisionType))
                 {
                     // Create new League object
-                    League newLeague = new(leagueName, divisionType);
+                    League newLeague = _leagueManager.CreateLeagueObject(leagueName, divisionType);
 
                     // Add new league to database
                     _leagueManager.AddNewLeague(newLeague);
 
-                    // Save and reload
+                    // Save and reload Leagues Database
                     _leagueManager.SaveAndReloadLeaguesDatabase();
+
+                    // Create new State object for League
+                    State newState = _statesManager.CreateNewState(newLeague.LeagueName, newLeague.Division);
+
+                    // Add new state
+                    _statesManager.AddNewState(newState);
+
+                    // Save and reload
+                    _statesManager.SaveAndReloadStatesDatabase();
+
+                    // Backup to Git
+                    _backupManager.CopyAndBackupFilesToGit();
 
                     // Return success embed
                     return _embedManager.CreateLeagueSuccessEmbed(newLeague);
@@ -521,6 +533,12 @@ namespace Ladderbot4.Managers
                     // Save and reload
                     _leagueManager.SaveAndReloadLeaguesDatabase();
 
+                    // Remove the State associated with league
+                    _statesManager.RemoveLeagueState(leagueToRemove.LeagueName, leagueToRemove.Division);
+
+                    // Save and reload
+                    _statesManager.SaveAndReloadStatesDatabase();
+
                     // Backup to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
@@ -540,7 +558,6 @@ namespace Ladderbot4.Managers
         {
             // Load latest save
             _leagueManager.LoadLeaguesDatabase();
-            //_teamManager.LoadLeaguesDatabase();
 
             // Check if League by given name exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
@@ -548,7 +565,7 @@ namespace Ladderbot4.Managers
                 // Grab reference of league
                 League leagueReference = _leagueManager.GetLeagueByName(leagueName);
 
-                if (_teamManager.IsTeamNameUnique(teamName))
+                if (_leagueManager.IsTeamNameUnique(teamName))
                 {
                     // Convert User Context Info into Member objects
                     List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
@@ -595,7 +612,7 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeaguesDatabase();
 
             // Check if Team exists in any League
-            if (!_teamManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab Team Object
                 Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
@@ -672,7 +689,7 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesDatabase();
 
             // Check if both teams exist in the database
-            if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam) && !_leagueManager.IsTeamNameUnique(challengedTeam))
             {
                 // Grab correct league
                 League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
@@ -862,7 +879,7 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesDatabase();
 
             // Check if team exists
-            if (!_teamManager.IsTeamNameUnique(challengerTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
             {
                 // Grab team reference
                 Team challengerTeamObject = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
@@ -1099,7 +1116,7 @@ namespace Ladderbot4.Managers
         public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
         {
             // Check if given team name exists
-            if (!_teamManager.IsTeamNameUnique(winningTeamName))
+            if (!_leagueManager.IsTeamNameUnique(winningTeamName))
             {
                 // Grab league object
                 League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
@@ -1503,15 +1520,15 @@ namespace Ladderbot4.Managers
 
         #region Post Standings/Challenges/Teams Logic
 
-        public Embed PostStandingsProcess(SocketInteractionContext context, string division)
-        {
-            return _teamManager.GetStandingsEmbed(division);
-        }
+        //public Embed PostStandingsProcess(SocketInteractionContext context, string division)
+        //{
+        //    return _teamManager.GetStandingsEmbed(division);
+        //}
 
-        public Embed PostTeamsProcess(SocketInteractionContext context, string division)
-        {
-            return _teamManager.GetTeamsEmbed(division);
-        }
+        //public Embed PostTeamsProcess(SocketInteractionContext context, string division)
+        //{
+        //    return _teamManager.GetTeamsEmbed(division);
+        //}
 
         //public Embed PostChallengesProcess(SocketInteractionContext context, string division)
         //{
@@ -1661,16 +1678,16 @@ namespace Ladderbot4.Managers
         public Embed AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
             // Check if team name exists in database
-            if (!_teamManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team team = _teamManager.GetTeamByName(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Add the numberOfWins to the team
                 _teamManager.AddToWins(team, numberOfWins);
 
                 // Save and reload teams database
-                _teamManager.SaveAndReloadTeamsDatabase();
+                _leagueManager.SaveAndReloadLeaguesDatabase();
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1683,10 +1700,10 @@ namespace Ladderbot4.Managers
         public Embed SubtractFromWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
             // Check if team name exists in database
-            if (!_teamManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team team = _teamManager.GetTeamByName(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Wins - numberOfWins;
@@ -1696,7 +1713,7 @@ namespace Ladderbot4.Managers
                     _teamManager.SubtractFromWins(team, numberOfWins);
 
                     // Save and reload teams database
-                    _teamManager.SaveAndReloadTeamsDatabase();
+                    _leagueManager.SaveAndReloadLeaguesDatabase();
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -1714,16 +1731,16 @@ namespace Ladderbot4.Managers
         public Embed AddToLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
         {
             // Check if team name exists in database
-            if (!_teamManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team team = _teamManager.GetTeamByName(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Add the numberOfLosses to the team
                 _teamManager.AddToLosses(team, numberOfLosses);
 
                 // Save and reload teams database
-                _teamManager.SaveAndReloadTeamsDatabase();
+                _leagueManager.SaveAndReloadLeaguesDatabase();
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1736,10 +1753,10 @@ namespace Ladderbot4.Managers
         public Embed SubtractFromLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
         {
             // Check if team name exists in database
-            if (!_teamManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team team = _teamManager.GetTeamByName(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Losses - numberOfLosses;
@@ -1749,7 +1766,7 @@ namespace Ladderbot4.Managers
                     _teamManager.SubtractFromLosses(team, numberOfLosses);
 
                     // Save and reload teams database
-                    _teamManager.SaveAndReloadTeamsDatabase();
+                    _leagueManager.SaveAndReloadLeaguesDatabase();
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();

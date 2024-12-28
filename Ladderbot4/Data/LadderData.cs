@@ -60,5 +60,59 @@ namespace Ladderbot4.Data
             var json = JsonConvert.SerializeObject(statesByDivision, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }
+
+        public void AddState(State newState)
+        {
+            var statesByDivision = LoadAllStates();
+
+            switch (newState.Division)
+            {
+                case "1v1":
+                    statesByDivision.States1v1.Add(newState);
+                    break;
+
+                case "2v2":
+                    statesByDivision.States2v2.Add(newState);
+                    break;
+
+                case "3v3":
+                    statesByDivision.States3v3.Add(newState);
+                    break;
+            }
+
+            SaveAllStates(statesByDivision);
+        }
+
+        public void RemoveState(string leagueName, string division)
+        {
+            StatesByDivision statesByDivision = LoadAllStates();
+
+            List<State>? divisionStates = division switch
+            {
+                "1v1" => statesByDivision.States1v1,
+                "2v2" => statesByDivision.States2v2,
+                "3v3" => statesByDivision.States3v3,
+                _ => null
+            };
+
+            if (divisionStates == null || divisionStates.Count == 0)
+            {
+                Console.WriteLine($"{DateTime.Now} StatesManager - Null error when trying to remove a State for the given League name: {leagueName}");
+            }
+
+            // Find the correct state
+            State? stateToRemove = divisionStates.FirstOrDefault(s => s.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
+
+            if (stateToRemove == null)
+            {
+                Console.WriteLine($"{DateTime.Now} StatesManager - The State with the League name of '{leagueName}' was not found.");
+                return;
+            }
+
+            divisionStates.Remove(stateToRemove);
+            Console.WriteLine($"LadderData DEBUG - The {stateToRemove.LeagueName} League State was removed from states.json file.");
+
+            SaveAllStates(statesByDivision);
+        }
     }
 }

@@ -274,16 +274,29 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public State CreateStateObject(string leagueName)
+        public State CreateNewState(string leagueName, string leagueDivision)
         {
-            return new State()
+            return new State(leagueName, leagueDivision)
             {
-                LeagueName = leagueName,
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
                 StandingsChannelId = 0,
                 TeamsChannelId = 0
             };
+        }
+
+        public void AddNewState(State state)
+        {
+            _ladderData.AddState(state);
+
+            LoadStatesDatabase();
+        }
+
+        public void RemoveLeagueState(string leagueName, string division)
+        {
+            _ladderData.RemoveState(leagueName, division);
+
+            LoadStatesDatabase();
         }
 
         //public void SetLadderRunning(string division, bool trueOrFalse)

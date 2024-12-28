@@ -113,8 +113,6 @@ namespace Ladderbot4.Data
             }
 
             divisionLeagues.Remove(leagueToRemove);
-            Console.WriteLine($"The {leagueToRemove.Division} League named {leagueToRemove.LeagueName} was removed from the program entirely.");
-
             SaveLeagues(leaguesByDivision);
         }
 

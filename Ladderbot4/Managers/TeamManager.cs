@@ -12,24 +12,15 @@ namespace Ladderbot4.Managers
 {
     public class TeamManager
     {
-        private readonly TeamData _teamData;
-
         // Migrating to new LeagueData
         private readonly LeagueData _leagueData;
 
-        private TeamsByDivision _teamsByDivision;
-
         private LeaguesByDivision _leaguesByDivision;
 
-        public TeamManager(TeamData teamData, LeagueData leagueData)
+        public TeamManager(LeagueData leagueData)
         {
             _leagueData = leagueData;
             _leaguesByDivision = _leagueData.LoadAllLeagues();
-        }
-
-        public void SaveTeams()
-        {
-            _teamData.SaveTeams(_teamsByDivision);
         }
 
         public void SaveLeagues()
@@ -37,20 +28,9 @@ namespace Ladderbot4.Managers
             _leagueData.SaveLeagues(_leaguesByDivision);
         }
 
-        public void LoadTeamsDatabase()
-        {
-            _teamsByDivision = _teamData.LoadAllTeams();
-        }
-
         public void LoadLeaguesDatabase()
         {
             _leaguesByDivision = _leagueData.LoadAllLeagues();
-        }
-
-        public void SaveAndReloadTeamsDatabase()
-        {
-            SaveTeams();
-            LoadTeamsDatabase();
         }
 
         public void SaveAndReloadLeaguesDatabase()
@@ -86,150 +66,105 @@ namespace Ladderbot4.Managers
         //    return true;
         //}
 
-        public bool IsTeamNameUnique(string teamName)
-        {
-            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
-            {
-                foreach (League league in division)
-                {
-                    foreach (Team team in league.Teams)
-                    {
-                        // Compare team names (case-insensitive)
-                        if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return false; // Name is not unique
-                        }
-                    }
-                }
-            }
+        //public string GetStandingsData(string division)
+        //{
+        //    // Load database
+        //    LoadTeamsDatabase();
 
-            return true;
-        }
+        //    List<Team> divisionTeams = GetTeamsByDivision(division);
 
-        public string GetStandingsData(string division)
-        {
-            // Load database
-            LoadTeamsDatabase();
+        //    StringBuilder sb = new();
 
-            List<Team> divisionTeams = GetTeamsByDivision(division);
+        //    sb.AppendLine($"```\n");
+        //    foreach(Team team in divisionTeams)
+        //    {
+        //        sb.AppendLine($"Team Name: {team.TeamName} - Rank: {team.Rank} - W: {team.Wins} - L: {team.Losses}\n");
+        //    }
+        //    sb.AppendLine("\n```");
 
-            StringBuilder sb = new();
+        //    return sb.ToString();
+        //}
 
-            sb.AppendLine($"```\n");
-            foreach(Team team in divisionTeams)
-            {
-                sb.AppendLine($"Team Name: {team.TeamName} - Rank: {team.Rank} - W: {team.Wins} - L: {team.Losses}\n");
-            }
-            sb.AppendLine("\n```");
+        //public Embed GetStandingsEmbed(string division)
+        //{
+        //    // Load database
+        //    LoadTeamsDatabase();
 
-            return sb.ToString();
-        }
+        //    List<Team> divisionTeams = GetTeamsByDivision(division);
 
-        public Embed GetStandingsEmbed(string division)
-        {
-            // Load database
-            LoadTeamsDatabase();
+        //    // Create the embed
+        //    var embedBuilder = new EmbedBuilder()
+        //        .WithTitle($"🏆 Standings for {division} Division")
+        //        .WithColor(Color.Gold)
+        //        .WithDescription($"Current {division} standings:");
 
-            List<Team> divisionTeams = GetTeamsByDivision(division);
+        //    // Format the standings
+        //    foreach (Team team in divisionTeams)
+        //    {
+        //        string status = team.IsChallengeable ? "Free" : "Challenged";
+        //        embedBuilder.AddField(
+        //            $"#{team.Rank} {team.TeamName}",
+        //            $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}** | *Status:* **{status}**",
+        //            inline: false // Stacked vertically for better readability
+        //        );
+        //    }
 
-            // Create the embed
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle($"🏆 Standings for {division} Division")
-                .WithColor(Color.Gold)
-                .WithDescription($"Current {division} standings:");
+        //    // Add a footer with timestamp
+        //    embedBuilder.WithFooter("Updated")
+        //                .WithTimestamp(DateTimeOffset.Now);
 
-            // Format the standings
-            foreach (Team team in divisionTeams)
-            {
-                string status = team.IsChallengeable ? "Free" : "Challenged";
-                embedBuilder.AddField(
-                    $"#{team.Rank} {team.TeamName}",
-                    $"*Wins:* **{team.Wins}** | *Losses:* **{team.Losses}** | *Status:* **{status}**",
-                    inline: false // Stacked vertically for better readability
-                );
-            }
+        //    return embedBuilder.Build();
+        //}
 
-            // Add a footer with timestamp
-            embedBuilder.WithFooter("Updated")
-                        .WithTimestamp(DateTimeOffset.Now);
-
-            return embedBuilder.Build();
-        }
-
-        public string GetTeamsData(string division)
-        {
-            List<Team> divisionTeams = GetTeamsByDivision(division);
+        //public string GetTeamsData(string division)
+        //{
+        //    List<Team> divisionTeams = GetTeamsByDivision(division);
             
-            StringBuilder sb = new();
+        //    StringBuilder sb = new();
 
-            sb.AppendLine($"```\n");
-            foreach (Team team in divisionTeams)
-            {
-                sb.AppendLine($"Team Name: {team.TeamName} - Member(s): {team.GetAllMemberNamesToStr()}");
-            }
-            sb.AppendLine("\n```");
+        //    sb.AppendLine($"```\n");
+        //    foreach (Team team in divisionTeams)
+        //    {
+        //        sb.AppendLine($"Team Name: {team.TeamName} - Member(s): {team.GetAllMemberNamesToStr()}");
+        //    }
+        //    sb.AppendLine("\n```");
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
 
-        public Embed GetTeamsEmbed(string division)
-        {
-            // Load the database
-            LoadTeamsDatabase();
+        //public Embed GetTeamsEmbed(string division)
+        //{
+        //    // Load the database
+        //    LoadTeamsDatabase();
 
-            List<Team> divisionTeams = GetTeamsByDivision(division);
+        //    List<Team> divisionTeams = GetTeamsByDivision(division);
 
-            // Create the embed
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle($"🛡️ Teams for {division} Division")
-                .WithColor(Color.Blue)
-                .WithDescription($"Current teams in the **{division} Division**:");
+        //    // Create the embed
+        //    var embedBuilder = new EmbedBuilder()
+        //        .WithTitle($"🛡️ Teams for {division} Division")
+        //        .WithColor(Color.Blue)
+        //        .WithDescription($"Current teams in the **{division} Division**:");
 
-            // Format the team data
-            foreach (Team team in divisionTeams)
-            {
-                embedBuilder.AddField(
-                    $"{team.TeamName}",
-                    $"*Members:* {team.GetAllMemberNamesToStr()}",
-                    inline: false // Stacked vertically for readability
-                );
-            }
+        //    // Format the team data
+        //    foreach (Team team in divisionTeams)
+        //    {
+        //        embedBuilder.AddField(
+        //            $"{team.TeamName}",
+        //            $"*Members:* {team.GetAllMemberNamesToStr()}",
+        //            inline: false // Stacked vertically for readability
+        //        );
+        //    }
 
-            // Add a footer with timestamp
-            embedBuilder.WithFooter("Updated")
-                        .WithTimestamp(DateTimeOffset.Now);
+        //    // Add a footer with timestamp
+        //    embedBuilder.WithFooter("Updated")
+        //                .WithTimestamp(DateTimeOffset.Now);
 
-            return embedBuilder.Build();
-        }
-
-        // WILL DELETE LATER
-        public int GetTeamCount(string division)
-        {
-            return division switch
-            {
-                "1v1" => _teamsByDivision.Division1v1.Count,
-                "2v2" => _teamsByDivision.Division2v2.Count,
-                "3v3" => _teamsByDivision.Division3v3.Count,
-                _ => 0
-            };
-            ;
-        }
+        //    return embedBuilder.Build();
+        //}
 
         public int GetTeamCountInLeague(League league)
         {
             return league.Teams.Count;
-        }
-
-        public List<Team>? GetTeamsByDivision(string division)
-        {
-            return division switch
-            {
-                "1v1" => _teamsByDivision.Division1v1,
-                "2v2" => _teamsByDivision.Division2v2,
-                "3v3" => _teamsByDivision.Division3v3,
-                _ => null
-            };
-            ;
         }
 
         public List<Team>? GetTeamsInLeague(League leagueRef)
@@ -245,35 +180,7 @@ namespace Ladderbot4.Managers
             if (leagues == null) return null;
 
             return leagues.FirstOrDefault(l => l.LeagueName == leagueRef.LeagueName)?.Teams;
-        }
-
-
-        public Team GetTeamByName(string teamName)
-        {
-            // Search in Division1v1
-            foreach (var team in _teamsByDivision.Division1v1)
-            {
-                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                    return team;
-            }
-
-            // Search in Division2v2
-            foreach (var team in _teamsByDivision.Division2v2)
-            {
-                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                    return team;
-            }
-
-            // Search in Division3v3
-            foreach (var team in _teamsByDivision.Division3v3)
-            {
-                if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                    return team;
-            }
-
-            // If no team is found
-            return null;
-        }
+        }     
 
         public void ChangeChallengeStatus(Team team, bool trueOrFalse)
         {
@@ -312,22 +219,6 @@ namespace Ladderbot4.Managers
         public Team CreateTeamObject(string teamName, string leagueName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)
         {
             return new Team(teamName, leagueName, division, rank, wins, losses, members);
-        }
-
-        //public void AddNewTeam(Team newTeam)
-        //{
-        //    _teamData.AddTeam(newTeam);
-
-        //    // Loads newest save of the database to backing field
-        //    LoadTeamsDatabase();
-        //}
-
-        public void RemoveTeam(string teamName, string division)
-        {
-            _teamData.RemoveTeam(teamName, division);
-
-            // Loads newest save of the database to backing field
-            LoadTeamsDatabase(); 
         }
     }
 }

@@ -19,7 +19,6 @@ namespace Ladderbot4.Managers
         {
             _leagueData = leagueData;
             _leaguesByDivision = _leagueData.LoadAllLeagues();
-            Console.WriteLine($"LeagueManager Hash Code Info: {_leaguesByDivision.GetHashCode()}");
         }
 
         public void SaveLeagues()
@@ -54,6 +53,26 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsTeamNameUnique(string teamName)
+        {
+            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            {
+                foreach (League league in division)
+                {
+                    foreach (Team team in league.Teams)
+                    {
+                        // Compare team names (case-insensitive)
+                        if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false; // Name is not unique
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public bool IsTeamsInSameLeague(League league, Team teamOne, Team teamTwo)
         {
             foreach (Team team in league.Teams)
@@ -76,6 +95,11 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
+        }
+
+        public LeaguesByDivision GetAllLeagues()
+        {
+            return _leaguesByDivision;
         }
 
         public League GetLeagueByName(string leagueName)

@@ -60,7 +60,6 @@ namespace Ladderbot4
                     services.AddSingleton<LeagueData>();
                     services.AddSingleton<MemberData>();
                     services.AddSingleton<SettingsData>();
-                    services.AddSingleton<TeamData>();
 
                     services.AddSingleton<AchievementManager>();
                     services.AddSingleton<ChallengeManager>();
