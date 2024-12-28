@@ -275,52 +275,15 @@ namespace Ladderbot4.Managers
             return null;
         }
 
-        public Team GetTeamByNameFromLeagues(string teamName)
-        {
-            // Search All 1v1 Leagues
-            foreach (var league in _leaguesByDivision.Leagues1v1)
-            {
-                foreach (var team in league.Teams)
-                {
-                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                        return team;
-                }
-            }
-
-            // Search All 2v2 Leagues
-            foreach (var league in _leaguesByDivision.Leagues2v2)
-            {
-                foreach (var team in league.Teams)
-                {
-                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                        return team;
-                }
-            }
-
-            // Search All 3v3 Leagues
-            foreach (var league in _leaguesByDivision.Leagues3v3)
-            {
-                foreach (var team in league.Teams)
-                {
-                    if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
-                        return team;
-                }
-            }
-
-            return null;
-        }
-
         public void ChangeChallengeStatus(Team team, bool trueOrFalse)
         {
             switch (trueOrFalse)
             {
                 case true:
-                    Console.WriteLine("Set to false");
                     team.IsChallengeable = true;
                     break;
 
                 case false:
-                    Console.WriteLine("Set to false");
                     team.IsChallengeable = false;
                     break;
             }
@@ -359,28 +322,12 @@ namespace Ladderbot4.Managers
         //    LoadTeamsDatabase();
         //}
 
-        public void AddNewTeamToLeague(Team newTeam, League league)
-        {
-            _leagueData.AddTeamToLeague(newTeam, league);
-
-            LoadLeaguesDatabase();
-        }
-
         public void RemoveTeam(string teamName, string division)
         {
             _teamData.RemoveTeam(teamName, division);
 
             // Loads newest save of the database to backing field
             LoadTeamsDatabase(); 
-        }
-
-        public void RemoveTeamFromLeague(Team team, League league)
-        {
-            // TODO in LeagueData
-            _leagueData.RemoveTeamFromLeague(team, league);
-
-            // Load newest save
-            LoadLeaguesDatabase();
         }
     }
 }

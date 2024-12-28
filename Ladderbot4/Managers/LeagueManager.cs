@@ -19,6 +19,7 @@ namespace Ladderbot4.Managers
         {
             _leagueData = leagueData;
             _leaguesByDivision = _leagueData.LoadAllLeagues();
+            Console.WriteLine($"LeagueManager Hash Code Info: {_leaguesByDivision.GetHashCode()}");
         }
 
         public void SaveLeagues()
@@ -142,6 +143,36 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public Team? GetTeamByNameFromLeagues(string teamName)
+        {
+            // Search all leagues by division
+            foreach (var leagueList in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            {
+                foreach (var league in leagueList)
+                {
+                    // Find the team by name
+                    var team = league.Teams.FirstOrDefault(t => t.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+                    if (team != null)
+                        return team; // Return the exact reference
+                }
+            }
+            return null; // Return null if no match found
+        }
+
+        public void AddNewTeamToLeague(Team newTeam, League league)
+        {
+            _leagueData.AddTeamToLeague(newTeam, league);
+
+            LoadLeaguesDatabase();
+        }
+
+        public void RemoveTeamFromLeague(Team team, League league)
+        {
+            _leagueData.RemoveTeamFromLeague(team, league);
+
+            // Load newest save
+            LoadLeaguesDatabase();
+        }
 
         public League CreateLeagueObject(string leagueName, string leagueDivision)
         {

@@ -473,9 +473,9 @@ namespace Ladderbot4.Managers
 
         public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
-            // Load latest save for both Managers
+            // Load latest save
             _leagueManager.LoadLeaguesDatabase();
-            _teamManager.LoadLeaguesDatabase();
+            //_teamManager.LoadLeaguesDatabase();
 
             // Check if League by given name exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
@@ -506,10 +506,11 @@ namespace Ladderbot4.Managers
                         Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.LeagueName, leagueReference.Division, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
 
                         // Add team to league
-                        _teamManager.AddNewTeamToLeague(newTeam, leagueReference);
+                        _leagueManager.AddNewTeamToLeague(newTeam, leagueReference);
 
                         // Save and reload Leagues Database from the Team Manager
-                        _teamManager.SaveAndReloadLeaguesDatabase();
+                        //_teamManager.SaveAndReloadLeaguesDatabase();
+                        _leagueManager.SaveAndReloadLeaguesDatabase();
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -526,14 +527,14 @@ namespace Ladderbot4.Managers
         public Embed RemoveTeamFromLeagueProcess(string teamName)
         {
             // Load latest save
-            _teamManager.LoadLeaguesDatabase();
             _leagueManager.LoadLeaguesDatabase();
 
             // Check if Team exists in any League
             if (!_teamManager.IsTeamNameUnique(teamName))
             {
                 // Grab Team Object
-                Team teamToRemove = _teamManager.GetTeamByNameFromLeagues(teamName);
+                Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
+
                 // Grab League object
                 League correctLeague = _leagueManager.GetLeagueFromTeamName(teamName);
 
@@ -541,7 +542,7 @@ namespace Ladderbot4.Managers
                 _challengeManager.SudoRemoveChallenge(correctLeague.Division, correctLeague.LeagueName, teamName);
 
                 //Remove the team correctly and correct ranks
-                _teamManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
+                _leagueManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
                 ReassignRanksInLeague(correctLeague);
 
                 // Save and reload
@@ -610,11 +611,10 @@ namespace Ladderbot4.Managers
             {
                 // Grab correct league
                 League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
-                Console.WriteLine($"{correctLeague.LeagueName} LEague Name");
 
                 // Grab team objects
-                Team objectChallengerTeam = _teamManager.GetTeamByNameFromLeagues(challengerTeam);
-                Team objectChallengedTeam = _teamManager.GetTeamByNameFromLeagues(challengedTeam);
+                Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+                Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
 
                 // TODO - Add check if ladder is started in League
 
@@ -800,7 +800,7 @@ namespace Ladderbot4.Managers
             if (!_teamManager.IsTeamNameUnique(challengerTeam))
             {
                 // Grab team reference
-                Team challengerTeamObject = _teamManager.GetTeamByNameFromLeagues(challengerTeam);
+                Team challengerTeamObject = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
 
                 // Grab league reference
                 League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeamObject.TeamName);
@@ -818,7 +818,7 @@ namespace Ladderbot4.Managers
                         Challenge? challenge = _challengeManager.GetChallengeForTeam(correctLeague.Division, correctLeague.LeagueName, challengerTeamObject);
 
                         // Grab challenged team object
-                        Team challengedTeamObject = _teamManager.GetTeamByNameFromLeagues(challenge.Challenged);
+                        Team challengedTeamObject = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
 
                         // Set IsChallengeable for both teams back to true
                         Team testChallengerTeamObject = correctLeague.Teams.First(t => t.TeamName == challengerTeamObject.TeamName);
@@ -1036,12 +1036,12 @@ namespace Ladderbot4.Managers
             // Check if given team name exists
             if (!_teamManager.IsTeamNameUnique(winningTeamName))
             {
-                // Grab winningTeam object, add placeholder for losingTeam object
-                Team winningTeam = _teamManager.GetTeamByNameFromLeagues(winningTeamName);
-                Team losingTeam;
-
                 // Grab league object
                 League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
+
+                // Grab winningTeam object, add placeholder for losingTeam object
+                Team? winningTeam = league.Teams.FirstOrDefault(t => t.TeamName.Equals(winningTeamName, StringComparison.OrdinalIgnoreCase));
+                Team? losingTeam;
 
                 // TODO - Check if ladder is running
 
@@ -1060,41 +1060,31 @@ namespace Ladderbot4.Managers
                         if (challenge.Challenger.Equals(winningTeam.TeamName, StringComparison.OrdinalIgnoreCase))
                         {
                             isWinningTeamChallenger = true;
-                            losingTeam = _teamManager.GetTeamByNameFromLeagues(challenge.Challenged);
+                            losingTeam = league.Teams.FirstOrDefault(t => t.TeamName.Equals(challenge.Challenged, StringComparison.OrdinalIgnoreCase)); ;
                         }
                         else
                         {
                             isWinningTeamChallenger = false;
-                            losingTeam = _teamManager.GetTeamByNameFromLeagues(challenge.Challenger);
+                            losingTeam = league.Teams.FirstOrDefault(t => t.TeamName.Equals(challenge.Challenger, StringComparison.OrdinalIgnoreCase));
                         }
 
                         // If winningTeam is challenger, rank change will occur
                         if (isWinningTeamChallenger)
                         {
                             // The winning team takes the rank of the losing team
-                            Team winningTeamInLeague = league.Teams.First(t => t.TeamName == winningTeam.TeamName);
-                            Team losingTeamInLeague = league.Teams.First(t => t.TeamName == losingTeam.TeamName);
+                            //Team winningTeamInLeague = league.Teams.First(t => t.TeamName == winningTeam.TeamName);
+                            //Team losingTeamInLeague = league.Teams.First(t => t.TeamName == losingTeam.TeamName);
 
-                            winningTeamInLeague.Rank = losingTeamInLeague.Rank;
-                            losingTeamInLeague.Rank++;
+                            winningTeam.Rank = losingTeam.Rank;
+                            losingTeam.Rank++;
 
 
                             // Reassign ranks for the entire League
-                            foreach (Team team in league.Teams)
-                            {
-                                Console.WriteLine($"Before rank reassign: {team.TeamName} #{team.Rank}");
-                            }
-                            
                             ReassignRanksInLeague(league);
 
-                            foreach (Team team in league.Teams)
-                            {
-                                Console.WriteLine($"After rank reassign: {team.TeamName} #{team.Rank}");
-                            }
-
                             // Add wins and losses correctly
-                            _teamManager.AddToWins(winningTeamInLeague, 1);
-                            _teamManager.AddToLosses(losingTeamInLeague, 1);
+                            _teamManager.AddToWins(winningTeam, 1);
+                            _teamManager.AddToLosses(losingTeam, 1);
 
                             // TODO - Add wins and losses to Member Profiles
 
@@ -1103,8 +1093,8 @@ namespace Ladderbot4.Managers
 
 
                             // Set IsChallengeable status of both teams back to true
-                            _teamManager.ChangeChallengeStatus(winningTeamInLeague, true);
-                            _teamManager.ChangeChallengeStatus(losingTeamInLeague, true);
+                            _teamManager.ChangeChallengeStatus(winningTeam, true);
+                            _teamManager.ChangeChallengeStatus(losingTeam, true);
                             _leagueManager.SaveAndReloadLeaguesDatabase();
 
                             // Remove the challenge
@@ -1118,7 +1108,7 @@ namespace Ladderbot4.Managers
                             _backupManager.CopyAndBackupFilesToGit();
 
                             // Return Success Embed with true, showing rank change
-                            return _embedManager.ReportWinSuccessEmbed(winningTeamInLeague, losingTeamInLeague, true, league);
+                            return _embedManager.ReportWinSuccessEmbed(winningTeam, losingTeam, true, league);
                         }
                         
                         // If winningTeam is challenged, no rank change will occur
@@ -1730,13 +1720,6 @@ namespace Ladderbot4.Managers
             {
                 league.Teams[i].Rank = i + 1;
             }
-
-            // Debug output to verify ranks have been reassigned
-            Console.WriteLine($"Ranks reassigned for league: {league.LeagueName}");
-            foreach (var team in league.Teams)
-            {
-                Console.WriteLine($"Team: {team.TeamName}, Rank: {team.Rank}");
-            }
         }
 
         #endregion
@@ -1802,6 +1785,14 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.RemoveSuperAdminIdNotFoundEmbed(user);
         }
+        #endregion
+
+        #region Testing Methods
+        public Embed CreateTestTeamsProcess()
+        {
+            return null;
+        }
+
         #endregion
     }
 }
