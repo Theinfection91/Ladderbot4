@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Discord.WebSocket;
 using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,18 @@ namespace Ladderbot4.Commands
         [SlashCommand("win", "User-level command to report who won in a match.")]
         public async Task ReportWinAsync(string winningTeamName)
         {
-            await Context.Interaction.DeferAsync();
-            var result = _ladderManager.ReportWinProcess(Context, winningTeamName);
-            await Context.Interaction.FollowupAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.ReportWinProcess(Context, winningTeamName.Trim().ToLower());
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [Group("admin", "Admin slash commands related to challenges.")]

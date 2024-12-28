@@ -381,7 +381,7 @@ namespace Ladderbot4.Managers
                 foreach (var challenge in challenges)
                 {
                     embedBuilder.AddField(
-                        $"{challenge.Challenger} (Rank {challenge.ChallengerRank}) 🆚 {challenge.Challenged} (Rank {challenge.ChallengedRank})",
+                        $"{challenge.Challenger} (#{challenge.ChallengerRank}) 🆚 {challenge.Challenged} (#{challenge.ChallengedRank})",
                         $"**Created On:** {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
                         inline: false
                     );

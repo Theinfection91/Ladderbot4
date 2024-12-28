@@ -498,7 +498,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Register/Remove Team Logic
-
         public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
             // Load latest save
@@ -856,7 +855,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Reporting Logic
-
         public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
         {
             // Check if given team name exists
@@ -1242,7 +1240,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region History Logic
-
         public Embed ShowAllHistoryByDivisionProcess(string division)
         {
             // Embed testing
@@ -1560,11 +1557,9 @@ namespace Ladderbot4.Managers
                 league.Teams[i].Rank = i + 1;
             }
         }
-
         #endregion
 
         #region Settings Logic
-
         public Embed SetGuildId(SocketCommandContext context)
         {
             // Grab Guild Id command was invoked from
@@ -1627,7 +1622,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Testing Methods
-
 
         #endregion
     }

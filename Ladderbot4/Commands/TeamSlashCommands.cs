@@ -31,35 +31,45 @@ namespace Ladderbot4.Commands
         [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
         [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
         {
-           // Defer response if the process might take time
-           await Context.Interaction.DeferAsync();
+            try
+            {
+                await Context.Interaction.DeferAsync();
 
-           // Compile members into a list
-           var members = new List<IUser> { member1 };
-           if (member2 != null) members.Add(member2);
-           if (member3 != null) members.Add(member3);
+                // Compile members into a list
+                var members = new List<IUser> { member1 };
+                if (member2 != null) members.Add(member2);
+                if (member3 != null) members.Add(member3);
 
-           // Ensure league name is standardized (lowercase, trimmed)
-           leagueName = leagueName.Trim().ToLower();
-
-           // Call the LadderManager to process the registration
-           var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
-
-           // Send the resulting embed
-           await Context.Interaction.FollowupAsync(embed: result);
+                var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName.Trim().ToLower(), members);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
-
 
         [SlashCommand("remove", "Admin command to remove team from teams database.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RemoveTeamAsync(
         [Summary("teamName", "Name of the team to be removed.")] string teamName)
         {
-            await Context.Interaction.DeferAsync();
+            try
+            {
+                await Context.Interaction.DeferAsync();
 
-            var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName);
+                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName);
 
-            await Context.Interaction.FollowupAsync(embed: result);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
         #endregion
 
@@ -81,8 +91,18 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to add wins to.")] string teamName,
                 [Summary("numberOfWins", "The number of wins to add to the team.")] int numberOfWins)
             {
-                var result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
-                await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
 
             [SlashCommand("loss", "Admin command to add numberOfWins to given team")]
@@ -91,8 +111,18 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to add losses to.")] string teamName,
                 [Summary("numberOfLosses", "The number of losses to add to the team.")] int numberOfLosses)
             {
-                var result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
-                await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
             #endregion
         }
@@ -115,8 +145,18 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to subtract wins from.")] string teamName,
                 [Summary("numerOfWins", "The number of wins to subtract from team.")] int numberOfWins)
             {
-                var result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
-                await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
 
             [SlashCommand("loss", "Admin command to subtract numberOfLosses from given team")]
@@ -125,8 +165,18 @@ namespace Ladderbot4.Commands
                 [Summary("teamName", "The name of the team to subtract losses from.")] string teamName,
                 [Summary("numberOfLosses", "The number of losses to subtract from team.")] int numberOfLosses)
             {
-                var result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
-                await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
             #endregion
         }

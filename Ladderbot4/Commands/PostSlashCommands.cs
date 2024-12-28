@@ -84,9 +84,6 @@ namespace Ladderbot4.Commands
         public async Task PostTeamsAsync(
             [Summary("leagueName", "The League in which to post teams data from.")] string leagueName)
         {
-            //var result = _ladderManager.PostTeamsProcess(Context, division.Trim().ToLower());
-            //await RespondAsync(embed: result);
-
             try
             {
                 await Context.Interaction.DeferAsync();

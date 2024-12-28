@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Ladderbot4.Managers;
 
 namespace Ladderbot4.Commands
@@ -33,7 +34,9 @@ namespace Ladderbot4.Commands
             }
             catch (Exception ex)
             {
-                await Context.Interaction.FollowupAsync($"An error occurred: {ex.Message}");
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
             }
 
         }
@@ -43,13 +46,18 @@ namespace Ladderbot4.Commands
         public async Task DeleteLeagueAsync(
             [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
         {
-            // Defer response if the process might take time
-            await Context.Interaction.DeferAsync();
-
-            var result = _ladderManager.DeleteLeagueProcess(leagueName);
-
-            // Send the resulting embed
-            await Context.Interaction.FollowupAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.DeleteLeagueProcess(leagueName);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
         #endregion
     }

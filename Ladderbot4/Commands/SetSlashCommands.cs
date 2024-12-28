@@ -52,7 +52,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.SetChallengesChannelIdProcess(leagueName, channel);
+                var result = _ladderManager.SetChallengesChannelIdProcess(leagueName.Trim().ToLower(), channel);
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -74,7 +74,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.SetStandingsChannelIdProcess(leagueName, channel);
+                var result = _ladderManager.SetStandingsChannelIdProcess(leagueName.Trim().ToLower(), channel);
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -96,7 +96,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.SetTeamsChannelIdProcess(leagueName, channel);
+                var result = _ladderManager.SetTeamsChannelIdProcess(leagueName.Trim().ToLower(), channel);
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }

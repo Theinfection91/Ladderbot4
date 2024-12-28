@@ -19,14 +19,6 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [SlashCommand("achieve", "Manual Achievement testing")]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task TestAchieveAsync(string winningTeamName)
-        {
-            string result = "";
-            await RespondAsync(result);
-        }
-
         [SlashCommand("teams", "Fast team testing")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task TestTeamsAsync()
