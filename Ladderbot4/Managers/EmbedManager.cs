@@ -362,7 +362,7 @@ namespace Ladderbot4.Managers
             }
 
             // Add a footer with timestamp
-            embedBuilder.WithFooter("Updated")
+            embedBuilder.WithFooter("Last Updated")
                         .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();

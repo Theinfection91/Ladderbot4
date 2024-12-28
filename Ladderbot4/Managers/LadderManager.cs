@@ -50,9 +50,9 @@ namespace Ladderbot4.Managers
             _statesManager = statesManager;
 
             // Begin Channel Update Tasks
-            //StartingChallengesTask();
+            StartChallengesTask();
             StartStandingsTask();
-            //StartingTeamsTask();
+            StartingTeamsTask();
 
             // Start Automated Backup Task
             StartAutomatedBackupTask();
@@ -98,90 +98,85 @@ namespace Ladderbot4.Managers
         #region Channel Tasks Logic
 
         #region --Challenges
+        public void StartChallengesTask()
+        {
+            Task.Run(() => RunChallengesUpdateTaskAsync());
+        }
 
-        //public void StartingChallengesTask()
-        //{
-        //    Task.Run(() => RunChallengesUpdateTaskAsync());
-        //}
+        private async Task RunChallengesUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                await SendChallengesToChannelAsync();
+            }
+        }
 
-        //private async Task RunChallengesUpdateTaskAsync()
-        //{
-        //    while (true)
-        //    {
-        //        await Task.Delay(TimeSpan.FromSeconds(15));
-        //        await SendChallengesToChannelAsync();
-        //    }
-        //}
+        private async Task SendChallengesToChannelAsync()
+        {
+            // Get all leagues from LeagueManager
+            foreach (var league in _leagueManager.GetAllLeagues())
+            {
+                ulong channelId = _statesManager.GetChallengesChannelId(league);
 
-        //private async Task SendChallengesToChannelAsync()
-        //{
-        //    // Map divisions to their respective channel IDs
-        //    var divisionChannelMap = new Dictionary<string, ulong>
-        //    {
-        //        { "1v1", _statesManager.GetChallengesChannelId("1v1") },
-        //        { "2v2", _statesManager.GetChallengesChannelId("2v2") },
-        //        { "3v3", _statesManager.GetChallengesChannelId("3v3") }
-        //    };
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No channel ID set for challenges in league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
 
-        //    foreach (var division in divisionChannelMap.Keys)
-        //    {
-        //        ulong channelId = divisionChannelMap[division];
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
 
-        //        if (channelId == 0)
-        //        {
-        //            continue;
-        //        }
+                if (channel == null)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Channel not found for ID {channelId} in league: {league.LeagueName} ({league.Division}).");
+                    continue;
+                }
 
-        //        // Get the channel from the client
-        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+                // Get the challenges embed for the league
+                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
+                Embed challengesEmbed = _embedManager.PostChallengesEmbed(league, challenges);
 
-        //        if (channel == null)
-        //        {
-        //            continue;
-        //        }
+                if (challengesEmbed == null)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No challenges to display for league: {league.LeagueName} ({league.Division}).");
+                    continue;
+                }
 
-        //        // Get the embed for the challenges in the division
-        //        Embed challengesEmbed = _challengeManager.GetChallengesEmbed(division, null);
+                try
+                {
+                    // Check if a message already exists in the channel
+                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
-        //        if (challengesEmbed == null)
-        //        {
-        //            Console.WriteLine($"No challenges to display for the {division} division.");
-        //            continue;
-        //        }
-
-        //        try
-        //        {
-        //            // Check if a message already exists in the channel
-        //            if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
-        //            {
-        //                // Try to fetch the existing message
-        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
-
-        //                if (existingMessage != null)
-        //                {
-        //                    // Edit the existing message with the new embed
-        //                    await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
-        //                }
-        //                else
-        //                {
-        //                    // Message was deleted, send a new one
-        //                    var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-        //                    _standingsMessageMap[channelId] = newMessage.Id;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // No existing message, send a new one
-        //                var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-        //                _standingsMessageMap[channelId] = newMessage.Id;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine($"Error updating challenges in channel {channelId}: {ex.Message}");
-        //        }
-        //    }
-        //}
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message with the new embed
+                            await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
+                            _standingsMessageMap[channelId] = newMessage.Id;
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
+                        _standingsMessageMap[channelId] = newMessage.Id;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error updating challenges in channel {channelId} for league {league.LeagueName}: {ex.Message}");
+                }
+            }
+        }
         #endregion
 
         #region --Standings
@@ -208,7 +203,7 @@ namespace Ladderbot4.Managers
 
                 if (channelId == 0)
                 {
-                    Console.WriteLine($"No channel ID set for standings in league: {league.LeagueName} ({league.Division} League).");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No channel ID set for standings in league: {league.LeagueName} ({league.Division} League).");
                     continue;
                 }
 
@@ -217,7 +212,7 @@ namespace Ladderbot4.Managers
 
                 if (channel == null)
                 {
-                    Console.WriteLine($"Channel not found for ID {channelId} in league: {league.LeagueName} ({league.Division} League).");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Channel not found for ID {channelId} in league: {league.LeagueName} ({league.Division} League).");
                     continue;
                 }
 
@@ -226,7 +221,7 @@ namespace Ladderbot4.Managers
 
                 if (standingsEmbed == null)
                 {
-                    Console.WriteLine($"No standings to display for league: {league.LeagueName} ({league.Division} League).");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No standings to display for league: {league.LeagueName} ({league.Division} League).");
                     continue;
                 }
 
@@ -263,190 +258,96 @@ namespace Ladderbot4.Managers
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error updating standings in channel {channelId} for league {league.LeagueName}: {ex.Message}");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Error updating standings in channel {channelId} for league {league.LeagueName}: {ex.Message}");
                 }
             }
         }
-
-
-        //public void StartingStandingsTask()
-        //{
-        //    Task.Run(() => RunStandingsUpdateTaskAsync());
-        //}
-
-        //private async Task RunStandingsUpdateTaskAsync()
-        //{
-        //    while (true)
-        //    {
-        //        await Task.Delay(TimeSpan.FromSeconds(15));
-        //        await SendStandingsToChannelAsync();
-        //    }
-        //}
-
-        //private async Task SendStandingsToChannelAsync()
-        //{
-        //    // Map divisions to their respective channel IDs
-        //    var divisionChannelMap = new Dictionary<string, ulong>
-        //    {
-        //        { "1v1", _statesManager.GetStandingsChannelId("1v1") },
-        //        { "2v2", _statesManager.GetStandingsChannelId("2v2") },
-        //        { "3v3", _statesManager.GetStandingsChannelId("3v3") }
-        //    };
-
-        //    foreach (var division in divisionChannelMap.Keys)
-        //    {
-        //        ulong channelId = divisionChannelMap[division];
-
-        //        if (channelId == 0)
-        //        {
-        //            continue;
-        //        }
-
-        //        // Get the channel from the client
-        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
-
-        //        if (channel == null)
-        //        {
-        //            continue;
-        //        }
-
-        //        // Get the standings embed for the division
-        //        Embed standingsEmbed = _teamManager.GetStandingsEmbed(division);
-
-        //        if (standingsEmbed == null)
-        //        {
-        //            Console.WriteLine($"No standings to display for the {division} division.");
-        //            continue;
-        //        }
-
-        //        try
-        //        {
-        //            // Check if a message already exists in the channel
-        //            if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
-        //            {
-        //                // Try to fetch the existing message
-        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
-
-        //                if (existingMessage != null)
-        //                {
-        //                    // Edit the existing message with the new embed
-        //                    await existingMessage.ModifyAsync(msg =>
-        //                    {
-        //                        msg.Embed = standingsEmbed;
-        //                        msg.Content = string.Empty; // Clear any existing text content
-        //                    });
-        //                }
-        //                else
-        //                {
-        //                    // Message was deleted, send a new one
-        //                    var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-        //                    _standingsMessageMap[channelId] = newMessage.Id;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // No existing message, send a new one
-        //                var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-        //                _standingsMessageMap[channelId] = newMessage.Id;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine($"Error updating standings in channel {channelId}: {ex.Message}");
-        //        }
-        //    }
-        //}
         #endregion
 
         #region --Teams
 
-        //public void StartingTeamsTask()
-        //{
-        //    Task.Run(() => RunTeamsUpdateTaskAsync());
-        //}
+        public void StartingTeamsTask()
+        {
+            Task.Run(() => RunTeamsUpdateTaskAsync());
+        }
 
-        //private async Task RunTeamsUpdateTaskAsync()
-        //{
-        //    while (true)
-        //    {
-        //        await Task.Delay(TimeSpan.FromSeconds(15));
-        //        await SendTeamsToChannelAsync();
-        //    }
-        //}
+        private async Task RunTeamsUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(15));
+                await SendTeamsToChannelAsync();
+            }
+        }
 
-        //private async Task SendTeamsToChannelAsync()
-        //{
-        //    // Map divisions to their respective channel IDs
-        //    var divisionChannelMap = new Dictionary<string, ulong>
-        //    {
-        //        { "1v1", _statesManager.GetTeamsChannelId("1v1") },
-        //        { "2v2", _statesManager.GetTeamsChannelId("2v2") },
-        //        { "3v3", _statesManager.GetTeamsChannelId("3v3") }
-        //    };
+        private async Task SendTeamsToChannelAsync()
+        {
+            // Get all leagues from LeagueManager
+            foreach (var league in _leagueManager.GetAllLeagues())
+            {
+                ulong channelId = _statesManager.GetTeamsChannelId(league);
 
-        //    foreach (var division in divisionChannelMap.Keys)
-        //    {
-        //        ulong channelId = divisionChannelMap[division];
+                if (channelId == 0)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No channel ID set for teams in league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
 
-        //        if (channelId == 0)
-        //        {
-        //            continue;
-        //        }
+                // Get the channel from the client
+                IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
 
-        //        // Get the channel from the client
-        //        IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+                if (channel == null)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Channel not found for ID {channelId} in league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
 
-        //        if (channel == null)
-        //        {
-        //            continue;
-        //        }
+                // Get the teams embed for the league
+                Embed teamsEmbed = _embedManager.PostTeamsEmbed(league, league.Teams);
 
-        //        // Get the teams embed for the division
-        //        Embed teamsEmbed = _teamManager.GetTeamsEmbed(division);
+                if (teamsEmbed == null)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - No teams to display for league: {league.LeagueName} ({league.Division} League).");
+                    continue;
+                }
 
-        //        if (teamsEmbed == null)
-        //        {
-        //            Console.WriteLine($"No teams to display for the {division} division.");
-        //            continue;
-        //        }
+                try
+                {
+                    // Check if a message already exists in the channel
+                    if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    {
+                        // Try to fetch the existing message
+                        var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
-        //        try
-        //        {
-        //            // Check if a message already exists in the channel
-        //            if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
-        //            {
-        //                // Try to fetch the existing message
-        //                var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
-
-        //                if (existingMessage != null)
-        //                {
-        //                    // Edit the existing message with the new embed
-        //                    await existingMessage.ModifyAsync(msg =>
-        //                    {
-        //                        msg.Embed = teamsEmbed;
-        //                        msg.Content = string.Empty; // Clear any existing text content
-        //                    });
-        //                }
-        //                else
-        //                {
-        //                    // Message was deleted, send a new one
-        //                    var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-        //                    _teamsMessageMap[channelId] = newMessage.Id;
-        //                }
-        //            }
-        //            else
-        //            {
-        //                // No existing message, send a new one
-        //                var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-        //                _teamsMessageMap[channelId] = newMessage.Id;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine($"Error updating teams in channel {channelId}: {ex.Message}");
-        //        }
-        //    }
-        //}
+                        if (existingMessage != null)
+                        {
+                            // Edit the existing message with the new embed
+                            await existingMessage.ModifyAsync(msg =>
+                            {
+                                msg.Embed = teamsEmbed;
+                                msg.Content = string.Empty; // Clear any existing text content
+                            });
+                        }
+                        else
+                        {
+                            // Message was deleted, send a new one
+                            var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
+                            _teamsMessageMap[channelId] = newMessage.Id;
+                        }
+                    }
+                    else
+                    {
+                        // No existing message, send a new one
+                        var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
+                        _teamsMessageMap[channelId] = newMessage.Id;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Error updating teams in channel {channelId} for {league.LeagueName} ({league.Division} League): {ex.Message}");
+                }
+            }
+        }
         #endregion
 
         #endregion
@@ -771,108 +672,6 @@ namespace Ladderbot4.Managers
             return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
         }
         
-        /// <summary>
-        /// User-level logic used to handle the process of one team challenging another to a match. This logic compares the invoker's Discord Id to the challenger team to make sure they are apart of it. To bypass this, an admin can use the admin_challenge command or enable Super Admin Mode (Check the documentation).
-        /// </summary>
-        /// <param name="context">Used to grab the invoker's Discord Id</param>
-        /// <param name="challengerTeam">The name of the team initiating the challenge.</param>
-        /// <param name="challengedTeam">The name of the team who is receiving the challenge.</param>
-        /// <returns>String used by bot for error handling or to confirm the challenge was created.</returns>
-        //public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
-        //{
-        //    // Load the latest save of the Challenges database
-        //    _challengeManager.LoadChallengesDatabase();
-
-        //    // Check if both teams exist in the database
-        //    if (!_teamManager.IsTeamNameUnique(challengerTeam) && !_teamManager.IsTeamNameUnique(challengedTeam))
-        //    {
-        //        // Get team object references
-        //        Team objectChallengerTeam = _teamManager.GetTeamByName(challengerTeam);
-        //        Team objectChallengedTeam = _teamManager.GetTeamByName(challengedTeam);
-
-        //        // Check if the ladder is running in the challenger's division
-        //        if (!_statesManager.IsLadderRunning(objectChallengerTeam.Division))
-        //        {
-        //            return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in the {objectChallengerTeam.Division} division, and challenges may not be initiated yet.");
-        //        }
-
-        //        // Grab Discord ID of the user who invoked the command
-        //        ulong discordId = context.User.Id;
-
-        //        // Check if the user is on the challenger team
-        //        if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
-        //        {
-        //            // Check if the teams are in the same division
-        //            if (_teamManager.IsTeamsInSameDivision(objectChallengerTeam, objectChallengedTeam))
-        //            {
-        //                // Ensure the ranks are within range
-        //                if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
-        //                {
-        //                    // Check if the challenger has no pending challenges
-        //                    if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengerTeam))
-        //                    {
-        //                        // Check if the challenged team has no pending challenges
-        //                        if (!_challengeManager.IsTeamAwaitingChallengeMatch(objectChallengedTeam))
-        //                        {
-        //                            // Create and save the new Challenge
-        //                            _challengeManager.AddNewChallenge(new Challenge(objectChallengerTeam.Division, objectChallengerTeam.TeamName, objectChallengerTeam.Rank, objectChallengedTeam.TeamName, objectChallengedTeam.Rank));
-
-        //                            // Change IsChallengeable of both teams to false
-        //                            _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-        //                            _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
-        //                            _teamManager.SaveAndReloadTeamsDatabase();
-
-        //                            _challengeManager.SaveAndReloadChallenges();
-        //                            _backupManager.CopyAndBackupFilesToGit();
-
-        //                            // Get the newly created challenge
-        //                            Challenge newChallenge = _challengeManager.GetChallengeByTeamObject(objectChallengedTeam);
-
-        //                            // Notify the challenged team
-        //                            foreach (Member member in objectChallengedTeam.Members)
-        //                            {
-        //                                _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge);
-        //                            }
-
-        //                            // Return a success embed
-        //                            return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
-        //                        }
-        //                        else
-        //                        {
-        //                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.TeamName} is already awaiting a challenge match. Please try again later.");
-        //                        }
-        //                    }
-        //                    else
-        //                    {
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName} is already awaiting a challenge match. Please try again later.");
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
-        //                    {
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
-        //                    }
-        //                    else
-        //                    {
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.TeamName}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.TeamName}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
-        //                    }
-        //                }
-        //            }
-        //            else
-        //            {
-        //                return _embedManager.ChallengeErrorEmbed($"The teams are not in the same division. Challenger Division: {objectChallengerTeam.Division}, Challenged Division: {objectChallengedTeam.Division}. Please try again.");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.TeamName}. Please try again.");
-        //        }
-        //    }
-
-        //    return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
-        //}
-
         public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             // Load latest save of Challenges database
@@ -930,62 +729,6 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
-
-        //public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
-        //{
-        //    // Load latest save of Challenges database
-        //    _challengeManager.LoadChallengesDatabase();
-
-        //    // Check if given team exists
-        //    if (!_teamManager.IsTeamNameUnique(challengerTeam))
-        //    {
-        //        // Grab team reference object
-        //        Team challengerTeamObject = _teamManager.GetTeamByName(challengerTeam);
-
-        //        // Check if ladder is running in Challenger's division
-        //        if (!_statesManager.IsLadderRunning(challengerTeamObject.Division))
-        //        {
-        //            return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {challengerTeamObject.Division} division so there are no challenges to cancel yet.");
-        //        }
-
-        //        // Check if invoker is part of challengerTeam, as this is the user-level logic
-        //        if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
-        //        {
-        //            // Check if Team has a challenge sent out to actually cancel
-        //            if (_challengeManager.IsTeamChallenger(challengerTeamObject))
-        //            {
-        //                // Grab challenge object to use to change challenged team IsChallengeable status
-        //                Challenge? challenge = _challengeManager.GetChallengeByTeamObject(challengerTeamObject);
-        //                Team challengedTeamObject = _teamManager.GetTeamByName(challenge.Challenged);
-
-        //                // Set IsChallengeable for both teams back to true
-        //                _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-        //                _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
-        //                _teamManager.SaveAndReloadTeamsDatabase();
-
-        //                // Cancel the challenge, save challenges database and reload it
-        //                _challengeManager.RemoveChallenge(challengerTeamObject.TeamName, challengerTeamObject.Division);
-
-        //                // Save and reload Challenges database
-        //                _challengeManager.SaveAndReloadChallenges();
-
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
-
-        //                return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
-        //            }
-        //            else
-        //            {
-        //                return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.TeamName} does not have any pending challenges sent out to cancel.");
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team {challengerTeamObject.TeamName}... That team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
-        //        }
-        //    }
-        //    return _embedManager.CancelChallengeErrorEmbed($"No team found by the name of: {challengerTeam}");
-        //}
 
         //public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         //{
@@ -1637,6 +1380,21 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic
+        public Embed SetChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
+        {
+            // Check if league exists
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league object
+                League league = _leagueManager.GetLeagueByName(leagueName);
+
+                // Set channel Id
+                _statesManager.SetChallengesChannelId(league, channel.Id);
+
+                return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Challenges");
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
 
         public Embed SetStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
@@ -1654,75 +1412,21 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        //public Embed SetChallengesChannelIdProcess(string division, IMessageChannel channel)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //        case "2v2":
-        //        case "3v3":
-        //            if (channel.Id != 0)
-        //            {
-        //                _statesManager.SetChallengesChannelId(division, channel.Id);
+        public Embed SetTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
+        {
+            // Check if league exists
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league object
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
+                // Set channel Id
+                _statesManager.SetTeamsChannelId(league, channel.Id);
 
-        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Challenges");
-        //            }
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", $"{channel.Id} is incorrect for a channel Id.");
-
-        //        default:
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Challenges", "Incorrect division type given.");
-        //    }
-        //}
-
-        //public Embed SetStandingsChannelIdProcess(string division, IMessageChannel channel)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //        case "2v2":
-        //        case "3v3":
-        //            if (channel.Id != 0)
-        //            {
-        //                _statesManager.SetStandingsChannelId(division, channel.Id);
-
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
-
-        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Standings");
-        //            }
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", $"{channel.Id} is incorrect for a channel Id.");
-
-        //        default:
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Standings", "Incorrect division type given.");
-        //    }
-        //}
-
-        //public Embed SetTeamsChannelIdProcess(string division, IMessageChannel channel)
-        //{
-        //    switch (division)
-        //    {
-        //        case "1v1":
-        //        case "2v2":
-        //        case "3v3":
-        //            if (channel.Id != 0)
-        //            {
-        //                _statesManager.SetTeamsChannelId(division, channel.Id);
-
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
-
-        //                return _embedManager.SetChannelIdSuccessEmbed(division, channel, "Teams");
-        //            }
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", $"{channel.Id} is incorrect for a channel Id.");
-
-        //        default:
-        //            return _embedManager.SetChannelIdErrorEmbed(division, channel, "Teams", "Incorrect division type given.");
-        //    }
-        //}
-
+                return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Teams");
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
         #endregion
 
         #region Add/Subtract Win/Loss Logic

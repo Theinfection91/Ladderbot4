@@ -110,8 +110,6 @@ namespace Ladderbot4.Data
             }
 
             divisionStates.Remove(stateToRemove);
-            Console.WriteLine($"LadderData DEBUG - The {stateToRemove.LeagueName} League State was removed from states.json file.");
-
             SaveAllStates(statesByDivision);
         }
     }
