@@ -17,12 +17,12 @@ namespace Ladderbot4.Models
         public int Losses { get; set; }
         public List<Member> Members { get; set; }
 
-        // TODO - Stats and Achievements
+        // Stats and Achievements
         // Streaks
         public int WinStreak { get; set; }
         public int LoseStreak { get; set; }
 
-        // TODO - Adding an IsChallengeable bool property so I can easily display if a team has been "Challenged" or is "Free"
+        // Display if a team has been "Challenged" or is "Free"
         public bool IsChallengeable { get; set; }
 
         // W/L Ratio
@@ -46,7 +46,7 @@ namespace Ladderbot4.Models
             {
                 1 => $"{Members[0].DisplayName}",
                 2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
-                3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[1].DisplayName}",
+                3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[2].DisplayName}",
                 _ => $"Incorrect member count. Count: {Members.Count}",
             };
         }
