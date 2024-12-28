@@ -1713,11 +1713,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Helper Methods
-        private void ReassignRanks()
-        {
-
-        }
-
         private void ReassignRanksInLeague(League league)
         {
             // Ensure the league is valid

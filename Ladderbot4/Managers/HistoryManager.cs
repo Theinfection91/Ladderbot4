@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ladderbot4.Managers
-{ 
+{
     public class HistoryManager
     {
         private HistoryData _historyData;
