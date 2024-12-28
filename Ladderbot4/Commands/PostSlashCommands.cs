@@ -26,12 +26,15 @@ namespace Ladderbot4.Commands
             //await RespondAsync(embed: result);
         }
 
-        [SlashCommand("standings", "Slash command for posting standings of given division.")]
+        [SlashCommand("standings", "Slash command for posting standings of given League.")]
         public async Task PostStandingsAsync(
-            [Summary("division", "The division in which to post data from.")] string division)
+            [Summary("leagueName", "The League in which to post data from.")] string leagueName)
         {
-            //var result = _ladderManager.PostStandingsProcess(Context, division.Trim().ToLower());
-            //await RespondAsync(embed: result);
+            await Context.Interaction.DeferAsync();
+
+            var result = _ladderManager.PostStandingsProcess(Context, leagueName.Trim().ToLower());
+
+            await Context.Interaction.FollowupAsync(embed: result);
         }
 
         [SlashCommand("teams", "Slash commands for posting teams of given division")]

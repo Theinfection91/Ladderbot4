@@ -16,6 +16,7 @@ namespace Ladderbot4.Managers
 
         }
 
+        #region Start/End Ladder
         public Embed StartLadderSuccessEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
@@ -60,14 +61,16 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Ladder Not Running")
                 .WithColor(Color.Red)
-                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League is already running.")
+                .WithDescription($"The ladder for the **{leagueRef.LeagueName}** League is not currently running.")
                 .AddField("Division Type", leagueRef.Division, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Create/Delete League
         public Embed CreateLeagueErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
@@ -119,7 +122,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Register/Remove Team
         public Embed RegisterTeamErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
@@ -172,7 +177,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Challenge Send/Cancel
         public Embed ChallengeErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
@@ -253,7 +260,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Report Win
         public Embed ReportWinErrorEmbed(string errorMessage)
         {
             var embedBuilder = new EmbedBuilder()
@@ -297,7 +306,41 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Post Standings/Challenges/Teams
+        public Embed PostStandingsEmbed(League league)
+        {
+            // Create the embed
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"🏆 Standings for **{league.LeagueName}** {league.Division} League")
+                .WithColor(Color.Gold)
+                .WithDescription("Current standings:");
+
+            // Format the standings
+            foreach (Team team in league.Teams)
+            {
+                string status = team.IsChallengeable ? "Free" : "Challenged";
+                string winRatio = $"{team.WinRatio:P1}"; // Formats as percentage with 1 decimal place
+                embedBuilder.AddField(
+                    $"#{team.Rank} {team.TeamName}",
+                    $"**Wins:** {team.Wins} | **Losses:** {team.Losses}\n" +
+                    $"**Win Streak:** {team.WinStreak} | **Loss Streak:** {team.LoseStreak}\n" +
+                    $"**Win Ratio:** {winRatio} | **Challenge Status:** {status}",
+                    inline: false // Stacked vertically for better readability
+                );
+            }
+
+            // Add a footer with timestamp
+            embedBuilder.WithFooter("Updated")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        #endregion
+
+        #region Add/Subtract Win/Loss
         public Embed AddToWinCountSuccessEmbed(Team team, int numberOfWins, SocketInteractionContext context)
         {
             var embedBuilder = new EmbedBuilder()
@@ -353,7 +396,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region League/Team Not Found
         public Embed TeamNotFoundErrorEmbed(string teamName)
         {
             var embedBuilder = new EmbedBuilder()
@@ -377,7 +422,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Negative Count
         public Embed NegativeCountErrorEmbed(Team team, int attemptedChange, string statType)
         {
             var embedBuilder = new EmbedBuilder()
@@ -391,7 +438,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Super Admin and Guild ID
         public Embed SetGuildIdSuccessEmbed(ulong guildId)
         {
             var embedBuilder = new EmbedBuilder()
@@ -487,7 +536,9 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
 
+        #region Set Channel
         public Embed SetChannelIdSuccessEmbed(string division, IMessageChannel channel, string type)
         {
             var embedBuilder = new EmbedBuilder()
@@ -517,5 +568,6 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+        #endregion
     }
 }

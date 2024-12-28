@@ -43,10 +43,10 @@ namespace Ladderbot4.Commands
            leagueName = leagueName.Trim().ToLower();
 
            // Call the LadderManager to process the registration
-           var resultEmbed = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
+           var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName, members);
 
            // Send the resulting embed
-           await Context.Interaction.FollowupAsync(embed: resultEmbed);
+           await Context.Interaction.FollowupAsync(embed: result);
         }
 
 

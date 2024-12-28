@@ -199,6 +199,13 @@ namespace Ladderbot4.Managers
         public void AddToWins(Team team, int numberOfWins)
         {
             team.Wins += numberOfWins;
+            team.WinStreak++;
+            team.LoseStreak = 0;
+        }
+
+        public void AdminAddToWins(Team team, int numberOfWins)
+        {
+            team.Wins += numberOfWins;
         }
 
         public void SubtractFromWins(Team team, int numberOfWins)
@@ -207,6 +214,13 @@ namespace Ladderbot4.Managers
         }
 
         public void AddToLosses(Team team, int numberOfLosses)
+        {
+            team.Losses += numberOfLosses;
+            team.LoseStreak++;
+            team.WinStreak = 0;
+        }
+
+        public void AdminAddToLosses(Team team, int numberOfLosses)
         {
             team.Losses += numberOfLosses;
         }

@@ -1525,6 +1525,21 @@ namespace Ladderbot4.Managers
         //    return _teamManager.GetStandingsEmbed(division);
         //}
 
+        public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
+        {
+            _leagueManager.LoadLeaguesDatabase();
+
+            // Check if League exists by given name
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            {
+                // Grab league reference
+                League league = _leagueManager.GetLeagueByName(leagueName);
+
+                return _embedManager.PostStandingsEmbed(league);
+            }
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
+
         //public Embed PostTeamsProcess(SocketInteractionContext context, string division)
         //{
         //    return _teamManager.GetTeamsEmbed(division);
