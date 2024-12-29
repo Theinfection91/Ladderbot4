@@ -99,36 +99,29 @@ Extensive information and how to use the various commands in Ladderbot4:
 ### `/team register`
 
 **Description**:  
-Registers a new team in the specified division. This command can only be used by administrators.
+Registers a new team in the specified league. This command can only be used by administrators.
 
 #### **Command Syntax**:
 
-```/team register <teamName> <division> <member1> [member2] [member3]```
+```/team register <teamName> <leagueName> <member1> [member2] [member3]```
 
 #### **Parameters**:
 - **teamName**: The unique name of the team to register.
-- **division**: The division type: `1v1`, `2v2`, or `3v3`.
+- **leagueName**: The name of the league to register the team in.
 - **member1**: The first member of the team.
-- **member2** (optional): The second member, required for `2v2` and `3v3`.
-- **member3** (optional): The third member, required for `3v3`.
+- **member2** (optional): The second member, required for `2v2` and `3v3` leagues.
+- **member3** (optional): The third member, required for `3v3` leagues.
 
 #### **How It Works**:
-1. Validates the team name and division type.
+1. Validates the team name and league name.
 2. Confirms the correct number of members for the division.
-3. Ensures members are not already in another team in the same division.
+3. Ensures members are not already in another team in the same league.
 4. Creates the team, assigns it a rank, and saves it to the database.
 5. Provides a success or error response.
 
 #### **Example**:
 **Command**:  
 
-```/team register "Team Phoenix" 2v2 @Player1 @Player2```
-
-**Response**:  
-A success embed showing:
-- Team Name: Team Phoenix
-- Division: 2v2
-- Rank: Assigned automatically
-- Members: Player1, Player2
+```/team register "Team Phoenix" "Beginner-1v1" @Player1```
 
 ---
