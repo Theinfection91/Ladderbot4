@@ -1,4 +1,7 @@
 # Ladderbot4
+## Documentation
+[Extensive Documentation Found Here](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md
+)
 ## Releases
 [Download v4.1.0-Ladderbot4 for Windows x64](https://github.com/Theinfection91/Ladderbot4/releases/download/v4.1.0/v4.1.0-Ladderbot4-win_x64.zip)
 
