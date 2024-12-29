@@ -124,9 +124,27 @@ Choose a **Repository name** and see if it's available. Again, I recommend makin
 
 ### Step 2: Find Git HTTPS Url Path
 
-You'll now be moved inside of the repository and the last thing you need to do is copy down the HTTPS Url it gives you. You will need this for the Git Backup Storage process as well when it asks for the **Git HTTPS URL Path**. You can always come back to this repo and find this link again, it will not change unless you rename the repo.
+You'll now be moved inside of the repository and where you need to copy down the HTTPS Url it gives you. You will need this for the Git Backup Storage process as well when it asks for the **Git HTTPS URL Path**. You can always come back to this repo and find this link again, it will not change unless you rename the repo.
 
 ![Step 2: Find Git HTTPS Url Path](examples/GitRepoSetup/grs3.png)
+
+**IMPORTANT** We must put a `.json` file inside the repo to get things started. I hope to patch this out eventually but for now this must be done for the Backup Storage to work properly. Near where you found the Git HTTPS Url, you'll see a hyper link to create a new file for the repo. Click this.
+
+![Step 2: Find Git HTTPS Url Path2](examples/GitRepoSetup/grs4.png)
+
+---
+
+### Step 3: Adding An `init.json` File
+
+1. Type `init.json` where it says Name your file...
+2. Click the first Commit Changes button
+3. Click the second Commit Chanes button in popup window
+
+![Step 3: Adding An init.json File1](examples/GitRepoSetup/grs5.png)
+
+You should now see the new `init.json` file in the repository. This will allow the initial push to the repo from Ladderbot4 when commands are executed.
+
+![Step 3: Adding An init.json File1](examples/GitRepoSetup/grs6.png)
 
 **HINT** If you marked your Repo as private but want others you trust to see it, invite their GitHub account as a collaborator in the repo's Settings.
 ---
