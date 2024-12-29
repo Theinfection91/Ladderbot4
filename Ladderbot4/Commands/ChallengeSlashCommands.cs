@@ -73,8 +73,18 @@ namespace Ladderbot4.Commands
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
             {
-                //var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
-                //await RespondAsync(embed:result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
 
             [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
@@ -82,8 +92,18 @@ namespace Ladderbot4.Commands
             public async Task CancelChallengeAsync(
             [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
             {
-                //var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
-                //await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
         }
     }

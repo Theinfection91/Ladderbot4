@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Commands
 {
-    [Group("history", "Slash commands related to History (Past Matches)")]
-    public class HistorySlashCommands : InteractionModuleBase<SocketInteractionContext>
-    {
-        private readonly LadderManager _ladderManager;
+    //[Group("history", "Slash commands related to History (Past Matches)")]
+    //public class HistorySlashCommands : InteractionModuleBase<SocketInteractionContext>
+    //{
+    //    private readonly LadderManager _ladderManager;
 
-        public HistorySlashCommands(LadderManager ladderManager)
-        {
-            _ladderManager = ladderManager;
-        }
-    }
+    //    public HistorySlashCommands(LadderManager ladderManager)
+    //    {
+    //        _ladderManager = ladderManager;
+    //    }
+    //}
 }

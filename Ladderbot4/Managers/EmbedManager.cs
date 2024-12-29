@@ -254,7 +254,7 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed AdminChallengeSuccessEmbed(Team challengerTeam, Team challengedTeam, SocketInteractionContext context)
+        public Embed AdminChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam, Team challengedTeam)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚔️ Admin-Initiated Challenge!")
@@ -268,7 +268,7 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed AdminCancelChallengeSuccessEmbed(Team challengerTeam, SocketInteractionContext context)
+        public Embed AdminCancelChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🚫 Challenge Canceled by Admin")

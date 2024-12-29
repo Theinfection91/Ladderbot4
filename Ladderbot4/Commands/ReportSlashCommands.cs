@@ -50,8 +50,18 @@ namespace Ladderbot4.Commands
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task ReportWinAdminAsync(string winningTeamName)
             {
-                //var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
-                //await RespondAsync(embed: result);
+                try
+                {
+                    await Context.Interaction.DeferAsync();
+                    var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName);
+                    await Context.Interaction.FollowupAsync(embed: result);
+                }
+                catch (Exception ex)
+                {
+                    string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                    var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                    await Context.Interaction.FollowupAsync(embed: errorResult);
+                }
             }
         }
     }
