@@ -101,9 +101,31 @@ You should now see something similar to what's below. You'll get a long string o
 This completes the Get instructions of the Discord Token, again hold on to it as we will need it once we run the bot.
 ---
 
+## How To Create Private GitHub Repo And Find Git HTTPS URL Path (Backup Storage)
+
+With Ladderbot4 comes the new ability to backup every .json file (besides config.json as it holds sensitive token information) directly to a GitHub Repo you own or have permission to. Creating a repo is free and easy. I recommend creating a private repo but it's up to you. 
+
+---
+
+### Step 1: Login and Create New Repo
+First, navigate to the [GitHub Home Page](https://github.com/). Log in if needed, then click the `+` button and select `New repository`.
+
+![Step 1: Login and Create New Repo](examples/GitRepoSetup/grs1.png)
+
+Choose a **Repository name** and see if it's available. Again, I recommend making the repository private so click the **Private** tick circle and then click **Create repository**.
+
+![Step 1: Login and Create New Repo2](examples/GitRepoSetup/grs2.png)
+
+You'll now be moved inside of the repository and the last thing you need to do is copy down the HTTPS Url it gives you. You will need this for the Git Backup Storage process as well when it asks for the **Git HTTPS URL Path**. You can always come back to this repo and find this link again, it will not change unless you rename the repo.
+
+![Step 1: Login and Create New Repo3](examples/GitRepoSetup/grs3.png)
+
+**HINT** If you marked your Repo as private but want others you trust to see it, invite their GitHub account as a collaborator in the repo's Settings.
+---
+
 ## How To Generate a GitHub PAT Token (Backup Storage)
 
-To use a GitHub repository as a backup storage system for the database `.json` files, you need to generate a **GitHub PAT Token** that targets the repository. Follow the instructions below:
+To use your GitHub repository as a backup storage system for the database `.json` files, you need to generate a **GitHub PAT Token** that targets the repository of your choice. Follow the instructions below:
 
 ---
 
