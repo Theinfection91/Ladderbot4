@@ -1,11 +1,11 @@
 # Ladderbot4
 
 ## Overview
-**Ladderbot4** is an advanced, feature-rich Discord bot designed to manage competitive ladders across various divisions with enhanced flexibility, scalability, and user interaction. Built in C#, this version builds on the foundation of **Ladderbot3.0**, emphasizing modularity, performance, and a more engaging user experience.
+**Ladderbot4** is an advanced, feature-rich Discord bot designed to manage competitive ladders across various leagues of different division types with enhanced flexibility, scalability, and user interaction. Built in C#, this version builds on the foundation of **Ladderbot3.0**, emphasizing modularity, performance, and a more engaging user experience.
 
 The bot also includes an intuitive and dynamic **ladder tournament system** designed to provide a continuous ranking experience. Unlike traditional tournament formats (e.g., single elimination or best-of matches), **Ladderbot4** uses a **ladder-based** system where teams can challenge one another based on rank. Teams climb the ladder by defeating those above them, while teams that lose are pushed down, creating a constantly shifting and dynamic ranking environment. This structure ensures a continuous competition where the focus is on consistent performance over time, not a single match outcome.
 
-### **(NEW 12-28-2024)** Introducing the "LeagueMatrix" Update for Ladderbot4
+### **(NEW 12-28-2024)** Introducing the "LeagueMatrix" v4.1.0 Update for Ladderbot4
 This update introduces the **LeagueMatrix**, a major overhaul that allows **multiple leagues** to be managed simultaneously with each one being a different division (1v1, 2v2, or 3v3). The **LeagueMatrix** enables greater flexibility by decoupling division and league management, allowing administrators to easily create, manage, and update multiple leagues within the same division type if needed. This development is perfect for large environments with many teams, offering improved scalability and smoother operations.
 
 ### SlashCommands
@@ -43,10 +43,10 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ### Returning Features from Ladderbot3.0:
 
 - **Ladder Management**:
-  - Admins can start and end ladders for specific divisions (e.g., 1v1, 2v2, 3v3).
+  - Admins can start and end ladders for specific leagues.
 
 - **Team Management**:
-  - Admin commands for registering and removing teams in specific divisions.
+  - Admin commands for registering and removing teams in specific leagues.
 
 - **Challenge System**:
   - Allows teams to issue challenges, manage their status, and track results.
@@ -90,13 +90,13 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 
 ### Team Rank Assignments
 1. **New Teams**:
-   - Teams are assigned ranks based on the order they are created in a division.
+   - Teams are assigned ranks based on the order they are created in a league.
      - First team: Rank 1.
      - Second team: Rank 2.
      - Subsequent teams are assigned incrementally lower ranks.
    
-2. **Divisions**:
-   - The bot supports concurrent ladders for the following divisions:
+2. **Leagues and Divisions**:
+   - The bot creates leagues that supports ladder tournaments for the following divisions:
      - **1v1**
      - **2v2**
      - **3v3**
