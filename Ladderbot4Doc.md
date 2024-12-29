@@ -98,7 +98,7 @@ Extensive information and how to use the various commands in Ladderbot4:
 
 The `/league` commands allow administrators to manage leagues within Ladderbot. These commands provide functionality for creating and deleting leagues. Use them responsibly, as they directly modify league data.
 
-### `/league create`
+### Create League Command (`/league create`)
 
 **Description:**  
 Creates a new league with the specified name and division type. Only administrators can use this command.
@@ -134,7 +134,7 @@ Creates a new league with the specified name and division type. Only administrat
 
 ---
 
-### `/league delete`
+### Delete League Command (`/league delete`)
 
 **Description:**  
 Deletes a league with the specified name. This command is irreversible and should be used with caution. Only administrators can use this command.
@@ -174,7 +174,7 @@ The `/team` commands allow administrators to manage teams in Ladderbot. These co
 
 ---
 
-### `/team register`
+### Register Team Command (`/team register`)
 
 **Description:**  
 Registers a new team to a specified league. Only administrators can use this command.
@@ -218,7 +218,7 @@ Registers a new team to a specified league. Only administrators can use this com
 
 ---
 
-### `/team remove`
+### Remove Team Command (`/team remove`)
 
 **Description:**  
 Removes an existing team from all leagues. Only administrators can use this command.
