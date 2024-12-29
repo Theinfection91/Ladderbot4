@@ -194,7 +194,59 @@ Now that we have a **Discord Bot Token**, the **Git PAT Token**, and the **Git H
 
 ### Step 1: Enter Discord Bot Token
 
+Upon running the `.exe` file you'll be welcomed immediately with Windows saying it protected your PC from my Bot. Since this is a small project it is not digitally signed and thus Windows does this. I can assure you there is nothing malicious about this program, but if this warning scares you then you're free to stop the setup now and not use this bot. To bypass this, just click **More Info** and then **Run anyway**
 
+![Step 1: Enter Discord Bot Token1](examples/LB4Setup/lbsu1.png)
+
+![Step 1: Enter Discord Bot Token2](examples/LB4Setup/lbsu2.png)
+
+Once you are passed the Security Check you'll be greeted with a Command Prompt looking window, it might not look like much but this is **Ladderbot4**. You also may or may not have noticed a new folder was created in the folder you extracted the `.zip` to. A few different folders and files will be created while the bot finishes this set up process. The `config.json` that was just created and stored in the new `Settings` folder is where all the sensitive information we are about to enter will go. This file will not be uploaded to a Git Repo if Backup Storage is setup. 
+
+Now, The first thing the Bot is going to ask you for is the **Discord Bot Token** that we acquired earlier. Copy and paste it into the program now and then press `Enter` on your keyboard.
+
+![Step 2: Enter Discord Bot Token3](examples/LB4Setup/lbsu3.png)
+
+---
+
+### Step 2: Enter Git PAT Token and HTTPS Path
+
+The second bit of information the bot asks for is the **Git PAT Token** we generated earlier as well. This option can be skipped for now by entering 0 but it is highly recommended to set this up and have backup storage available online in case the bot goes offline for some reason. Copy and paste the token or enter 0 now.
+
+![Step 2: Enter Git PAT Token and HTTPS Path1](examples/LB4Setup/lbsu4.png)
+
+Now it asks for that **Git HTTPS Url Path** that we copied once we made our private repository on GitHub earlier. Copy and paste this into the program now.
+
+![Step 2: Enter Git PAT Token and HTTPS Path2](examples/LB4Setup/lbsu5.png)
+
+You should now see the output say something about `GitBackupManager - No local repo found. Cloning repository...` and `GitBackupManager - Repository cloned successfully.`. If so, the Git PAT Token and Git HTTPS Url Path worked and are now linked together. Once event driven data forces `.json` files to change it will automatically backup our files to that repo!
+
+![Step 2: Enter Git PAT Token and HTTPS Path3](examples/LB4Setup/lbsu6.png)
+
+---
+
+### Step 3: Copy and Paste Guild ID From List
+
+Time to locate the Guild ID of the server and give it to the bot. Luckily, I got you on this one. The bot will now dynamically check every server its connected to and give you a list of ID's to choose from. Seeing as how only you invited this one, there should be only one on this list. **CAREFULLY** copy and paste the number. If you hit Ctrl+C twice in fast succession you will close the bot... This is a Windows feature and will look to work code around it one day but for now just be careful. Copy the ID and then paste it right back to the bot and hit `Enter` on your keyboard. This allows for the interactive SlashCommands to immediately show in the given server, instead of waiting up to an hour sometimes for Discord to populate them globally.
+
+![Step 3: Copy and Paste Guild ID From List1](examples/LB4Setup/lbsu7.png)
+
+---
+
+### Step 4: Checking Commands and Backup Storage
+
+Your window should now look similar to mine, with it saying the bot is logged in as the name you assigned it in the Discord Developer Portal and showing the Guild ID again as well as stating it is `Ready`. You will also see the bot online in your server now when the `.exe` is running. If you entered anything incorrectly, exit the bot and edit the `config.json` file in the Settings folder then save it and reload and check the bot again.
+
+![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu8.png)
+
+Let's enter our first command and get things started. By pressing `/` on your keyboard in the text input bar of your Discord server the bot is assigned to you should see all of the interactive SlashCommands under a category by the name in which you assigned the bot in the Discord Developer Portal. SlashCommands allow for easy auto-fill and show you the arguments that are required to be passed to the commands before they can be properly executed. If these did not appear then your Guild ID was entered incorrectly. 
+
+![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu9.png)
+
+To get things going we first need a league in which to register teams into. Let's create a league with `/league create`. Try hitting `/` and start even typing `/crea` and the interactive suggestions even start to limit the result to just `/league create`. You can now just hit `Tab` and auto populate the data into the input bar. You'll notice this format of commands even show the arguments needed for the command. I'll start off by creating a simple 1v1 Test league to make sure everything is working properly.
+
+![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu10.png)
+
+TODO
 
 ---
 
