@@ -555,13 +555,14 @@ namespace Ladderbot4.Managers
                 Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Grab League object
-                League correctLeague = _leagueManager.GetLeagueFromTeamName(teamName);
+                League correctLeague = _leagueManager.GetLeagueFromTeamName(teamToRemove.TeamName);
 
                 // Remove all Challenges from Database associated with team
                 _challengeManager.SudoRemoveChallenge(correctLeague.Division, correctLeague.LeagueName, teamName);
 
                 //Remove the team correctly and correct ranks
                 _leagueManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
+
                 ReassignRanksInLeague(correctLeague);
 
                 // Save and reload

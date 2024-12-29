@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace Ladderbot4.Data
 {
     public class LeagueData
-    { 
+    {
         private string _filePath;
 
         public LeagueData()
@@ -119,7 +119,7 @@ namespace Ladderbot4.Data
         public void AddTeamToLeague(Team newTeam, League chosenLeague)
         {
             var leaguesByDivision = LoadAllLeagues();
-            
+
             switch (newTeam.Division)
             {
                 case "1v1":
@@ -158,11 +158,45 @@ namespace Ladderbot4.Data
 
         public void RemoveTeamFromLeague(Team team, League chosenLeague)
         {
+            // Load all leagues from storage
             var leaguesByDivision = LoadAllLeagues();
 
-            chosenLeague.RemoveTeam(team);
+            // Get the leagues list based on the team's division
+            List<League> relevantLeagues = team.Division switch
+            {
+                "1v1" => leaguesByDivision.Leagues1v1,
+                "2v2" => leaguesByDivision.Leagues2v2,
+                "3v3" => leaguesByDivision.Leagues3v3,
+                _ => null
+            };
 
+            if (relevantLeagues == null)
+            {
+                Console.WriteLine($"Invalid division: {team.Division}");
+                return;
+            }
+
+            // Find the matching league
+            var league = relevantLeagues.FirstOrDefault(l =>
+                l.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase));
+
+            league.RemoveTeam(team);
+
+            // Reassign ranks only if teams remain
+            if (league.Teams.Any())
+            {
+                league.Teams.Sort((a, b) => a.Rank.CompareTo(b.Rank));
+                for (int i = 0; i < league.Teams.Count; i++)
+                {
+                    league.Teams[i].Rank = i + 1;
+                }
+            }
+
+            // Save the updated leagues
             SaveLeagues(leaguesByDivision);
+
+            Console.WriteLine($"Team '{team.TeamName}' removed from league '{league.LeagueName}', and ranks updated.");
         }
+
     }
 }
