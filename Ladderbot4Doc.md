@@ -29,9 +29,79 @@ With this guide, you'll be ready to set up Ladderbot4 in your Discord server and
 ---
 
 ## Configuring The Bot
-How to set the Discord Token, Git PAT Token and HTTPS Url Path, and the Guild ID for SlashCommands:
+How to get/set the Discord Token, Git PAT Token, Git Repo HTTPS Url Path, and the Guild ID for SlashCommands:
 
-## How To Generate a GitHub PAT Token
+## How to Setup Discord Developer Portal Correctly (Discord Token and Bot Invite)
+
+Naivgate to the [Discord Developer Portal](https://discord.com/developers) and log in to your Discord account to follow these steps to correctly set up the bot invite link and generate the Discord Token you will need:
+
+---
+
+### Step 1: Create New Application
+After logging into the Discord Developer Portal, while in the **Applications** tab click the `New Application` button and enter the name you desire for the new bot.
+
+![Step 1: New Application](examples/DiscordDeveloperSetup/dds1.png)
+
+---
+
+### Step 2: Enable Intents
+After entering a name you will be transfered into the General Information tab of the new application. On the left side of the screen click **Bot** (Click three lines if sidebar is not shown automatically).
+
+![Step 2: Enable Intents1](examples/DiscordDeveloperSetup/dds2.png)
+
+1. Enable each **Privileged Gateway Intent** for the Bot
+2. Be sure to **Save the Changes**.
+
+![Step 2: Enable Intents2](examples/DiscordDeveloperSetup/dds3.png)
+
+**HINT** In this Bot tab above the Intents is also where you can change the icon for your bot. This will also change in Discord itself and looks way better than Discord's default avatar.
+---
+
+### Step 3: OAuth2 URL Generator
+After being sure to save the changes to Intents, now on the left sidebar click the **OAuth2** tab.
+
+![Step 3: OAuth2 URL Generator1](examples/DiscordDeveloperSetup/dds4.png)
+
+Now under **Scopes** tick the box for `bot` and `applications.commands`. After you tick `bot` another box containing more choices will appear below called **Bot Permissions**. Only choose `Administator` from this box, after ticking it every other choice is greyed out anyway.
+Your result should look similar to this so far:
+
+![Step 3: OAuth2 URL Generator2](examples/DiscordDeveloperSetup/dds5.png)
+
+Now scroll down and you'll see a dropdown box. Make sure **Guild Install** is selected and the **Generated URL** is now what you can copy and use to invite this bot to your personal Discord server!
+
+![Step 3: OAuth2 URL Generator3](examples/DiscordDeveloperSetup/dds6.png)
+
+### Step 4: Invite Bot To Server
+
+Go to the link and it should cause a popup in your Discord. Make sure to have the correct server selected in the drop down to invite the bot to and hit **Continue**.
+
+![Step 4: Invite Bot To Server1](examples/DiscordDeveloperSetup/dds7.png)
+
+Another popup will show the Bot is being invited with Adminitrator Rights, hit **Authorize** to continue.
+
+![Step 4: Invite Bot To Server2](examples/DiscordDeveloperSetup/dds8.png)
+
+You should now see the Bot in the designated server.
+![Step 4: Invite Bot To Server3](examples/DiscordDeveloperSetup/dds9.png)
+
+### Step 5: Regenerate Discord Token
+
+The last thing I do now is regenerate the Bot Token that we will need to give LadderBot4. Navigate back to the **Bot** tab in the Discord Developer Portal. 
+ 
+![Step 5: Regenerate Discord Token1](examples/DiscordDeveloperSetup/dds2.png)
+
+Now click **Reset Token** and then click **Yes, do it!" in the following popup. Discord will have you re-enter your password to Reset the Token.
+
+![Step 5: Regenerate Discord Token2](examples/DiscordDeveloperSetup/dds10.png)
+
+You should now see something similar to what's below. You'll get a long string of numbers, letters and some periods in it. This is the Discord Bot Token and is required for the bot to work. Hold on to this, keep it safe. If you lose it, you'll need to Reset it again.
+
+![Step 5: Regenerate Discord Token3](examples/DiscordDeveloperSetup/dds11.png)
+
+This completes the Get instructions of the Discord Token, again hold on to it as we will need it once we run the bot.
+---
+
+## How To Generate a GitHub PAT Token (Backup Storage)
 
 To use a GitHub repository as a backup storage system for the database `.json` files, you need to generate a **GitHub PAT Token** that targets the repository. Follow the instructions below:
 
@@ -1018,7 +1088,5 @@ Removes a given user's ID from the list of Super Admins in the configuration fil
   "❌ **UserName** is not a Super Admin."
 - Invalid user:  
   "❌ The user **UserName** could not be found."
-
----
 
 ---
