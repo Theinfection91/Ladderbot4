@@ -1,4 +1,6 @@
 # Ladderbot4
+## Releases
+[Download v4.1.0-Ladderbot4 for Windows x64](https://github.com/Theinfection91/Ladderbot4/releases/download/v4.1.0/v4.1.0-Ladderbot4-win_x64.zip)
 
 ## Overview
 **Ladderbot4** is an advanced, feature-rich Discord bot designed to manage competitive ladders across various leagues of different division types with enhanced flexibility, scalability, and user interaction. Built in C#, this version builds on the foundation of **Ladderbot3.0**, emphasizing modularity, performance, and a more engaging user experience.
