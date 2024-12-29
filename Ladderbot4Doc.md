@@ -264,7 +264,13 @@ To get things going we first need a league in which to register teams into. Let'
 
 ![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu10.png)
 
-TODO
+Beautiful! If you received an error of some sort please try the steps again. If any issues persist then you are more than welcome to message me directly for help.
+
+![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu11.png)
+
+Since there aren't any errors, this means the backup system should have worked but let's go to the GitHub repo and check for ourselves. If yours looks similar to the image below then you have successfully set up **Ladderbot4**! Now you can create leagues and teams, initiate challenges between them all and manage it all with ease. I hope you enjoy the program and be sure to check back for any major updates.
+
+![Step 4: Checking Commands and Backup Storage](examples/LB4Setup/lbsu12.png)
 
 ---
 
