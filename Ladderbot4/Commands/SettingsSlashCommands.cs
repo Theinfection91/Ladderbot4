@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using Discord.WebSocket;
 using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
@@ -24,8 +25,18 @@ namespace Ladderbot4.Commands
         public async Task SuperAdminOnOffAsync(
             [Summary("onOrOff", "Use on or off to set the Super Admin mode.")] string onOrOff)
         {
-            var result = _ladderManager.SetSuperAdminModeOnOffProcess(onOrOff);
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.SetSuperAdminModeOnOffProcess(onOrOff.Trim().ToLower());
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [SlashCommand("add_admin_id", "Adds a given user's Id to list of Super Admin Id's")]
@@ -33,8 +44,18 @@ namespace Ladderbot4.Commands
         public async Task AddSuperAdminIdAsync(
             [Summary("user", "The user to be added to the list in config.json")] IUser user)
         {
-            var result = _ladderManager.AddSuperAdminIdProcess(user);
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.AddSuperAdminIdProcess(user);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [SlashCommand("remove_admin_id", "Deletes a given user's Id from the list of Super Admin Id's")]
@@ -42,8 +63,18 @@ namespace Ladderbot4.Commands
         public async Task RemoveSuperAdminIdAsync(
             [Summary("user", "The user to be removed from the list in config.json")] IUser user)
         {
-            var result = _ladderManager.RemoveSuperAdminIdProcess(user);
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.RemoveSuperAdminIdProcess(user);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
     }
 }

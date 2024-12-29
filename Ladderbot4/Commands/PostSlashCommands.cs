@@ -1,4 +1,5 @@
 ﻿using Discord.Interactions;
+using Discord.WebSocket;
 using Ladderbot4.Managers;
 using System;
 using System.Collections.Generic;
@@ -20,26 +21,83 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
         public async Task PostChallengesAsync(
-            [Summary("division", "The division in which to post data from.")] string division)
+            [Summary("leagueName", "The League in which to post challenge data from.")] string leagueName)
         {
-            var result = _ladderManager.PostChallengesProcess(Context, division.Trim().ToLower());
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.PostChallengesProcess(Context, leagueName.Trim().ToLower());
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
-        [SlashCommand("standings", "Slash command for posting standings of given division.")]
-        public async Task PostStandingsAsync(
-            [Summary("division", "The division in which to post data from.")] string division)
+        [SlashCommand("leagues", "Slash command for posting all leagues or all of given division type")]
+        public async Task PostLeaguesAsync(
+            [Summary("divisionType", "If given a division type, will post all of that type.")] string divisionType = "all")
         {
-            var result = _ladderManager.PostStandingsProcess(Context, division.Trim().ToLower());
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.PostLeaguesProcess(Context, divisionType.Trim().ToLower());
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
+        }
+
+        [SlashCommand("standings", "Slash command for posting standings of given League.")]
+        public async Task PostStandingsAsync(
+            [Summary("leagueName", "The League in which to post standings data from.")] string leagueName)
+        {
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.PostStandingsProcess(Context, leagueName.Trim().ToLower());
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
 
         [SlashCommand("teams", "Slash commands for posting teams of given division")]
         public async Task PostTeamsAsync(
-            [Summary("division", "The division in which to post data from.")] string division)
+            [Summary("leagueName", "The League in which to post teams data from.")] string leagueName)
         {
-            var result = _ladderManager.PostTeamsProcess(Context, division.Trim().ToLower());
-            await RespondAsync(embed: result);
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.PostTeamsProcess(Context, leagueName.Trim().ToLower());
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
         }
     }
 }

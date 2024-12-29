@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 namespace Ladderbot4.Data
 {
     public class LeagueData
-    {
+    { 
         private string _filePath;
 
         public LeagueData()
@@ -85,7 +85,7 @@ namespace Ladderbot4.Data
             SaveLeagues(leaguesByDivision);
         }
 
-        public void RemoveLeague(string leagueId, string division)
+        public void RemoveLeague(string leagueName, string division)
         {
             LeaguesByDivision leaguesByDivision = LoadAllLeagues();
 
@@ -104,16 +104,63 @@ namespace Ladderbot4.Data
             }
 
             // Find League
-            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.Id.Equals(leagueId, StringComparison.OrdinalIgnoreCase));
+            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
 
             if (leagueToRemove == null)
             {
-                Console.WriteLine($"The League by the Id of '{leagueId}' was not found.");
+                Console.WriteLine($"The League by the name of '{leagueName}' was not found.");
                 return;
             }
 
             divisionLeagues.Remove(leagueToRemove);
-            Console.WriteLine($"The {leagueToRemove.Division} League named {leagueToRemove.Name} was removed from the program entirely.");
+            SaveLeagues(leaguesByDivision);
+        }
+
+        public void AddTeamToLeague(Team newTeam, League chosenLeague)
+        {
+            var leaguesByDivision = LoadAllLeagues();
+            
+            switch (newTeam.Division)
+            {
+                case "1v1":
+                    foreach (var league in leaguesByDivision.Leagues1v1)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+
+                case "2v2":
+                    foreach (var league in leaguesByDivision.Leagues2v2)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+
+                case "3v3":
+                    foreach (var league in leaguesByDivision.Leagues3v3)
+                    {
+                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            league.AddTeam(newTeam);
+                        }
+                    }
+                    break;
+            }
+
+            SaveLeagues(leaguesByDivision);
+        }
+
+        public void RemoveTeamFromLeague(Team team, League chosenLeague)
+        {
+            var leaguesByDivision = LoadAllLeagues();
+
+            chosenLeague.RemoveTeam(team);
 
             SaveLeagues(leaguesByDivision);
         }

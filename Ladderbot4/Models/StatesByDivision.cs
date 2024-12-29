@@ -9,17 +9,19 @@ namespace Ladderbot4.Models
     public class StatesByDivision
     {
         // 1v1 Specific
-        public State States1v1 { get; set; } = new State();
+        public List<State> States1v1 { get; set; }
 
         // 2v2 Specific
-        public State States2v2 { get; set; } = new State();
+        public List<State> States2v2 { get; set; }
 
         // 3v3 Specific
-        public State States3v3 { get; set; } = new State();
+        public List<State> States3v3 { get; set; }
 
         public StatesByDivision()
         {
-
+            States1v1 = [];
+            States2v2 = [];
+            States3v3 = [];
         }
     }
 }

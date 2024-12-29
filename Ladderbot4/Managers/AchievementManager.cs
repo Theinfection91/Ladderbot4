@@ -43,28 +43,6 @@ namespace Ladderbot4.Managers
             LoadMembersAchievements();
         }
 
-        public bool IsAchievementUnlockedOnMember(Member member, Achievement achievement)
-        {
-            foreach (Achievement unlockedAchievement in member.UnlockedAchievements)
-            {
-                if (unlockedAchievement == achievement)
-                    return true;
-            }
-            return false;
-        }
-
-        public void AddAchievementToMember(Member member, Achievement achievement)
-        {
-            // Add specific achievement to specific member
-            member.UnlockedAchievements.Add(achievement);
-
-            // Have the member recalculate their total achievement points
-            member.UpdateTotalAchievementPoints();
-
-            // Save and Reload the members.json
-            SaveAndReloadMembersAchievements();
-        }
-
         public async void SendAchievementNotification(ulong userId, Achievement achievement)
         {
             try

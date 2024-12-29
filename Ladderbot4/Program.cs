@@ -54,19 +54,20 @@ namespace Ladderbot4
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
 
-                    services.AddSingleton<ChallengeData>();
-                    services.AddSingleton<EmbedManager>();
+                    services.AddSingleton<ChallengeData>();                   
                     services.AddSingleton<HistoryData>();
                     services.AddSingleton<LadderData>();
+                    services.AddSingleton<LeagueData>();
                     services.AddSingleton<MemberData>();
                     services.AddSingleton<SettingsData>();
-                    services.AddSingleton<TeamData>();
 
                     services.AddSingleton<AchievementManager>();
+                    services.AddSingleton<ChallengeManager>();
+                    services.AddSingleton<EmbedManager>();
                     services.AddSingleton<GitBackupManager>();
                     services.AddSingleton<HistoryManager>();
-                    services.AddSingleton<ChallengeManager>();
                     services.AddSingleton<LadderManager>();
+                    services.AddSingleton<LeagueManager>();
                     services.AddSingleton<MemberManager>();
                     services.AddSingleton<StatesManager>();
                     services.AddSingleton<SettingsManager>();
@@ -101,6 +102,14 @@ namespace Ladderbot4
             _client.Ready += ClientReady;
             _client.InteractionCreated += HandleInteractionAsync;
             _client.MessageReceived += HandleCommandAsync;
+
+            // Add the Disconnected event handler to automatically reconnect
+            _client.Disconnected += async (exception) =>
+            {
+                Console.WriteLine("Disconnected from Discord. Reconnecting...");
+                await Task.Delay(5000); // Wait before reconnecting
+                await _client.StartAsync(); // Reconnect
+            };
 
             // Login and start the bot
             await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
