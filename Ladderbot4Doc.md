@@ -71,6 +71,8 @@ Now scroll down and you'll see a dropdown box. Make sure **Guild Install** is se
 
 ![Step 3: OAuth2 URL Generator3](examples/DiscordDeveloperSetup/dds6.png)
 
+---
+
 ### Step 4: Invite Bot To Server
 
 Go to the link and it should cause a popup in your Discord. Make sure to have the correct server selected in the drop down to invite the bot to and hit **Continue**.
@@ -83,6 +85,8 @@ Another popup will show the Bot is being invited with Adminitrator Rights, hit *
 
 You should now see the Bot in the designated server.
 ![Step 4: Invite Bot To Server3](examples/DiscordDeveloperSetup/dds9.png)
+
+---
 
 ### Step 5: Regenerate Discord Token
 
@@ -116,9 +120,13 @@ Choose a **Repository name** and see if it's available. Again, I recommend makin
 
 ![Step 1: Login and Create New Repo2](examples/GitRepoSetup/grs2.png)
 
+---
+
+### Step 2: Find Git HTTPS Url Path
+
 You'll now be moved inside of the repository and the last thing you need to do is copy down the HTTPS Url it gives you. You will need this for the Git Backup Storage process as well when it asks for the **Git HTTPS URL Path**. You can always come back to this repo and find this link again, it will not change unless you rename the repo.
 
-![Step 1: Login and Create New Repo3](examples/GitRepoSetup/grs3.png)
+![Step 2: Find Git HTTPS Url Path](examples/GitRepoSetup/grs3.png)
 
 **HINT** If you marked your Repo as private but want others you trust to see it, invite their GitHub account as a collaborator in the repo's Settings.
 ---
@@ -178,9 +186,16 @@ Once the token is generated, **copy the token string** and store it securely. If
 
 ![Step 7: Save Token](examples/GitRepoSetup/7.png)
 
-> **Note:** The generated token is required for the program to connect to GitHub and perform backup operations. It must be stored in your program’s configuration file securely.
+> **Note:** The generated token is required for the program to connect to GitHub and perform backup operations. It must be stored in your program’s configuration file securely.   
+---
 
-   
+## Running Ladderbot4.exe and Initial Bot Setup
+Now that we have a **Discord Bot Token**, the **Git PAT Token**, and the **Git HTTPS Url Path** we can fire up **Ladderbot4** for the first time! Download the latest release of Ladderbot4 [HERE](https://github.com/Theinfection91/Ladderbot4/releases/download/v4.1.0/v4.1.0-Ladderbot4-win_x64.zip) or from my Releases section in this Repo and extract the contents of the .zip file into a folder of your choosing. Run the `Ladderbot4.exe` file and follow these instructions:
+
+### Step 1: Enter Discord Bot Token
+
+
+
 ---
 
 ## Using Commands
