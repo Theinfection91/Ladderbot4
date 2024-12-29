@@ -1,17 +1,21 @@
 # Ladderbot4
 
 ## Overview
-**Ladderbot4** is a robust and feature-rich Discord bot designed for managing competitive ladders in various divisions. This C# implementation significantly enhances performance and maintainability over its predecessor, Ladderbot3.0, leveraging dependency injection, a more modular architecture, and improved command handling like **SlashCommands** to add a more interactive experience and reduce errors.
+**Ladderbot4** is an advanced, feature-rich Discord bot designed to manage competitive ladders across various divisions with enhanced flexibility, scalability, and user interaction. Built in C#, this version builds on the foundation of **Ladderbot3.0**, emphasizing modularity, performance, and a more engaging user experience.
+
+The bot also includes an intuitive and dynamic **ladder tournament system** designed to provide a continuous ranking experience. Unlike traditional tournament formats (e.g., single elimination or best-of matches), **Ladderbot4** uses a **ladder-based** system where teams can challenge one another based on rank. Teams climb the ladder by defeating those above them, while teams that lose are pushed down, creating a constantly shifting and dynamic ranking environment. This structure ensures a continuous competition where the focus is on consistent performance over time, not a single match outcome.
+
+### **(NEW 12-28-2024)** Introducing the "LeagueMatrix" Update for Ladderbot4
+This update introduces the **LeagueMatrix**, a major overhaul that allows **multiple leagues** to be managed simultaneously with each one being a different division (1v1, 2v2, or 3v3). The **LeagueMatrix** enables greater flexibility by decoupling division and league management, allowing administrators to easily create, manage, and update multiple leagues within the same division type if needed. This development is perfect for large environments with many teams, offering improved scalability and smoother operations.
+
+### SlashCommands
+In addition, **Ladderbot4** now features **SlashCommands**, streamlining user interactions, reducing errors, and providing a more intuitive experience. Unlike previous versions, the bot now sends **Discord embeds** in responses rather than plain text, enhancing readability and user engagement.
 
 ![SlashCommand Example 1](examples/example1.png)
 
 ![SlashCommand Example 2](examples/example2.png)
 
-This version also implements Discord embed in messages instead of just string in markdown to further highlight errors and also increase the overall beauty of the Bot's repsonses. The examples below may change slightly over time but this is a general idea of the appearance. 
-
-![Embed Example 1](examples/example3.png)
-
-Ladderbot4 is still under active development, but it offers a stable foundation with exciting new features and improvements to come over previous versions. Feedback and suggestions are always welcome to further refine and expand its capabilities.
+With the **LeagueMatrix** update, **Ladderbot4** significantly enhances its administrative controls, team management, and challenge systems, making it even easier for admins to track rankings, manage teams, and handle challenges dynamically. While **Ladderbot4** is still under active development, it provides a solid foundation with many exciting new features and plans for future improvements.
 
 For any questions, suggestions, or issues, feel free to submit them via the **Issues** tab or message me on Discord at `Theinfection1991`.
 
@@ -21,14 +25,20 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 
 ### New/In-Progress Functionalities:
 
-- **(NEW) Git Backup Storage (Implemented And Working, But Needs Some Polishing)**:
+- **(NEW) LeagueMatrix Update (Implemented)**:
+  - **Ladderbot4** introduces the **LeagueMatrix** update, a feature designed to significantly improve the management and flexibility of competitive ladders.
+  - This update enables the bot to handle **multiple leagues** simultaneously, each representing different divisions (e.g., 1v1, 2v2, 3v3) without being limited by static divisions. Each league can now have its own set of teams, standings, and challenges.
+  - **LeagueMatrix** will allow admins to:
+    - Create and manage multiple leagues of the same division type (e.g., multiple 1v1 leagues).
+    - Dynamically adjust the system for better scalability as the number of leagues and teams increases.
+    - Easily add, remove, or update leagues on the fly.
+  - This new architecture provides greater flexibility for managing competitive environments and scaling up to support more users and teams.
+
+- **(NEW) Git Backup Storage (Implemented And Working, Read [Documentation](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md) for Full Instructions)**:
   - The ability to use an owned GitHub Repo as a backup storage hub for the .json database files that are used for teams, challenges, states, and history.
- 
-- **(NEW) Match History (In-Progress, Needs User Commands To Read/Write Information To Discord)**:
-   - Storing previous match results in the database to cross reference for later use in case messages or channels are deleted. I also plan to use Match History for writing tests.
- 
+  
 - **(NEW) Embed Output (Implemented)**:
-  - Previous versions only used string in Markdown format, **Ladderbot4** will now return embed objects as output to increase the overall readability for the user.
+  - Previous versions only used strings in Markdown format. **Ladderbot4** now returns embed objects as output to improve the overall readability for users.
 
 ### Returning Features from Ladderbot3.0:
 
@@ -56,20 +66,21 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ---
 
 ## Planned Features
-1. **Multiple Divisions Of The Same Type**:
-   - I want to add the ability to have multiple divisions of the same type running at the same time (Example: Two 1v1's, three 2v2's or even 100 3v3's if need be)
 
-2. **Stat Tracking and Achievements** (Began Background Work):
+1. **Stat Tracking and Achievements** (Began Background Work):
    - Track team and individual stats, possible stat ideas:
      - Number of matches played.
      - Rank changes during a ladder's lifetime.
      - Player achievements, such as participating in a champion team.
    - Implement achievements tied to Discord IDs and store data in the bot's database.
 
-3. **Logging System** (Enhanced):
+2. **Logging System** (Enhanced):
    - Plans to integrate bot commands to filter and view logs dynamically in Discord.
-   - Logs command invocations, parameters, and errors
-     
+   - Logs command invocations, parameters, and errors.
+
+3. **Match History**:
+   - Storing previous match results in the database to cross-reference for later use in case messages or channels are deleted. Match history will also be used for writing tests.
+
 4. **Creative Additions**:
    - Open to suggestions for new features or improvements to the bot's current functionality.
 
@@ -118,10 +129,12 @@ For any questions, suggestions, or issues, feel free to submit them via the **Is
 ## Setting Up Ladderbot4
 
 ### Discord Bot Token
-**Ladderbot4** now has a setup process when ran that checks the Discord Bot Token length and has you enter it in into the Command Line Interface if it isn't a certain amount of characters. If a token of correct length is entered but is actually incorrect, then manually change it in Settings/config.json for now until I finish the setup process completely. 
+**Ladderbot4** now has a setup process that checks the Discord Bot Token length. If the token isn't the correct length, it prompts you to enter a valid token in the Command Line Interface. If a token of correct length is entered but is actually incorrect, you will need to manually change it in `Settings/config.json` until the setup process is fully completed.
 
 ### Guild ID for SlashCommands 
-The setup also asks for the correct Guild ID and gives a list showing all servers the bot is connected from. Enter in the correct Guild ID for your Server to enable Slash Commands. If an incorrect one is entered, you can use /set_guild_id or /sgid as a regular command in discord after the bot runs to dynamically grab the Id, then restart the bot and Slash Commands should begin working for that Server.
+The setup process also asks for the correct Guild ID and provides a list showing all servers the bot is connected to. Enter the correct Guild ID for your server to enable Slash Commands. If an incorrect one is entered, you can use `/set_guild_id` or `/sgid` as a regular command in Discord after the bot runs to dynamically grab the ID. Then restart the bot, and Slash Commands should begin working for that server.
 
 ### Git Backup Feature
-Another feature that is handled during setup is the ability to use your an owned GitHub repo as a backup system for all the json database files. It will prompt for a GitHub PAT Token which you can generate through GitHub, and asks for the https link to the GitHub Repo.
+During setup, you'll be prompted to use an owned GitHub repo as a backup system for all the JSON database files. The setup process will ask for a **GitHub Personal Access Token (PAT)**, which you can generate through GitHub, and the **HTTPS link** to your GitHub repository.
+
+[Read Documentation For More Help](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md)
