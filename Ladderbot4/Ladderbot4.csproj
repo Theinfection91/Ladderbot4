@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>lb4icon.ico</ApplicationIcon>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Theinfection91/Ladderbot4/tree/main</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <AssemblyVersion>4.1.0.1</AssemblyVersion>
+    <FileVersion>4.1.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +33,13 @@
 
   <ItemGroup>
     <Folder Include="Utilities\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>

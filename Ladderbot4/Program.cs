@@ -83,7 +83,7 @@ namespace Ladderbot4
             // Ensure settings are loaded
             _settingsManager.SetBotTokenProcess();
 
-            // TODO - Implement working Git PAT Token and URL Process
+            // Implement working Git PAT Token and URL Process
             _settingsManager.SetGitBackupProcess();
 
             await RunBotAsync();
@@ -98,22 +98,34 @@ namespace Ladderbot4
             _commands.Log += Log;
 
             // Set up event handlers
-            _client.Log += Log;
+            _client.Log += log =>
+            {
+                // Log if Discord requests a reconnect
+                if (log.Exception is Discord.WebSocket.GatewayReconnectException)
+                {
+                    Console.WriteLine($"{DateTime.Now} - Gateway requested a reconnect.");
+                }
+                else
+                {
+                    Console.WriteLine(log.ToString());
+                }
+                return Task.CompletedTask;
+            };
             _client.Ready += ClientReady;
             _client.InteractionCreated += HandleInteractionAsync;
             _client.MessageReceived += HandleCommandAsync;
-
-            // Add the Disconnected event handler to automatically reconnect
-            _client.Disconnected += async (exception) =>
+            _client.Disconnected += exception =>
             {
-                Console.WriteLine("Disconnected from Discord. Reconnecting...");
-                await Task.Delay(5000); // Wait before reconnecting
-                await _client.StartAsync(); // Reconnect
+                Console.WriteLine($"{DateTime.Now} - Bot disconnected: {exception?.Message ?? "Unknown reason"}");
+                return Task.CompletedTask;
             };
 
             // Login and start the bot
             await _client.LoginAsync(TokenType.Bot, _settingsManager.Settings.DiscordBotToken);
             await _client.StartAsync();
+
+            // Start Connection Health log timer
+            _ = MonitorBotConnection();
 
             // Wait for Ready event
             var readyTask = new TaskCompletionSource<bool>();
@@ -123,14 +135,14 @@ namespace Ladderbot4
                 return Task.CompletedTask;
             };
 
-            Console.WriteLine("Waiting for bot to be ready...");
+            Console.WriteLine($"{DateTime.Now} - Waiting for bot to be ready...");
             await readyTask.Task;
 
             // Load Non-Slash Commands
             await _commands.AddModuleAsync<NonSlashCommands>(_services);
-            Console.WriteLine("\t\tNon-SlashCommand modules added to CommandService");
+            Console.WriteLine($"{DateTime.Now} - Non-SlashCommand modules added to CommandService");
 
-            Console.WriteLine($"Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
+            Console.WriteLine($"{DateTime.Now} - Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
 
             // Keep the bot running
             await Task.Delay(-1);
@@ -146,7 +158,7 @@ namespace Ladderbot4
 
             // Register commands to guild
             await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);
-            Console.WriteLine($"Commands registered to guild {_settingsManager.Settings.GuildId}");
+            Console.WriteLine($"{DateTime.Now} - Commands registered to guild {_settingsManager.Settings.GuildId}");
         }
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
@@ -167,7 +179,7 @@ namespace Ladderbot4
                 var result = await _commands.ExecuteAsync(context, argPos, _services);
 
                 if (!result.IsSuccess)
-                    Console.WriteLine($"Command Error: {result.ErrorReason}");
+                    Console.WriteLine($"{DateTime.Now} - Command Error: {result.ErrorReason}");
             }
         }
 
@@ -175,6 +187,21 @@ namespace Ladderbot4
         {
             Console.WriteLine(log.ToString());
             return Task.CompletedTask;
+        }
+
+        private async Task MonitorBotConnection()
+        {
+            while (true)
+            {
+                // Run a check every 15 minutes to check the connection status.
+                await Task.Delay(TimeSpan.FromMinutes(15));
+
+                // If connection status is anything but Connected, send log to console.
+                if (_client.ConnectionState != ConnectionState.Connected)
+                {
+                    Console.WriteLine($"{DateTime.Now} - Connection Health - Connection issue detected. Current state: {_client.ConnectionState}");
+                }
+            }
         }
     }
 }
