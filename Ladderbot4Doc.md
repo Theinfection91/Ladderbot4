@@ -208,7 +208,7 @@ Once the token is generated, **copy the token string** and store it securely. If
 ---
 
 ## Running Ladderbot4.exe and Initial Bot Setup
-Now that we have a **Discord Bot Token**, the **Git PAT Token**, and the **Git HTTPS Url Path** we can fire up **Ladderbot4** for the first time! Download the latest release of Ladderbot4 [HERE](https://github.com/Theinfection91/Ladderbot4/releases/download/v4.1.0/v4.1.0-Ladderbot4-win_x64.zip) or from my Releases section in this Repo and extract the contents of the .zip file into a folder of your choosing. Run the `Ladderbot4.exe` file and follow these instructions:
+Now that we have a **Discord Bot Token**, the **Git PAT Token**, and the **Git HTTPS Url Path** we can fire up **Ladderbot4** for the first time! Download the latest release of Ladderbot4 [HERE](https://github.com/Theinfection91/Ladderbot4/releases) or from my Releases section in this Repo and extract the contents of the .zip file into a folder of your choosing. Run the `Ladderbot4.exe` file and follow these instructions:
 
 ### Step 1: Enter Discord Bot Token
 
