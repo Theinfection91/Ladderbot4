@@ -3,7 +3,7 @@
 [Extensive Documentation Found Here](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md
 )
 ## Releases
-[Download v4.1.0-Ladderbot4 for Windows x64](https://github.com/Theinfection91/Ladderbot4/releases/download/v4.1.0/v4.1.0-Ladderbot4-win_x64.zip)
+[Download Latest Version Here](https://github.com/Theinfection91/Ladderbot4/releases)
 
 ## Overview
 **Ladderbot4** is an advanced, feature-rich Discord bot designed to manage competitive ladders across various leagues of different division types with enhanced flexibility, scalability, and user interaction. Built in C#, this version builds on the foundation of **Ladderbot3.0**, emphasizing modularity, performance, and a more engaging user experience.
@@ -13,12 +13,10 @@ The bot also includes an intuitive and dynamic **ladder tournament system** desi
 ### **(NEW 12-28-2024)** Introducing the "LeagueMatrix" v4.1.0 Update for Ladderbot4
 This update introduces the **LeagueMatrix**, a major overhaul that allows **multiple leagues** to be managed simultaneously with each one being a different division (1v1, 2v2, or 3v3). The **LeagueMatrix** enables greater flexibility by decoupling division and league management, allowing administrators to easily create, manage, and update multiple leagues within the same division type if needed. This development is perfect for large environments with many teams, offering improved scalability and smoother operations.
 
+![SlashCommand Example 1](leaguematrix1.png)
+
 ### SlashCommands
 In addition, **Ladderbot4** now features **SlashCommands**, streamlining user interactions, reducing errors, and providing a more intuitive experience. Unlike previous versions, the bot now sends **Discord embeds** in responses rather than plain text, enhancing readability and user engagement.
-
-![SlashCommand Example 1](examples/example1.png)
-
-![SlashCommand Example 2](examples/example2.png)
 
 With the **LeagueMatrix** update, **Ladderbot4** significantly enhances its administrative controls, team management, and challenge systems, making it even easier for admins to track rankings, manage teams, and handle challenges dynamically. While **Ladderbot4** is still under active development, it provides a solid foundation with many exciting new features and plans for future improvements.
 
