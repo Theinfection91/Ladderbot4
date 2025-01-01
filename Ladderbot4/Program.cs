@@ -103,7 +103,7 @@ namespace Ladderbot4
                 // Log if Discord requests a reconnect
                 if (log.Exception is Discord.WebSocket.GatewayReconnectException)
                 {
-                    Console.WriteLine("Gateway requested a reconnect.");
+                    Console.WriteLine($"{DateTime.Now} - Gateway requested a reconnect.");
                 }
                 else
                 {
@@ -116,7 +116,7 @@ namespace Ladderbot4
             _client.MessageReceived += HandleCommandAsync;
             _client.Disconnected += exception =>
             {
-                Console.WriteLine($"Bot disconnected: {exception?.Message ?? "Unknown reason"}");
+                Console.WriteLine($"{DateTime.Now} - Bot disconnected: {exception?.Message ?? "Unknown reason"}");
                 return Task.CompletedTask;
             };
 
@@ -135,14 +135,14 @@ namespace Ladderbot4
                 return Task.CompletedTask;
             };
 
-            Console.WriteLine("Waiting for bot to be ready...");
+            Console.WriteLine($"{DateTime.Now} - Waiting for bot to be ready...");
             await readyTask.Task;
 
             // Load Non-Slash Commands
             await _commands.AddModuleAsync<NonSlashCommands>(_services);
-            Console.WriteLine("\t\tNon-SlashCommand modules added to CommandService");
+            Console.WriteLine($"{DateTime.Now} - Non-SlashCommand modules added to CommandService");
 
-            Console.WriteLine($"Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
+            Console.WriteLine($"{DateTime.Now} - Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
 
             // Keep the bot running
             await Task.Delay(-1);
@@ -158,7 +158,7 @@ namespace Ladderbot4
 
             // Register commands to guild
             await _interactionService.RegisterCommandsToGuildAsync(_settingsManager.Settings.GuildId);
-            Console.WriteLine($"Commands registered to guild {_settingsManager.Settings.GuildId}");
+            Console.WriteLine($"{DateTime.Now} - Commands registered to guild {_settingsManager.Settings.GuildId}");
         }
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
@@ -179,7 +179,7 @@ namespace Ladderbot4
                 var result = await _commands.ExecuteAsync(context, argPos, _services);
 
                 if (!result.IsSuccess)
-                    Console.WriteLine($"Command Error: {result.ErrorReason}");
+                    Console.WriteLine($"{DateTime.Now} - Command Error: {result.ErrorReason}");
             }
         }
 
@@ -199,7 +199,7 @@ namespace Ladderbot4
                 // If connection status is anything but Connected, send log to console.
                 if (_client.ConnectionState != ConnectionState.Connected)
                 {
-                    Console.WriteLine($"{DateTime.Now} Connection Health - Connection issue detected. Current state: {_client.ConnectionState}");
+                    Console.WriteLine($"{DateTime.Now} - Connection Health - Connection issue detected. Current state: {_client.ConnectionState}");
                 }
             }
         }
