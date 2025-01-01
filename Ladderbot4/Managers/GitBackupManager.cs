@@ -27,6 +27,10 @@ namespace Ladderbot4.Managers
 
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
+
+            // TESTING - Copy files from BackupRepo to Databases
+            Console.WriteLine($"{DateTime.Now} BackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
+            CopyFilesFromBackupRepoToDatabases();
         }
 
         private string SetRepoFilePath()
@@ -88,10 +92,12 @@ namespace Ladderbot4.Managers
             {
                 if (Directory.Exists(_databasesFolderPath))
                 {
+                    // Get files from the Databases folder
                     var jsonFiles = Directory.GetFiles(_databasesFolderPath, "*.json", SearchOption.TopDirectoryOnly);
 
                     foreach (var jsonFile in jsonFiles)
                     {
+                        // Set destination to be BackupRepo Folder
                         string fileName = Path.GetFileName(jsonFile);
                         string destinationPath = Path.Combine(_repoPath, fileName);
 
@@ -114,6 +120,43 @@ namespace Ladderbot4.Managers
             catch (Exception ex)
             {
                 Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error during backup process: {ex.Message}");
+            }
+        }
+
+        public void CopyFilesFromBackupRepoToDatabases()
+        {
+            try
+            {
+                if (Directory.Exists(_repoPath))
+                {
+                    // Get files from the BackupRepo folder
+                    var jsonFiles = Directory.GetFiles(_repoPath, "*.json", SearchOption.TopDirectoryOnly);
+
+                    foreach (var jsonFile in jsonFiles)
+                    {
+                        // Set destination to be Databases Folder
+                        string fileName = Path.GetFileName(jsonFile);
+                        string destinationPath = Path.Combine(_databasesFolderPath, fileName);
+
+                        try
+                        {
+                            // Copy the file even if it's in use
+                            using (FileStream sourceStream = new FileStream(jsonFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            using (FileStream destinationStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                            {
+                                sourceStream.CopyTo(destinationStream);
+                            }
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error copying file {jsonFile}: {ex.Message}");
+                        }
+                    }    
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error while copying files from BackupRepo to Databases: {ex.Message}");
             }
         }
 
