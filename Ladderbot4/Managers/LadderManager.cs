@@ -1237,6 +1237,9 @@ namespace Ladderbot4.Managers
                 // Set channel Id
                 _statesManager.SetChallengesChannelId(league, channel.Id);
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Challenges");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
@@ -1253,6 +1256,9 @@ namespace Ladderbot4.Managers
                 // Set channel Id
                 _statesManager.SetStandingsChannelId(league, channel.Id);
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Standings");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
@@ -1268,6 +1274,9 @@ namespace Ladderbot4.Managers
 
                 // Set channel Id
                 _statesManager.SetTeamsChannelId(league, channel.Id);
+
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
 
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Teams");
             }
