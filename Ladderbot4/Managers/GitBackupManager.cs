@@ -28,7 +28,7 @@ namespace Ladderbot4.Managers
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
 
-            // TESTING - Copy files from BackupRepo to Databases
+            // Copy files from BackupRepo to Databases
             Console.WriteLine($"{DateTime.Now} BackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
             CopyFilesFromBackupRepoToDatabases();
         }

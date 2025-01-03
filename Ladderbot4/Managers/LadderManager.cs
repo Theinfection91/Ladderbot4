@@ -1169,6 +1169,12 @@ namespace Ladderbot4.Managers
                 // Get team object
                 Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
+                // Check if team has an open challenge
+                if (_challengeManager.IsTeamInChallenge(league.Division, league.LeagueName, teamToAdjust))
+                {
+                    return _embedManager.SetRankErrorEmbed($"Team {teamToAdjust.TeamName} is currently apart of a challenge and can not have their rank adjusted at this time. Please resolve the challenge by completing the match or canceling the challenge first.");
+                }
+
                 // Get current rank of team
                 int currentRank = teamToAdjust.Rank;
 

@@ -16,7 +16,6 @@ namespace Ladderbot4.Data
         {
             SetFilePath();
             InitializeFile();
-            Console.WriteLine("Init LeagueData");
         }
 
         private void SetFilePath()
