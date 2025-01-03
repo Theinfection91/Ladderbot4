@@ -13,6 +13,7 @@
     <FileVersion>4.1.1.0</FileVersion>
     <Title>Ladderbot4</Title>
     <IncludeSymbols>False</IncludeSymbols>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

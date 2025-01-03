@@ -200,7 +200,7 @@ namespace Ladderbot4.Managers
                     }
                     catch (LibGit2SharpException ex)
                     {
-                        Console.WriteLine($"Error during push: {ex.Message}");
+                        Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error during push: {ex.Message}");
                     }
                 }
                 else
