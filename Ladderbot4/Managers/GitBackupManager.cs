@@ -23,14 +23,13 @@ namespace Ladderbot4.Managers
 
             // Set BackupRepo file path and init repo if necessary
             _repoPath = SetRepoFilePath();
-            InitializeRepository();
+            if (_settingsManager.IsGitPatTokenSet())
+            {
+                InitializeRepository();
+            }
 
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
-
-            // Copy files from BackupRepo to Databases
-            Console.WriteLine($"{DateTime.Now} BackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
-            CopyFilesFromBackupRepoToDatabases();
         }
 
         private string SetRepoFilePath()
@@ -71,6 +70,10 @@ namespace Ladderbot4.Managers
                     };
                     Repository.Clone(_remoteUrl, _repoPath, options);
                     Console.WriteLine($"{DateTime.Now} - GitBackupManager - Repository cloned successfully.");
+                    
+                    // Copy newly cloned files from BackupRepo to Databases
+                    Console.WriteLine($"{DateTime.Now} BackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
+                    CopyFilesFromBackupRepoToDatabases();
                 }
                 catch (LibGit2SharpException ex)
                 {
