@@ -23,13 +23,18 @@ namespace Ladderbot4.Managers
 
             // Set BackupRepo file path and init repo if necessary
             _repoPath = SetRepoFilePath();
+
+            // Set the Databases folder
+            _databasesFolderPath = SetDatabasesFolders();
+
             if (_settingsManager.IsGitPatTokenSet())
             {
                 InitializeRepository();
             }
-
-            // Set the Databases folder
-            _databasesFolderPath = SetDatabasesFolders();
+            else
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Git PAT Token not set. Can not initialize the repo in 'BackupRepo'.");
+            }           
         }
 
         private string SetRepoFilePath()
@@ -44,7 +49,7 @@ namespace Ladderbot4.Managers
             if (!Directory.Exists(repoPath))
             {
                 Directory.CreateDirectory(repoPath);
-                Console.WriteLine($"{DateTime.Now} - Directory created: {_repoPath}");
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Directory created: {_repoPath}");
             }
 
             return repoPath;
@@ -70,10 +75,33 @@ namespace Ladderbot4.Managers
                     };
                     Repository.Clone(_remoteUrl, _repoPath, options);
                     Console.WriteLine($"{DateTime.Now} - GitBackupManager - Repository cloned successfully.");
-                    
-                    // Copy newly cloned files from BackupRepo to Databases
-                    Console.WriteLine($"{DateTime.Now} BackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
-                    CopyFilesFromBackupRepoToDatabases();
+
+                    // Ask if user wants to use this data copied to database
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Do you want to use the newly cloned backup data from the repository as your Database? Yes is typically the answer here. NOTE - This will overwrite data currently present in your JSON files in 'Database'. This can not be reversed. \n\nHINT: If the files in your backup repo online is more up to date than your local files in the 'Database' folder then input Y, if your JSON files in the 'Database' folder is more up to date than the file in your backup repo online, then input N");
+                    bool isQuestionProcessComplete = false;
+                    while (!isQuestionProcessComplete)
+                    {
+                        Console.WriteLine($"Enter Y or N\n");
+                        string? userInput = Console.ReadLine();
+                        switch (userInput.ToLower().Trim())
+                        {
+                            case "y":
+                                // Copy newly cloned files from BackupRepo to Databases
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
+                                CopyFilesFromBackupRepoToDatabases();
+                                isQuestionProcessComplete = true;
+                                break;
+
+                            case "n":
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Files were not copied from 'BackupRepo' to 'Databases' folder. The next event driven data change may cause unwanted data changes and loss. Use this not copying the cloned repo option at your own expense and only if you know what you are doing.");
+                                isQuestionProcessComplete = true;
+                                break;
+
+                            default:
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Invalid input was given. Please reply with Y or N. You entered: {userInput}");
+                                break;
+                        }
+                    }                   
                 }
                 catch (LibGit2SharpException ex)
                 {
