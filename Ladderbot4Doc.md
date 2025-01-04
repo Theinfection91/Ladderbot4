@@ -236,9 +236,9 @@ Now it asks for that **Git HTTPS Url Path** that we copied once we made our priv
 
 ![Step 2: Enter Git PAT Token and HTTPS Path2](examples/LB4Setup/lbsu5.png)
 
-You should now see the output say something about `GitBackupManager - No local repo found. Cloning repository...` and `GitBackupManager - Repository cloned successfully.`. If so, the Git PAT Token and Git HTTPS Url Path worked and are now linked together. Once event driven data forces `.json` files to change it will automatically backup our files to that repo!
+You should now see the output say something about `GitBackupManager - No local repo found. Cloning repository...` and `GitBackupManager - Repository cloned successfully.`. If so, the Git PAT Token and Git HTTPS Url Path worked and are now linked together. You will now be asked if you want to copy the newly cloned data as your Database. In most cases, this answer will be Yes (Y). Only in niche situations will you NOT want the cloned data as your Database, like for some reason the local JSON files on the machine are more up to date than the JSON files in the online repo. This would be a rare occurence, but is always possible. To get back to this clone data question process again, **you must delete the 'BackupRepo' folder completely and restart the program itself. Deleting the contents of the folder will not initiate the cloning process again, only by deleting the folder itself will.**
 
-![Step 2: Enter Git PAT Token and HTTPS Path3](examples/LB4Setup/lbsu6.png)
+![Step 2: Enter Git PAT Token and HTTPS Path3](examples/LB4Setup/lbsu13.png)
 
 ---
 
