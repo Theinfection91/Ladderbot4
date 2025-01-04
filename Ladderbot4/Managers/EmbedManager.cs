@@ -368,6 +368,57 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
+        public Embed PostLeaguesEmbed(List<League> leagues, string divisionType)
+        {
+            if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                divisionType = "All";
+            }
+
+            // Create the embed
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"📋 Active Leagues - {divisionType}")
+                .WithColor(Color.Purple)
+                .WithDescription($"Overview of {divisionType.ToLower()} leagues:")
+                .WithFooter("Last Updated")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            if (leagues.Count > 0)
+            {
+                foreach (var league in leagues)
+                {
+                    // Check if league has teams
+                    if (league.Teams.Count > 0)
+                    {
+                        // Format the teams by rank
+                        var teamList = string.Join("\n", league.Teams
+                            .OrderBy(t => t.Rank)
+                            .Select(t => $"#{t.Rank} {t.TeamName}"));
+
+                        embedBuilder.AddField(
+                            $"🏆 **{league.LeagueName}** ({league.Division} League)",
+                            $"**Teams by Rank:**\n{teamList}",
+                            inline: false // Stacked vertically for better readability
+                        );
+                    }
+                    else
+                    {
+                        embedBuilder.AddField(
+                            $"🏆 **{league.LeagueName}** ({league.Division} League)",
+                            "🔎 No teams are currently registered.",
+                            inline: false
+                        );
+                    }
+                }
+            }
+            else
+            {
+                embedBuilder.WithDescription("🔎 No active leagues available at this time.");
+            }
+
+            return embedBuilder.Build();
+        }
+
 
         public Embed PostChallengesEmbed(League league, List<Challenge> challenges)
         {
@@ -429,6 +480,18 @@ namespace Ladderbot4.Managers
             }
 
             // Build and return the embed
+            return embedBuilder.Build();
+        }
+
+        public Embed PostLeaguesErrorEmbed(string divisionType)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Invalid Division Type")
+                .WithColor(Color.Red)
+                .WithDescription($"You have entered an invalid division type: {divisionType}\nEnter '1v1', '2v2', '3v3' or do not add an argument to post all leagues. Please try again.")
+                .WithFooter("Post Leagues failed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
             return embedBuilder.Build();
         }
 

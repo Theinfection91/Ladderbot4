@@ -104,6 +104,40 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        public List<League> GetLeaguesByDivisionType(string divisionType)
+        {
+            // Grab every league in the program's memory
+            IEnumerable<League> allLeagues = GetAllLeagues();
+
+            // Init list to add to
+            List<League> divisionLeagues = [];
+
+            // Iterate and find each League with specified division type and add to list.
+            foreach (League league in allLeagues)
+            {
+                if (league.Division.Equals(divisionType, StringComparison.OrdinalIgnoreCase))
+                {
+                    divisionLeagues.Add(league);
+                }
+            }
+            // Return the list
+            return divisionLeagues;
+        }
+
+        public List<League> GetAllLeaguesAsList()
+        {
+            // Grab every league in the program's memory
+            IEnumerable<League> allLeagues = GetAllLeagues();
+
+            List<League> leaguesAsList = [];
+
+            foreach (League league in allLeagues)
+            {
+                leaguesAsList.Add(league);
+            }
+            return leaguesAsList;
+        }
+
         public League GetLeagueByName(string leagueName)
         {
             foreach (var league in _leaguesByDivision.Leagues1v1)

@@ -219,7 +219,7 @@ namespace Ladderbot4.Managers
             }
             else
             {
-                Console.WriteLine($"{DateTime.Now} GitBackupManager - Git PAT Token is not set so the backup repo is not set up. Commit was not pushed.");
+                Console.WriteLine($"{DateTime.Now} GitBackupManager - Git PAT Token not set. Git Backup Storage not enabled.");
             }
         }
 

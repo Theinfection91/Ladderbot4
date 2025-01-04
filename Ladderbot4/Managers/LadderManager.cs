@@ -1122,7 +1122,23 @@ namespace Ladderbot4.Managers
 
         public Embed PostLeaguesProcess(SocketInteractionContext context, string divisionType)
         {
-            return null;
+            _leagueManager.LoadLeaguesDatabase();
+            // Check given division type
+            if (_leagueManager.IsValidDivisionType(divisionType))
+            {
+                // Grab list of Leagues that match division type
+                List<League> leagues = _leagueManager.GetLeaguesByDivisionType(divisionType);
+
+                // Pass list of Leagues to embed manager and return embed
+                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
+            }
+            else if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                List<League> leagues = _leagueManager.GetAllLeaguesAsList();
+
+                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
+            }
+            return _embedManager.PostLeaguesErrorEmbed(divisionType);
         }
 
         public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
