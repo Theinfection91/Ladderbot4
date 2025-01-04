@@ -56,7 +56,6 @@ namespace Ladderbot4.Data
 
         public void SaveAllMembers(MembersList membersList)
         {
-            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(membersList, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }

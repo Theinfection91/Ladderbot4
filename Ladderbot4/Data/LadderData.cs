@@ -56,7 +56,6 @@ namespace Ladderbot4.Data
 
         public void SaveAllStates(StatesByDivision statesByDivision)
         {
-            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(statesByDivision, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }

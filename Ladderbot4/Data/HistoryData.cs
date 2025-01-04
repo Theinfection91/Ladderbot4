@@ -59,7 +59,6 @@ namespace Ladderbot4.Data
 
         public void SaveAllPastMatches(PastMatchesByDivision pastMatchesByDivision)
         {
-            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(pastMatchesByDivision, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }

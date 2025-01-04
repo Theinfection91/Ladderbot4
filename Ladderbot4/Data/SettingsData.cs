@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Data
 {
-    // TODO - Will be used to hold config data like the bot token, and maybe bypass modes
+    // Will be used to hold config data like the bot token, and maybe bypass modes
     public class SettingsData
     {
         private string _filePath;
@@ -66,7 +66,6 @@ namespace Ladderbot4.Data
 
         public void SaveSettings(Settings settings)
         {
-            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }
