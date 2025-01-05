@@ -40,7 +40,7 @@ namespace Ladderbot4.Commands
                 if (member2 != null) members.Add(member2);
                 if (member3 != null) members.Add(member3);
 
-                var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName, leagueName.Trim().ToLower(), members);
+                var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -60,7 +60,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName);
+                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -94,7 +94,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AddToWinCountProcess(Context, teamName, numberOfWins);
+                    var result = _ladderManager.AddToWinCountProcess(Context, teamName.Trim().ToLower(), numberOfWins);
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -114,7 +114,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AddToLossCountProcess(Context, teamName, numberOfLosses);
+                    var result = _ladderManager.AddToLossCountProcess(Context, teamName.Trim().ToLower(), numberOfLosses);
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -148,7 +148,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.SubtractFromWinCountProcess(Context, teamName, numberOfWins);
+                    var result = _ladderManager.SubtractFromWinCountProcess(Context, teamName.Trim().ToLower(), numberOfWins);
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -168,7 +168,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.SubtractFromLossCountProcess(Context, teamName, numberOfLosses);
+                    var result = _ladderManager.SubtractFromLossCountProcess(Context, teamName.Trim().ToLower(), numberOfLosses);
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)

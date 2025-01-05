@@ -419,7 +419,6 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-
         public Embed PostChallengesEmbed(League league, List<Challenge> challenges)
         {
             var embedBuilder = new EmbedBuilder()
