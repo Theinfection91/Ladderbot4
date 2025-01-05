@@ -912,6 +912,34 @@ Posts challenge data for a given league.
 
 ---
 
+### Post Leagues Command (`/post leagues`)
+
+**Description:**  
+Posts data for all leagues or by specific division type.
+
+**Usage:** 
+```plaintext
+/post leagues optionalDivisionType:<string>
+```
+
+**Parameters:**  
+- `optionalDivisionType` (string): Posts all leagues by specific division type. Leave blank to default to all and post every league in the database.
+
+**Process:**  
+1. Checks given division type, if none given 'all' is default.
+2. Grabs all or every league in given acceptable division type.
+3. Use the `PostLeaguesEmbed` method to format the leagues data as an embed.
+
+**Success Response Example:**  
+- Active Leagues Overview:  
+  "📋 Active Leagues - **DivisionType**\nOverview of **divisionType** leagues:\n\n🏆 **LeagueName** (DivisionType League)\n**Teams by Rank:**\n#1 TeamName\n#2 TeamName\n... (Ranked teams listed)"
+
+**Error Response Example:**  
+- No Active Leagues:  
+  "❌ No active leagues available at this time."
+
+---
+
 ### Post Standings Command (`/post standings`)
 
 **Description:**  
