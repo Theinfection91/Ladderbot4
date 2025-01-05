@@ -162,7 +162,7 @@ namespace Ladderbot4.Managers
                 {
                     // Get files from the BackupRepo folder
                     var jsonFiles = Directory.GetFiles(_repoPath, "*.json", SearchOption.TopDirectoryOnly);
-
+                    
                     foreach (var jsonFile in jsonFiles)
                     {
                         // Set destination to be Databases Folder
@@ -254,9 +254,72 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void BackupDataToNewBranch()
+        public string CreateDefaultBranchName()
         {
+            // Format DateTime to ensure a valid branch name
+            return $"backup_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}";
+        }
 
+        public void BackupDataToNewBranch(string optionalName)
+        {
+            try
+            {
+                string branchName = optionalName.Equals("default", StringComparison.OrdinalIgnoreCase)
+                    ? CreateDefaultBranchName()
+                    : optionalName;
+
+                using (var repo = new Repository(_repoPath))
+                {
+                    // Create the new branch
+                    var branch = repo.CreateBranch(branchName);
+
+                    // Checkout to the new branch
+                    var checkoutOptions = new CheckoutOptions();
+                    var tree = branch.Tip.Tree;  // Get the Tree of the branch tip
+                    repo.Checkout(tree, null, checkoutOptions);  // Checkout using the branch tip Tree
+
+                    // Set the upstream branch for tracking
+                    var remote = repo.Network.Remotes["origin"];
+                    if (remote == null)
+                    {
+                        throw new Exception("Remote not found.");
+                    }
+
+                    repo.Branches.Update(branch, b =>
+                    {
+                        b.Remote = remote.Name;
+                        b.UpstreamBranch = branch.CanonicalName;
+                    });
+
+                    // Push the new branch to the remote repository
+                    var options = new PushOptions
+                    {
+                        CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
+                        {
+                            Username = "Ladderbot4",
+                            Password = _token
+                        }
+                    };
+                    repo.Network.Push(branch, options);
+
+                    // Switch back to the main branch
+                    var mainBranch = repo.Branches["main"];
+                    if (mainBranch == null)
+                    {
+                        throw new Exception("The 'main' branch does not exist.");
+                    }
+
+                    // Checkout to the main branch
+                    tree = mainBranch.Tip.Tree;
+                    repo.Checkout(tree, null, checkoutOptions);  // Checkout to the main branch
+
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Branch '{branchName}' created and pushed successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error: {ex.Message}");
+            }
         }
 
         public void ForceBackupFiles()

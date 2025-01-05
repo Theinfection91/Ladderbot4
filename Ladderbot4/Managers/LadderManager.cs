@@ -1418,6 +1418,15 @@ namespace Ladderbot4.Managers
 
         #endregion
 
+        #region Git Commands Logic
+        public string GitBranchBackupDataProcess(SocketInteractionContext context, string optionalName)
+        {
+            _backupManager.BackupDataToNewBranch(optionalName);
+            return "Git branch backup ran. Check results on repo.";
+        }
+
+        #endregion
+
         #region Helper Methods
         private void ReassignRanksInLeague(League league)
         {
