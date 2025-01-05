@@ -17,27 +17,55 @@ This bot uses a **ladder tournament system** where teams challenge others to cli
 
 ## What's New in v4.1.1
 
-### Git Backup Rework
-- **Seamless Multi-Machine Integration**:
-  - JSON data cloned from the backup repository now serves as the initial database when the bot is set up with the same token and Git configuration across different machines.
-  - This ensures seamless continuity and data integrity in multi-machine setups.
-  
-- **Streamlined Backup Initialization**:
-  - The bot automatically fetches and applies the latest backup during the setup process, minimizing manual configuration.
+### Feature Enhancements
 
-### Administrative Changes
+### Git Backup Rework
+- **Interactive Database Overwrite Prompt**:
+  - During the cloning process, the bot now prompts users to decide whether to overwrite the local database with the cloned backup repository:
+    ```plaintext
+    [DateTime] - GitBackupManager - Do you want to use the newly cloned backup data from the repository as your Database? 
+    Yes is typically the answer here. NOTE - This will overwrite data currently present in your JSON files in 'Database'. This can not be reversed.
+    
+    HINT: If the files in your backup repo online are more up-to-date than your local files in the 'Database' folder, input Y.
+    If your JSON files in the 'Database' folder are more up-to-date than the files in your backup repo online, input N.
+    ```
+  - Acceptable inputs:
+    - `Y`: Copies the newly cloned files from `BackupRepo` to the `Database` folder.
+    - `N`: Keeps the local files intact. Users are warned that this may cause discrepancies if the local data is outdated.
+    - Invalid inputs are met with a retry prompt.
+
+- **Backup Manager Trigger Fix**:
+  - Resolved an issue where the `BackupManager` was not triggered when channel IDs were set (e.g., `/set standings_channel_id`). Now, `states.json` is backed up immediately after such changes.
+
+### Post Leagues Command
+- **New `/post leagues` Command**:
+  - Posts all leagues in the database, displaying each league and the teams within it.
+  - Optionally, filter by division type (e.g., `1v1`, `2v2`, `3v3`) to show leagues of a specific type.
+  - Useful for quickly sharing league data in Discord channels with clear, formatted embeds.
+
+### Administrative Updates
 - **Admin Privileges Required**:
   - Running the bot now requires **Administrator permissions** to prevent potential errors during operations.
 
 - **Embedded Debugging Information**:
-  - The `.pdb` file is now embedded into the `.exe` and `.dll` files, streamlining deployments and reducing clutter.
+  - The .pdb file is now embedded into the .exe and .dll files, streamlining deployments and reducing clutter.
+    
+- **Streamlined Git Cloning Workflow**:
+  - Enhanced user clarity during the backup cloning process to prevent unintended data overwrites or loss.
 
 ### Bug Fixes
 - **Challenge Restrictions**:
-  - Fixed an issue where admins could adjust team ranks while a challenge was active. The bot now prevents this action and sends an error embed instructing users to resolve or cancel the challenge first.
-  
+  - Fixed a bug where admins could adjust team ranks while challenges were active. The bot now blocks this action and provides instructions to resolve or cancel the challenge first.
+
+- **Improved Backup Logic**:
+  - Addressed inconsistencies in event-driven backups to ensure all relevant data changes are saved to the online repository.
+
 - **General Stability Improvements**:
-  - Various minor bugs and inconsistencies have been resolved to improve overall performance and reliability.
+  - Various performance optimizations and minor bug fixes for smoother operations.
+
+### Other Notable Changes
+- **Interactive Features**:
+  - The bot now incorporates dynamic modals to streamline admin workflows and minimize command-related errors.
 
 ---
 
