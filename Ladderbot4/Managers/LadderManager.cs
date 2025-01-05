@@ -1122,7 +1122,23 @@ namespace Ladderbot4.Managers
 
         public Embed PostLeaguesProcess(SocketInteractionContext context, string divisionType)
         {
-            return null;
+            _leagueManager.LoadLeaguesDatabase();
+            // Check given division type
+            if (_leagueManager.IsValidDivisionType(divisionType))
+            {
+                // Grab list of Leagues that match division type
+                List<League> leagues = _leagueManager.GetLeaguesByDivisionType(divisionType);
+
+                // Pass list of Leagues to embed manager and return embed
+                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
+            }
+            else if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
+            {
+                List<League> leagues = _leagueManager.GetAllLeaguesAsList();
+
+                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
+            }
+            return _embedManager.PostLeaguesErrorEmbed(divisionType);
         }
 
         public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
@@ -1168,6 +1184,12 @@ namespace Ladderbot4.Managers
 
                 // Get team object
                 Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
+
+                // Check if team has an open challenge
+                if (_challengeManager.IsTeamInChallenge(league.Division, league.LeagueName, teamToAdjust))
+                {
+                    return _embedManager.SetRankErrorEmbed($"Team {teamToAdjust.TeamName} is currently apart of a challenge and can not have their rank adjusted at this time. Please resolve the challenge by completing the match or canceling the challenge first.");
+                }
 
                 // Get current rank of team
                 int currentRank = teamToAdjust.Rank;
@@ -1237,6 +1259,9 @@ namespace Ladderbot4.Managers
                 // Set channel Id
                 _statesManager.SetChallengesChannelId(league, channel.Id);
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Challenges");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
@@ -1253,6 +1278,9 @@ namespace Ladderbot4.Managers
                 // Set channel Id
                 _statesManager.SetStandingsChannelId(league, channel.Id);
 
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Standings");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
@@ -1268,6 +1296,9 @@ namespace Ladderbot4.Managers
 
                 // Set channel Id
                 _statesManager.SetTeamsChannelId(league, channel.Id);
+
+                // Backup the database to Git
+                _backupManager.CopyAndBackupFilesToGit();
 
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Teams");
             }
@@ -1383,6 +1414,15 @@ namespace Ladderbot4.Managers
 
             }
             return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        }
+
+        #endregion
+
+        #region Git Commands Logic
+        public string GitBranchBackupDataProcess(SocketInteractionContext context, string optionalName)
+        {
+            _backupManager.BackupDataToNewBranch(optionalName);
+            return "Git branch backup ran. Check results on repo.";
         }
 
         #endregion

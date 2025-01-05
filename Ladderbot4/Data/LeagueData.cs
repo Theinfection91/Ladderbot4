@@ -58,7 +58,6 @@ namespace Ladderbot4.Data
 
         public void SaveLeagues(LeaguesByDivision leaguesByDivision)
         {
-            Console.WriteLine("Saving to file: " + _filePath);
             var json = JsonConvert.SerializeObject(leaguesByDivision, Formatting.Indented);
             File.WriteAllText(_filePath, json);
         }

@@ -76,7 +76,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam, challengedTeam);
+                    var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -95,7 +95,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam);
+                    var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)

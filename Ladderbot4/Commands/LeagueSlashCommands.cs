@@ -29,7 +29,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.CreateLeagueProcess(leagueName, divisionType.Trim().ToLower());
+                var result = _ladderManager.CreateLeagueProcess(leagueName.Trim(), divisionType.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.DeleteLeagueProcess(leagueName);
+                var result = _ladderManager.DeleteLeagueProcess(leagueName.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)

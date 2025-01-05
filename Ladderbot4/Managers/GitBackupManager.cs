@@ -23,10 +23,18 @@ namespace Ladderbot4.Managers
 
             // Set BackupRepo file path and init repo if necessary
             _repoPath = SetRepoFilePath();
-            InitializeRepository();
 
             // Set the Databases folder
             _databasesFolderPath = SetDatabasesFolders();
+
+            if (_settingsManager.IsGitPatTokenSet())
+            {
+                InitializeRepository();
+            }
+            else
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Git PAT Token not set. Can not initialize the repo in 'BackupRepo'.");
+            }           
         }
 
         private string SetRepoFilePath()
@@ -41,7 +49,7 @@ namespace Ladderbot4.Managers
             if (!Directory.Exists(repoPath))
             {
                 Directory.CreateDirectory(repoPath);
-                Console.WriteLine($"{DateTime.Now} - Directory created: {_repoPath}");
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Directory created: {_repoPath}");
             }
 
             return repoPath;
@@ -67,6 +75,33 @@ namespace Ladderbot4.Managers
                     };
                     Repository.Clone(_remoteUrl, _repoPath, options);
                     Console.WriteLine($"{DateTime.Now} - GitBackupManager - Repository cloned successfully.");
+
+                    // Ask if user wants to use this data copied to database
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Do you want to use the newly cloned backup data from the repository as your Database? Yes is typically the answer here. NOTE - This will overwrite data currently present in your JSON files in 'Database'. This can not be reversed. \n\nHINT: If the files in your backup repo online is more up to date than your local files in the 'Database' folder then input Y, if your JSON files in the 'Database' folder is more up to date than the files in your backup repo online, then input N");
+                    bool isQuestionProcessComplete = false;
+                    while (!isQuestionProcessComplete)
+                    {
+                        Console.WriteLine($"Enter Y or N\n");
+                        string? userInput = Console.ReadLine();
+                        switch (userInput.ToLower().Trim())
+                        {
+                            case "y":
+                                // Copy newly cloned files from BackupRepo to Databases
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Copying files from 'BackupRepo' folder to 'Databases' folder.");
+                                CopyFilesFromBackupRepoToDatabases();
+                                isQuestionProcessComplete = true;
+                                break;
+
+                            case "n":
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Files were not copied from 'BackupRepo' to 'Databases' folder. The next event driven data change may cause unwanted data changes and loss. Use this not copying the cloned repo option at your own expense and only if you know what you are doing.");
+                                isQuestionProcessComplete = true;
+                                break;
+
+                            default:
+                                Console.WriteLine($"{DateTime.Now} GitBackupManager - Invalid input was given. Please reply with Y or N. You entered: {userInput}");
+                                break;
+                        }
+                    }                   
                 }
                 catch (LibGit2SharpException ex)
                 {
@@ -88,10 +123,12 @@ namespace Ladderbot4.Managers
             {
                 if (Directory.Exists(_databasesFolderPath))
                 {
+                    // Get files from the Databases folder
                     var jsonFiles = Directory.GetFiles(_databasesFolderPath, "*.json", SearchOption.TopDirectoryOnly);
 
                     foreach (var jsonFile in jsonFiles)
                     {
+                        // Set destination to be BackupRepo Folder
                         string fileName = Path.GetFileName(jsonFile);
                         string destinationPath = Path.Combine(_repoPath, fileName);
 
@@ -117,6 +154,43 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void CopyFilesFromBackupRepoToDatabases()
+        {
+            try
+            {
+                if (Directory.Exists(_repoPath))
+                {
+                    // Get files from the BackupRepo folder
+                    var jsonFiles = Directory.GetFiles(_repoPath, "*.json", SearchOption.TopDirectoryOnly);
+                    
+                    foreach (var jsonFile in jsonFiles)
+                    {
+                        // Set destination to be Databases Folder
+                        string fileName = Path.GetFileName(jsonFile);
+                        string destinationPath = Path.Combine(_databasesFolderPath, fileName);
+
+                        try
+                        {
+                            // Copy the file even if it's in use
+                            using (FileStream sourceStream = new FileStream(jsonFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                            using (FileStream destinationStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                            {
+                                sourceStream.CopyTo(destinationStream);
+                            }
+                        }
+                        catch (IOException ex)
+                        {
+                            Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error copying file {jsonFile}: {ex.Message}");
+                        }
+                    }    
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error while copying files from BackupRepo to Databases: {ex.Message}");
+            }
+        }
+
         public void BackupFiles()
         {
             using (var repo = new Repository(_repoPath))
@@ -132,7 +206,7 @@ namespace Ladderbot4.Managers
                     // Stage the file
                     LibGit2Sharp.Commands.Stage(repo, file);
                 }
-
+                
                 // Check if there are any changes to commit
                 if (repo.RetrieveStatus().IsDirty)
                 {
@@ -157,7 +231,7 @@ namespace Ladderbot4.Managers
                     }
                     catch (LibGit2SharpException ex)
                     {
-                        Console.WriteLine($"Error during push: {ex.Message}");
+                        Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error during push: {ex.Message}");
                     }
                 }
                 else
@@ -176,7 +250,75 @@ namespace Ladderbot4.Managers
             }
             else
             {
-                Console.WriteLine($"{DateTime.Now} GitBackupManager - Git PAT Token is not set so the backup repo is not set up. Commit was not pushed.");
+                Console.WriteLine($"{DateTime.Now} GitBackupManager - Git PAT Token not set. Git Backup Storage not enabled.");
+            }
+        }
+
+        public string CreateDefaultBranchName()
+        {
+            // Format DateTime to ensure a valid branch name
+            return $"backup_{DateTime.Now:yyyy_MM_dd_HH_mm_ss}";
+        }
+
+        public void BackupDataToNewBranch(string optionalName)
+        {
+            try
+            {
+                string branchName = optionalName.Equals("default", StringComparison.OrdinalIgnoreCase)
+                    ? CreateDefaultBranchName()
+                    : optionalName;
+
+                using (var repo = new Repository(_repoPath))
+                {
+                    // Create the new branch
+                    var branch = repo.CreateBranch(branchName);
+
+                    // Checkout to the new branch
+                    var checkoutOptions = new CheckoutOptions();
+                    var tree = branch.Tip.Tree;  // Get the Tree of the branch tip
+                    repo.Checkout(tree, null, checkoutOptions);  // Checkout using the branch tip Tree
+
+                    // Set the upstream branch for tracking
+                    var remote = repo.Network.Remotes["origin"];
+                    if (remote == null)
+                    {
+                        throw new Exception("Remote not found.");
+                    }
+
+                    repo.Branches.Update(branch, b =>
+                    {
+                        b.Remote = remote.Name;
+                        b.UpstreamBranch = branch.CanonicalName;
+                    });
+
+                    // Push the new branch to the remote repository
+                    var options = new PushOptions
+                    {
+                        CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
+                        {
+                            Username = "Ladderbot4",
+                            Password = _token
+                        }
+                    };
+                    repo.Network.Push(branch, options);
+
+                    // Switch back to the main branch
+                    var mainBranch = repo.Branches["main"];
+                    if (mainBranch == null)
+                    {
+                        throw new Exception("The 'main' branch does not exist.");
+                    }
+
+                    // Checkout to the main branch
+                    tree = mainBranch.Tip.Tree;
+                    repo.Checkout(tree, null, checkoutOptions);  // Checkout to the main branch
+
+                    Console.WriteLine($"{DateTime.Now} - GitBackupManager - Branch '{branchName}' created and pushed successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} - GitBackupManager - Error: {ex.Message}");
             }
         }
 

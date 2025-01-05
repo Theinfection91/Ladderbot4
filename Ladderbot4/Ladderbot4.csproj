@@ -9,8 +9,19 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Theinfection91/Ladderbot4/tree/main</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <AssemblyVersion>4.1.0.1</AssemblyVersion>
-    <FileVersion>4.1.0.1</FileVersion>
+    <AssemblyVersion>4.1.1.0</AssemblyVersion>
+    <FileVersion>4.1.1.0</FileVersion>
+    <Title>Ladderbot4</Title>
+    <IncludeSymbols>False</IncludeSymbols>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
