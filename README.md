@@ -42,6 +42,7 @@ This bot uses a **ladder tournament system** where teams challenge others to cli
   - Posts all leagues in the database, displaying each league and the teams within it.
   - Optionally, filter by division type (e.g., `1v1`, `2v2`, `3v3`) to show leagues of a specific type.
   - Useful for quickly sharing league data in Discord channels with clear, formatted embeds.
+  - Will be adding the ability to assign this to a channel like standings/challenges/teams in future updates.
 
 ### Administrative Updates
 - **Admin Privileges Required**:
@@ -62,11 +63,7 @@ This bot uses a **ladder tournament system** where teams challenge others to cli
 
 - **General Stability Improvements**:
   - Various performance optimizations and minor bug fixes for smoother operations.
-
-### Other Notable Changes
-- **Interactive Features**:
-  - The bot now incorporates dynamic modals to streamline admin workflows and minimize command-related errors.
-
+    
 ---
 
 ## Features
