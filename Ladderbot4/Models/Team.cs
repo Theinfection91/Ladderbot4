@@ -17,7 +17,6 @@ namespace Ladderbot4.Models
         public int Losses { get; set; }
         public List<Member> Members { get; set; }
 
-        // Stats and Achievements
         // Streaks
         public int WinStreak { get; set; }
         public int LoseStreak { get; set; }
