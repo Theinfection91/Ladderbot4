@@ -12,13 +12,22 @@ namespace Ladderbot4.Managers
     public class LeagueManager
     {
         private readonly LeagueData _leagueData;
+        private readonly LeagueRegistryData _leagueRegistryData;
 
         private LeaguesByDivision _leaguesByDivision;
+        private LeagueRegistry _leagueRegistry;
 
-        public LeagueManager(LeagueData leagueData)
+        public LeagueManager(LeagueData leagueData, LeagueRegistryData leagueRegistryData)
         {
+            // Phase out old LeagueData
             _leagueData = leagueData;
+            // Introduce and migrate to new LeagueRegistryData
+            _leagueRegistryData = leagueRegistryData;
+            
+            // Load OLD leagues.json - Phase out
             _leaguesByDivision = _leagueData.LoadAllLeagues();
+            // Load NEW league_registry.json
+            _leagueRegistry = _leagueRegistryData.Load();
         }
 
         public void SaveLeagues()
@@ -26,9 +35,19 @@ namespace Ladderbot4.Managers
             _leagueData.SaveLeagues(_leaguesByDivision);
         }
 
+        public void SaveLeagueRegistry()
+        {
+            _leagueRegistryData.Save(_leagueRegistry);
+        }
+
         public void LoadLeaguesDatabase()
         {
             _leaguesByDivision = _leagueData.LoadAllLeagues();
+        }
+
+        public void LoadLeagueRegistry()
+        {
+            _leagueRegistry = _leagueRegistryData.Load();
         }
 
         public void SaveAndReloadLeaguesDatabase()
@@ -36,6 +55,13 @@ namespace Ladderbot4.Managers
             SaveLeagues();
             LoadLeaguesDatabase();
         }
+
+        public void SaveAndReloadLeagueRegistry()
+        {
+            SaveLeagueRegistry();
+            LoadLeagueRegistry();
+        }
+
         public IEnumerable<League> GetAllLeagues()
         {
             // Combine leagues from all divisions into a single list

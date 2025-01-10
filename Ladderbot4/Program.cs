@@ -61,6 +61,9 @@ namespace Ladderbot4
                     services.AddSingleton<MemberData>();
                     services.AddSingleton<SettingsData>();
 
+                    // Register 4.2.0 Data services
+                    services.AddSingleton<LeagueRegistryData>();
+
                     services.AddSingleton<AchievementManager>();
                     services.AddSingleton<ChallengeManager>();
                     services.AddSingleton<EmbedManager>();
