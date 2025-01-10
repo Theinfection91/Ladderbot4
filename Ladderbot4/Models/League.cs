@@ -10,6 +10,7 @@ namespace Ladderbot4.Models
     public class League
     {
         public string LeagueName { get; set; }
+        public int TeamSize { get; set; }
         public string Division { get; set; }
         public DateTime CreatedOn { get; set; }
         public List<Team> Teams { get; set; }

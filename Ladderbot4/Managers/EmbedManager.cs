@@ -16,6 +16,21 @@ namespace Ladderbot4.Managers
 
         }
 
+        #region Debug/Test Embed
+        public Embed CreateDebugEmbed(string message)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Debug Embed")
+                .WithColor(Color.DarkTeal)
+                .AddField("Debug Message", message, inline: false);
+
+            embedBuilder.WithFooter("*").WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        #endregion
+
         #region Try-Catch Error
         public Embed CreateErrorEmbed(Exception ex, string commandName)
         {

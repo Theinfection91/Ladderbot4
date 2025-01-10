@@ -11,6 +11,7 @@ namespace Ladderbot4.Models
         // Basic Info
         public string TeamName { get; set; }
         public string League { get; set; }
+        public int Size { get; set; }
         public string Division { get; set; }
         public int Rank { get; set; }
         public int Wins { get; set; }

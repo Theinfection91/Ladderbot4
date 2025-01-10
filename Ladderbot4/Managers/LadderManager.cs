@@ -417,6 +417,11 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Create/Delete League Logic
+        public Embed CreateXvXLeagueProcess(string leagueName, int teamSize)
+        {
+            return _embedManager.CreateDebugEmbed("In-Progress.");
+        }
+
         public Embed CreateLeagueProcess(string leagueName, string divisionType)
         {
             // Check if desired League name is taken

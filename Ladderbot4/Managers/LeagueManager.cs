@@ -219,6 +219,11 @@ namespace Ladderbot4.Managers
             return null; // Return null if no match found
         }
 
+        public string ConvertMemberCountToDivisionTagStr(int memberCount)
+        {
+            return $"{memberCount.ToString()}v{memberCount.ToString()}";
+        }
+
         public void AddNewTeamToLeague(Team newTeam, League league)
         {
             _leagueData.AddTeamToLeague(newTeam, league);
