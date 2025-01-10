@@ -16,7 +16,6 @@ namespace Ladderbot4.Data
 
         private string SetFilePath(string fileName, string folderName)
         {
-            Console.WriteLine("Set File Path in base Data");
             string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string filePath = Path.Combine(appBaseDirectory, folderName, fileName);
 

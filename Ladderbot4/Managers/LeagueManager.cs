@@ -18,17 +18,17 @@ namespace Ladderbot4.Managers
         public LeagueManager(LeagueData leagueData)
         {
             _leagueData = leagueData;
-            _leaguesByDivision = _leagueData.Load();
+            _leaguesByDivision = _leagueData.LoadAllLeagues();
         }
 
         public void SaveLeagues()
         {
-            _leagueData.Save(_leaguesByDivision);
+            _leagueData.SaveLeagues(_leaguesByDivision);
         }
 
         public void LoadLeaguesDatabase()
         {
-            _leaguesByDivision = _leagueData.Load();
+            _leaguesByDivision = _leagueData.LoadAllLeagues();
         }
 
         public void SaveAndReloadLeaguesDatabase()

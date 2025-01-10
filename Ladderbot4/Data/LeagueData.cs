@@ -8,63 +8,63 @@ using Newtonsoft.Json;
 
 namespace Ladderbot4.Data
 {
-    public class LeagueData : Data<LeaguesByDivision>
+    public class LeagueData
     {
         private string _filePath;
 
-        public LeagueData() : base("leagues.json", "Databases")
+        public LeagueData()
         {
-            //SetFilePath();
-            //InitializeFile();
+            SetFilePath();
+            InitializeFile();
         }
 
-        //private void SetFilePath()
-        //{
-        //    // Set the file path relative to the base directory of the executable
-        //    string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+        private void SetFilePath()
+        {
+            // Set the file path relative to the base directory of the executable
+            string appBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
-        //    // Construct a path in a "Data/JsonFiles" folder within the base directory
-        //    _filePath = Path.Combine(appBaseDirectory, "Databases", "leagues.json");
+            // Construct a path in a "Data/JsonFiles" folder within the base directory
+            _filePath = Path.Combine(appBaseDirectory, "Databases", "leagues.json");
 
-        //    // Ensure the directory exists
-        //    string? directory = Path.GetDirectoryName(_filePath);
-        //    if (!Directory.Exists(directory))
-        //    {
-        //        Directory.CreateDirectory(directory);  // Create the directory if it doesn't exist
-        //        Console.WriteLine($"Directory created: {directory}");
-        //    }
-        //}
+            // Ensure the directory exists
+            string? directory = Path.GetDirectoryName(_filePath);
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);  // Create the directory if it doesn't exist
+                Console.WriteLine($"Directory created: {directory}");
+            }
+        }
 
-        //private void InitializeFile()
-        //{
-        //    if (!File.Exists(_filePath))
-        //    {
-        //        var initialData = new LeaguesByDivision
-        //        {
-        //            Leagues1v1 = [],
-        //            Leagues2v2 = [],
-        //            Leagues3v3 = []
-        //        };
+        private void InitializeFile()
+        {
+            if (!File.Exists(_filePath))
+            {
+                var initialData = new LeaguesByDivision
+                {
+                    Leagues1v1 = [],
+                    Leagues2v2 = [],
+                    Leagues3v3 = []
+                };
 
-        //        File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
-        //    }
-        //}
+                File.WriteAllText(_filePath, JsonConvert.SerializeObject(initialData, Formatting.Indented));
+            }
+        }
 
-        //public LeaguesByDivision LoadAllLeagues()
-        //{            
-        //    var json = File.ReadAllText(_filePath);
-        //    return JsonConvert.DeserializeObject<LeaguesByDivision>(json);
-        //}
+        public LeaguesByDivision LoadAllLeagues()
+        {
+            var json = File.ReadAllText(_filePath);
+            return JsonConvert.DeserializeObject<LeaguesByDivision>(json);
+        }
 
-        //public void SaveLeagues(LeaguesByDivision leaguesByDivision)
-        //{
-        //    var json = JsonConvert.SerializeObject(leaguesByDivision, Formatting.Indented);
-        //    File.WriteAllText(_filePath, json);
-        //}
+        public void SaveLeagues(LeaguesByDivision leaguesByDivision)
+        {
+            var json = JsonConvert.SerializeObject(leaguesByDivision, Formatting.Indented);
+            File.WriteAllText(_filePath, json);
+        }
 
         public void AddLeague(League newLeague)
         {
-            var leaguesByDivision = Load();
+            var leaguesByDivision = LoadAllLeagues();
 
             switch (newLeague.Division)
             {
@@ -81,12 +81,12 @@ namespace Ladderbot4.Data
                     break;
             }
 
-            Save(leaguesByDivision);
+            SaveLeagues(leaguesByDivision);
         }
 
         public void RemoveLeague(string leagueName, string division)
         {
-            LeaguesByDivision leaguesByDivision = Load();
+            LeaguesByDivision leaguesByDivision = LoadAllLeagues();
 
             List<League>? divisionLeagues = division switch
             {
@@ -112,12 +112,12 @@ namespace Ladderbot4.Data
             }
 
             divisionLeagues.Remove(leagueToRemove);
-            Save(leaguesByDivision);
+            SaveLeagues(leaguesByDivision);
         }
 
         public void AddTeamToLeague(Team newTeam, League chosenLeague)
         {
-            var leaguesByDivision = Load();
+            var leaguesByDivision = LoadAllLeagues();
 
             switch (newTeam.Division)
             {
@@ -152,13 +152,13 @@ namespace Ladderbot4.Data
                     break;
             }
 
-            Save(leaguesByDivision);
+            SaveLeagues(leaguesByDivision);
         }
 
         public void RemoveTeamFromLeague(Team team, League chosenLeague)
         {
             // Load all leagues from storage
-            var leaguesByDivision = Load();
+            var leaguesByDivision = LoadAllLeagues();
 
             // Get the leagues list based on the team's division
             List<League> relevantLeagues = team.Division switch
@@ -192,7 +192,7 @@ namespace Ladderbot4.Data
             }
 
             // Save the updated leagues
-            Save(leaguesByDivision);
+            SaveLeagues(leaguesByDivision);
 
             Console.WriteLine($"Team '{team.TeamName}' removed from league '{league.LeagueName}', and ranks updated.");
         }
