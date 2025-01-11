@@ -435,7 +435,12 @@ namespace Ladderbot4.Managers
                 _leagueManager.SaveAndReloadLeagueRegistry();
 
                 // TODO - Create and add States for new XvX League
-                return _embedManager.CreateDebugEmbed($"Registered league: Division {newLeague.Division} - Team Size {newLeague.TeamSize}");
+
+                // Backup to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
+                // Return embed
+                return _embedManager.CreateDebugEmbed($"Registered league: Name: {newLeague.LeagueName} - Division {newLeague.Division} - Team Size {newLeague.TeamSize}");
             }
             return _embedManager.CreateDebugEmbed("In-Progress.");
         }
@@ -475,6 +480,38 @@ namespace Ladderbot4.Managers
                 return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
             }
             return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
+        }
+
+        public Embed DeleteXvXLeagueProcess(string leagueName)
+        {
+            // Load latest save
+            _leagueManager.LoadLeagueRegistry();
+
+            // Check if League by given name exists
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            {
+                // Grab league object as reference for correct league info for embed
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+
+                // TODO - Remove all challenges associated with league
+                //
+
+                // Delete League from database
+                _leagueManager.DeleteXvXLeague(league.LeagueName);
+
+                // Save and reload League Registry
+                _leagueManager.SaveAndReloadLeagueRegistry();
+
+                // TODO - Remove the state associated with the league
+                //
+
+                // Backup to Git
+                _backupManager.CopyAndBackupFilesToGit();
+
+                // Return embed
+                return _embedManager.CreateDebugEmbed($"{league.LeagueName} - {league.Division} League has been deleted.");
+            }
+            return _embedManager.CreateDebugEmbed($"{leagueName} was not found in the database.");
         }
 
         public Embed DeleteLeagueProcess(string leagueName)

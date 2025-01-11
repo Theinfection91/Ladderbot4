@@ -176,6 +176,18 @@ namespace Ladderbot4.Managers
             return leaguesAsList;
         }
 
+        public League GetXvXLeagueByName(string leagueName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return league;
+                }
+            }
+            return null;
+        }
+
         public League GetLeagueByName(string leagueName)
         {
             foreach (var league in _leaguesByDivision.Leagues1v1)
@@ -311,7 +323,7 @@ namespace Ladderbot4.Managers
             LoadLeaguesDatabase();
         }
 
-        public void RemoveXvXLeague(string leagueName)
+        public void DeleteXvXLeague(string leagueName)
         {
             _leagueRegistryData.RemoveLeague(leagueName);
 

@@ -80,6 +80,25 @@ namespace Ladderbot4.Commands
                 await Context.Interaction.FollowupAsync(embed: errorResult);
             }
         }
+
+        [SlashCommand("delete_xvx", "Admin command to delete an XvX League entirely. Use with caution.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task DeleteXvXLeagueAsync(
+            [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
+        {
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.DeleteXvXLeagueProcess(leagueName.Trim().ToLower());
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
+        }
         #endregion
     }
 }
