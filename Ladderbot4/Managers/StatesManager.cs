@@ -11,32 +11,32 @@ namespace Ladderbot4.Managers
     public class StatesManager
     {
         private readonly LadderData _ladderData;
-        private readonly StatesAtlasData _stateAtlasData;
+        private readonly StatesAtlasData _statesAtlasData;
 
         private StatesByDivision _statesByDivision;
-        private StatesAtlas _stateAtlas;
+        private StatesAtlas _statesAtlas;
 
-        public StatesManager(LadderData ladderData, StatesAtlasData stateAtlasData)
+        public StatesManager(LadderData ladderData, StatesAtlasData statesAtlasData)
         {
             // OLD
             _ladderData = ladderData;
             // NEW
-            _stateAtlasData = stateAtlasData;
+            _statesAtlasData = statesAtlasData;
 
             // OLD
             _statesByDivision = _ladderData.LoadAllStates();
             // NEW
-            _stateAtlas = _stateAtlasData.Load();
+            _statesAtlas = _statesAtlasData.Load();
         }
 
         public void SaveStatesAtlas()
         {
-            _stateAtlasData.Save(_stateAtlas);
+            _statesAtlasData.Save(_statesAtlas);
         }
 
         public void LoadStatesAtlas()
         {
-            _stateAtlas = _stateAtlasData.Load();
+            _statesAtlas = _statesAtlasData.Load();
         }
 
         public void SaveAndReloadStatesAtlas()
@@ -59,6 +59,18 @@ namespace Ladderbot4.Managers
         {
             SaveStatesDatabase();
             LoadStatesDatabase();
+        }
+
+        public State GetXvXStateByLeague(League league)
+        {
+            foreach (State state in _statesAtlas.States)
+            {
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state;
+                }
+            }
+            return null;
         }
 
         public State GetStateByLeague(League leagueRef)
@@ -226,14 +238,14 @@ namespace Ladderbot4.Managers
 
         public void AddNewXvXState(State state)
         {
-            _stateAtlasData.AddState(state);
+            _statesAtlasData.AddState(state);
 
             LoadStatesAtlas();
         }
 
         public void RemoveXvXState(State state)
         {
-            _stateAtlasData.RemoveState(state);
+            _statesAtlasData.RemoveState(state);
 
             LoadStatesAtlas();
         }
