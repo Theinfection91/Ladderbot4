@@ -32,8 +32,16 @@ namespace Ladderbot4.Data
 
             if (stateAtlas != null)
             {
-                stateAtlas.States.Remove(state);
+                // Find correct state to remove
+                State? stateToRemove = stateAtlas.States.FirstOrDefault(s => s.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase));
 
+                if (stateToRemove == null)
+                {
+                    Console.WriteLine($"{DateTime.Now} StatesManager - The State with the League name of '{state.LeagueName}' was not found.");
+                    return;
+                }
+
+                stateAtlas.States.Remove(stateToRemove);
                 Save(stateAtlas);
             }
         }

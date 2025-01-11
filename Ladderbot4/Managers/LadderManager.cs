@@ -431,14 +431,8 @@ namespace Ladderbot4.Managers
                 // Add new league to LeagueRegistry
                 _leagueManager.AddNewXvXLeague(newLeague);
 
-                // Save and reload LeagueRegistry
-                _leagueManager.SaveAndReloadLeagueRegistry();
-
                 // Create and add State for new XvX League
                 _statesManager.AddNewXvXState(_statesManager.CreateNewState(newLeague.Name, newLeague.Format));
-
-                // Save and reload StatesAtlas
-                _statesManager.SaveAndReloadStatesAtlas();
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -446,7 +440,7 @@ namespace Ladderbot4.Managers
                 // Return embed
                 return _embedManager.CreateDebugEmbed($"Registered league: Name: {newLeague.Name} - Format {newLeague.Format} - Team Size {newLeague.TeamSize}");
             }
-            return _embedManager.CreateDebugEmbed("In-Progress.");
+            return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
         }
 
         //public Embed CreateLeagueProcess(string leagueName, string divisionType)
@@ -503,11 +497,8 @@ namespace Ladderbot4.Managers
                 // Delete League from database
                 _leagueManager.DeleteXvXLeague(league.Name);
 
-                // Save and reload League Registry
-                _leagueManager.SaveAndReloadLeagueRegistry();
-
-                // TODO - Remove the state associated with the league
-                //
+                // Remove the state associated with the league
+                _statesManager.RemoveXvXState(_statesManager.GetXvXStateByLeague(league));
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -518,43 +509,43 @@ namespace Ladderbot4.Managers
             return _embedManager.CreateDebugEmbed($"{leagueName} was not found in the database.");
         }
 
-        public Embed DeleteLeagueProcess(string leagueName)
-        {
-            // Load latest save
-            _leagueManager.LoadLeaguesDatabase();
+        //public Embed DeleteLeagueProcess(string leagueName)
+        //{
+        //    // Load latest save
+        //    _leagueManager.LoadLeaguesDatabase();
 
-            // Check if League by given name exist
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
-            {
-                // Grab league object
-                League leagueToRemove = _leagueManager.GetLeagueByName(leagueName);
-                if (leagueToRemove != null)
-                {
-                    // Remove all challenges associated with all teams in challenges.json
-                    _challengeManager.RemoveLeagueFromChallenges(leagueToRemove.Format, leagueToRemove.Name);
+        //    // Check if League by given name exist
+        //    if (!_leagueManager.IsLeagueNameUnique(leagueName))
+        //    {
+        //        // Grab league object
+        //        League leagueToRemove = _leagueManager.GetLeagueByName(leagueName);
+        //        if (leagueToRemove != null)
+        //        {
+        //            // Remove all challenges associated with all teams in challenges.json
+        //            _challengeManager.RemoveLeagueFromChallenges(leagueToRemove.Format, leagueToRemove.Name);
 
-                    // Remove League from leagues.json
-                    _leagueManager.RemoveLeague(leagueToRemove.Name, leagueToRemove.Format);
+        //            // Remove League from leagues.json
+        //            _leagueManager.RemoveLeague(leagueToRemove.Name, leagueToRemove.Format);
 
-                    // Save and reload
-                    _leagueManager.SaveAndReloadLeaguesDatabase();
+        //            // Save and reload
+        //            _leagueManager.SaveAndReloadLeaguesDatabase();
 
-                    // Remove the State associated with league
-                    _statesManager.RemoveLeagueState(leagueToRemove.Name, leagueToRemove.Format);
+        //            // Remove the State associated with league
+        //            _statesManager.RemoveLeagueState(leagueToRemove.Name, leagueToRemove.Format);
 
-                    // Save and reload
-                    _statesManager.SaveAndReloadStatesDatabase();
+        //            // Save and reload
+        //            _statesManager.SaveAndReloadStatesDatabase();
 
-                    // Backup to Git
-                    _backupManager.CopyAndBackupFilesToGit();
+        //            // Backup to Git
+        //            _backupManager.CopyAndBackupFilesToGit();
 
-                    // Return success embed
-                    return _embedManager.DeleteLeagueSuccessEmbed(leagueToRemove);
-                }
-                return _embedManager.DeleteLeagueErrorEmbed($"The League object that was found was null. Contact the bot's admin.");
-            }
-            return _embedManager.DeleteLeagueErrorEmbed($"No League was found by the given League Name: {leagueName}");
-        }
+        //            // Return success embed
+        //            return _embedManager.DeleteLeagueSuccessEmbed(leagueToRemove);
+        //        }
+        //        return _embedManager.DeleteLeagueErrorEmbed($"The League object that was found was null. Contact the bot's admin.");
+        //    }
+        //    return _embedManager.DeleteLeagueErrorEmbed($"No League was found by the given League Name: {leagueName}");
+        //}
         #endregion
 
         #region Register/Remove Team Logic
