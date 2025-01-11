@@ -11,13 +11,32 @@ namespace Ladderbot4.Managers
     public class StatesManager
     {
         private readonly LadderData _ladderData;
+        private readonly StatesAtlasData _stateAtlasData;
 
         private StatesByDivision _statesByDivision;
+        private StatesAtlas _stateAtlas;
 
-        public StatesManager(LadderData ladderData)
+        public StatesManager(LadderData ladderData, StatesAtlasData stateAtlasData)
         {
+            // OLD
             _ladderData = ladderData;
+            // NEW
+            _stateAtlasData = stateAtlasData;
+
+            // OLD
             _statesByDivision = _ladderData.LoadAllStates();
+            // NEW
+            _stateAtlas = _stateAtlasData.Load();
+        }
+
+        public void SaveStateAtlas()
+        {
+            _stateAtlasData.Save(_stateAtlas);
+        }
+
+        public void LoadStateAtlas()
+        {
+            _stateAtlas = _stateAtlasData.Load();
         }
 
         public void LoadStatesDatabase()

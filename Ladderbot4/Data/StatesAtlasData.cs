@@ -1,0 +1,41 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Ladderbot4.Models;
+
+namespace Ladderbot4.Data
+{
+    public class StatesAtlasData : Data<StatesAtlas>
+    {
+        public StatesAtlasData() : base("states_atlas.json", "Databases")
+        {
+
+        }
+
+        public void AddState(State newState)
+        {
+            StatesAtlas stateAtlas = Load();
+
+            if (stateAtlas != null)
+            {
+                stateAtlas.States.Add(newState);
+
+                Save(stateAtlas);
+            }
+        }
+
+        public void RemoveState(State state)
+        {
+            StatesAtlas stateAtlas = Load();
+
+            if (stateAtlas != null)
+            {
+                stateAtlas.States.Remove(state);
+
+                Save(stateAtlas);
+            }
+        }
+    }
+}

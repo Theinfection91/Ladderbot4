@@ -551,7 +551,6 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.DeleteLeagueErrorEmbed($"No League was found by the given League Name: {leagueName}");
         }
-
         #endregion
 
         #region Register/Remove Team Logic

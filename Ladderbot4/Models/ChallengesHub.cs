@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Models
 {
-    public class ChallengeHub
+    public class ChallengesHub
     {
         public List<Challenge> Challenges { get; set; }
 
-        public ChallengeHub()
+        public ChallengesHub()
         {
             Challenges = [];
         }

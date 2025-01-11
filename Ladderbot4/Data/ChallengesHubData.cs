@@ -7,13 +7,12 @@ using Ladderbot4.Models;
 
 namespace Ladderbot4.Data
 {
-    public class ChallengeHubData : Data<ChallengeHub>
+    public class ChallengesHubData : Data<ChallengesHub>
     {
-        public ChallengeHubData() : base("challenge_hub.json", "Databases")
+        public ChallengesHubData() : base("challenges_hub.json", "Databases")
         {
 
         }
-
 
     }
 }

@@ -15,10 +15,10 @@ namespace Ladderbot4.Models
         public DateTime CreatedOn { get; set; }
         public List<Team> Teams { get; set; }
 
-        public League(string leagueName, string leagueDivision)
+        public League(string leagueName, string leagueFormat)
         {
             Name = leagueName;
-            Format = leagueDivision;
+            Format = leagueFormat;
             CreatedOn = DateTime.Now;
             Teams = [];
         }
