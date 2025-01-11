@@ -438,9 +438,9 @@ namespace Ladderbot4.Managers
                 _backupManager.CopyAndBackupFilesToGit();
 
                 // Return embed
-                return _embedManager.CreateDebugEmbed($"Registered league: Name: {newLeague.Name} - Format {newLeague.Format} - Team Size {newLeague.TeamSize}");
+                return _embedManager.CreateLeagueSuccessEmbed(newLeague);
             }
-            return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
+            return _embedManager.CreateLeagueErrorEmbed($"'{leagueName.Trim()}' already exists as a League in the database.");
         }
 
         //public Embed CreateLeagueProcess(string leagueName, string divisionType)
@@ -491,8 +491,8 @@ namespace Ladderbot4.Managers
                 // Grab league object as reference for correct league info for embed
                 League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // TODO - Remove all challenges associated with league
-                //
+                // TESTING - Remove all challenges associated with league
+                _challengeManager.RemoveXvXLeagueFromChallenges(league.Name);
 
                 // Delete League from database
                 _leagueManager.DeleteXvXLeague(league.Name);
@@ -504,9 +504,9 @@ namespace Ladderbot4.Managers
                 _backupManager.CopyAndBackupFilesToGit();
 
                 // Return embed
-                return _embedManager.CreateDebugEmbed($"{league.Name} - {league.Format} League has been deleted.");
+                return _embedManager.DeleteLeagueSuccessEmbed(league);
             }
-            return _embedManager.CreateDebugEmbed($"{leagueName} was not found in the database.");
+            return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
         //public Embed DeleteLeagueProcess(string leagueName)

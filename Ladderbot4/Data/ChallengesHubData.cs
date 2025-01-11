@@ -14,5 +14,37 @@ namespace Ladderbot4.Data
 
         }
 
+        public void AddChallenge(string leagueName, Challenge challenge)
+        {
+            ChallengesHub challengesHub = Load();
+            challengesHub.AddChallenge(leagueName, challenge);
+            Save(challengesHub);
+        }
+
+        public void RemoveChallenge(string leagueName, Predicate<Challenge> challenge)
+        {
+            ChallengesHub challengesHub = Load();
+            challengesHub.RemoveChallenge(leagueName, challenge);
+            Save(challengesHub);
+        }
+
+        public void SudoRemoveChallenge(string leagueName, string teamName)
+        {
+            RemoveChallenge(leagueName, challenge =>
+            challenge.Challenger.Equals(teamName, StringComparison.OrdinalIgnoreCase) ||
+            challenge.Challenged.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public void RemoveLeagueFromChallenges(string leagueName)
+        {
+            ChallengesHub challengesHub = Load();
+
+            // Check if the league name exists in Challenges
+            if (challengesHub.Challenges.ContainsKey(leagueName))
+            {
+                challengesHub.Challenges.Remove(leagueName);
+                Save(challengesHub);
+            }
+        }
     }
 }

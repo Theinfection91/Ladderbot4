@@ -19,9 +19,9 @@ namespace Ladderbot4.Managers
 
         public LeagueManager(LeagueData leagueData, LeagueRegistryData leagueRegistryData)
         {
-            // Phase out old LeagueData
+            // Phase out OLD LeagueData
             _leagueData = leagueData;
-            // Introduce and migrate to new LeagueRegistryData
+            // Introduce and migrate to NEW LeagueRegistryData
             _leagueRegistryData = leagueRegistryData;
             
             // Load OLD leagues.json - Phase out

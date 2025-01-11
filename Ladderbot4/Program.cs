@@ -54,8 +54,8 @@ namespace Ladderbot4
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
 
-                    services.AddSingleton<ChallengeData>();                   
                     // Phase out OLD no base 'Data' classes
+                    services.AddSingleton<ChallengeData>();                                       
                     services.AddSingleton<HistoryData>();
                     services.AddSingleton<LadderData>();
                     services.AddSingleton<LeagueData>();
@@ -63,6 +63,7 @@ namespace Ladderbot4
                     services.AddSingleton<SettingsData>();
 
                     // Register NEW 4.2.0 'Data' services
+                    services.AddSingleton<ChallengesHubData>();
                     services.AddSingleton<LeagueRegistryData>();
                     services.AddSingleton<StatesAtlasData>();
 

@@ -13,12 +13,35 @@ namespace Ladderbot4.Managers
     public class ChallengeManager
     {
         private readonly DiscordSocketClient _client;
-        private readonly ChallengeData _challengeData;
 
-        public ChallengeManager(ChallengeData challengeData, DiscordSocketClient client)
+        // OLD
+        private readonly ChallengeData _challengeData;
+        // NEW
+        private readonly ChallengesHubData _challengesHubData;
+
+        // NEW
+        private ChallengesHub _challengesHub;
+
+        public ChallengeManager(ChallengeData challengeData, ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
             _client = client;
+            // OLD
             _challengeData = challengeData;
+
+            // NEW
+            _challengesHubData = challengesHubData;
+            // Load _challengesHub field from json
+            _challengesHub = _challengesHubData.Load();
+        }
+
+        public void SaveChallengesHub()
+        {
+            _challengesHubData.Save(_challengesHub);
+        }
+
+        public void LoadChallengesHub()
+        {
+            _challengesHub = _challengesHubData.Load();
         }
 
         public void LoadChallengesDatabase()
@@ -157,6 +180,13 @@ namespace Ladderbot4.Managers
         public void SudoRemoveChallenge(string division, string leagueName, string teamName)
         {
             _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
+        }
+
+        public void RemoveXvXLeagueFromChallenges(string leagueName)
+        {
+            _challengesHubData.RemoveLeagueFromChallenges(leagueName);
+
+            LoadChallengesHub();
         }
 
         public void RemoveLeagueFromChallenges(string division, string leagueName)

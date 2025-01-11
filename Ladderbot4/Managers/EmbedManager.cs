@@ -127,7 +127,7 @@ namespace Ladderbot4.Managers
             .WithColor(Color.Green)
             .WithDescription($"A new {league.Format} League has been created!")
             .AddField("League Name", $"**{league.Name}**", inline: true)
-            .AddField("Division", $"**{league.Format}**", inline: true)
+            .AddField("Format", $"**{league.Format}**", inline: true)
             .WithFooter("Let's add some teams and get started!")
             .WithTimestamp(DateTimeOffset.Now);
 
@@ -153,7 +153,7 @@ namespace Ladderbot4.Managers
             .WithColor(Color.Green)
             .WithDescription($"A {league.Format} League was deleted!")
             .AddField("League Name", $"**{league.Name}**", inline: true)
-            .AddField("Division", $"**{league.Format}**", inline: true)
+            .AddField("Format", $"**{league.Format}**", inline: true)
             .WithFooter("Create a new league or continue an existing one!")
             .WithTimestamp(DateTimeOffset.Now);
 
@@ -614,7 +614,7 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ League Not Found")
                 .WithColor(Color.Red)
-                .WithDescription($"The League **{leagueName}** was not found in the database. Please try again.")
+                .WithDescription($"**{leagueName}** was not found in the League database. Please try again.")
                 .WithFooter("League name verification failed.")
                 .WithTimestamp(DateTimeOffset.Now);
 
