@@ -97,6 +97,14 @@ namespace Ladderbot4.Managers
            team.Losses -= numberOfLosses;
         }
 
+        public Team CreateXvXTeamObject(string teamName, string leagueName, int teamSize, string leagueFormat, int rank, List<Member> members, int wins = 0, int losses = 0)
+        {
+            return new Team(teamName, leagueName, leagueFormat, rank, wins, losses, members)
+            {
+                Size = teamSize
+            };
+        }
+
         public Team CreateTeamObject(string teamName, string leagueName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)
         {
             return new Team(teamName, leagueName, division, rank, wins, losses, members);

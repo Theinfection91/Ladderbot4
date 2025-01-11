@@ -24,23 +24,60 @@ namespace Ladderbot4.Commands
         #region Register/Remove Team Commands
         [SlashCommand("register", "Admin command to register a team in the specified league.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task RegisterTeamAsync(
-        [Summary("teamName", "Name of the team to be registered")] string teamName,
-        [Summary("leagueName", "The league to register the team to")] string leagueName,
-        [Summary("member1", "For creating 1v1 team")] IUser member1,
-        [Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
-        [Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
+        public async Task RegisterXvXTeamAsync(
+            [Summary("teamName", "Name of the team to be registered")] string teamName,
+            [Summary("leagueName", "The league to register the team to")] string leagueName,
+            [Summary("member1", "A member to add to the team.")] IUser member1,
+            [Summary("member2", "A member to add to the team.")] IUser? member2 = null,
+            [Summary("member3", "A member to add to the team.")] IUser? member3 = null,
+            [Summary("member4", "A member to add to the team.")] IUser? member4 = null,
+            [Summary("member5", "A member to add to the team.")] IUser? member5 = null,
+            [Summary("member6", "A member to add to the team.")] IUser? member6 = null,
+            [Summary("member7", "A member to add to the team.")] IUser? member7 = null,
+            [Summary("member8", "A member to add to the team.")] IUser? member8 = null,
+            [Summary("member9", "A member to add to the team.")] IUser? member9 = null,
+            [Summary("member10", "A member to add to the team.")] IUser? member10 = null,
+            [Summary("member11", "A member to add to the team.")] IUser? member11 = null,
+            [Summary("member12", "A member to add to the team.")] IUser? member12 = null,
+            [Summary("member13", "A member to add to the team.")] IUser? member13 = null,
+            [Summary("member14", "A member to add to the team.")] IUser? member14 = null,
+            [Summary("member15", "A member to add to the team.")] IUser? member15 = null,
+            [Summary("member16", "A member to add to the team.")] IUser? member16 = null,
+            [Summary("member17", "A member to add to the team.")] IUser? member17 = null,
+            [Summary("member18", "A member to add to the team.")] IUser? member18 = null,
+            [Summary("member19", "A member to add to the team.")] IUser? member19 = null,
+            [Summary("member20", "A member to add to the team.")] IUser? member20 = null)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
 
-                // Compile members into a list
-                var members = new List<IUser> { member1 };
+                // Initialize the list of members
+                var members = new List<IUser>() { member1 };
+
+                // Add members to the list if they are not null
                 if (member2 != null) members.Add(member2);
                 if (member3 != null) members.Add(member3);
+                if (member4 != null) members.Add(member4);
+                if (member5 != null) members.Add(member5);
+                if (member6 != null) members.Add(member6);
+                if (member7 != null) members.Add(member7);
+                if (member8 != null) members.Add(member8);
+                if (member9 != null) members.Add(member9);
+                if (member10 != null) members.Add(member10);
+                if (member11 != null) members.Add(member11);
+                if (member12 != null) members.Add(member12);
+                if (member13 != null) members.Add(member13);
+                if (member14 != null) members.Add(member14);
+                if (member15 != null) members.Add(member15);
+                if (member16 != null) members.Add(member16);
+                if (member17 != null) members.Add(member17);
+                if (member18 != null) members.Add(member18);
+                if (member19 != null) members.Add(member19);
+                if (member20 != null) members.Add(member20);
 
-                var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
+                var result = _ladderManager.RegisterTeamToXvXLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
+
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -51,7 +88,36 @@ namespace Ladderbot4.Commands
             }
         }
 
-        [SlashCommand("remove", "Admin command to remove team from teams database.")]
+        //[SlashCommand("register", "Admin command to register a team in the specified league.")]
+        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        //public async Task RegisterTeamAsync(
+        //[Summary("teamName", "Name of the team to be registered")] string teamName,
+        //[Summary("leagueName", "The league to register the team to")] string leagueName,
+        //[Summary("member1", "For creating 1v1 team")] IUser member1,
+        //[Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
+        //[Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
+        //{
+        //    try
+        //    {
+        //        await Context.Interaction.DeferAsync();
+
+        //        // Compile members into a list
+        //        var members = new List<IUser> { member1 };
+        //        if (member2 != null) members.Add(member2);
+        //        if (member3 != null) members.Add(member3);
+
+        //        var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
+        //        await Context.Interaction.FollowupAsync(embed: result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+        //        await Context.Interaction.FollowupAsync(embed: errorResult);
+        //    }
+        //}
+
+        [SlashCommand("remove_old", "Admin command to remove team from teams database.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RemoveTeamAsync(
         [Summary("teamName", "Name of the team to be removed.")] string teamName)

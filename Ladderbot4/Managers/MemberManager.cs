@@ -70,6 +70,14 @@ namespace Ladderbot4.Managers
             return membersList;
         }
 
+        public bool IsXvXMemberCountCorrect(List<Member> members, int teamSize)
+        {
+            if (members.Count.Equals(teamSize)) return true;
+
+            else if (teamSize >= 21 && members.Count >= 20) return true;
+
+            else return false;
+        }
 
         public bool IsMemberCountCorrect(List<Member> membersList, string divisionType)
         {

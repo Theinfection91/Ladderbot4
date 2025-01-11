@@ -549,53 +549,101 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Register/Remove Team Logic
-        public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
+        public Embed RegisterTeamToXvXLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
-            // Load latest save
-            _leagueManager.LoadLeaguesDatabase();
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
 
-            // Check if League by given name exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            // Check if league by given name exists
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab reference of league
-                League leagueReference = _leagueManager.GetLeagueByName(leagueName);
+                // Grab reference of League
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                if (_leagueManager.IsTeamNameUnique(teamName))
+                // Check if given team name is unique across every league
+                if (_leagueManager.IsXvXTeamNameUnique(teamName))
                 {
-                    // Convert User Context Info into Member objects
-                    List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
+                    // Convert IUser list to Members list
+                    List<Member> membersList = _memberManager.ConvertMembersListToObjects(members);
 
-                    if (_memberManager.IsMemberCountCorrect(newMemberList, leagueReference.Format) || _settingsManager.IsUserSuperAdmin(context.User.Id))
+                    // Check if member count matches team size
+                    // !! Teams that require 21 or more members will need to add remaining members using soon to be implemented commands !!
+                    if (_memberManager.IsXvXMemberCountCorrect(membersList, league.TeamSize) || _settingsManager.IsUserSuperAdmin(context.User.Id))
                     {
                         // Check if any member is already on a team in the given league
-                        foreach (Member member in newMemberList)
+                        foreach (Member member in membersList)
                         {
-                            if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
+                            if (_memberManager.IsMemberOnTeamInLeague(member, league.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
                             {
-                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {leagueReference.Name} League.");
+                                return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {league.Name} League.");
                             }
                         }
 
                         // Create team object
-                        Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.Name, leagueReference.Format, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
+                        Team team = _teamManager.CreateXvXTeamObject(teamName, league.Name, league.TeamSize, league.Format, _teamManager.GetTeamCountInLeague(league) + 1, membersList);
 
                         // Add team to league
-                        _leagueManager.AddNewTeamToLeague(newTeam, leagueReference);
-
-                        // Save and reload Leagues Database
-                        _leagueManager.SaveAndReloadLeaguesDatabase();
+                        _leagueManager.AddXvXTeamToLeague(team, league);
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.RegisterTeamToLeagueSuccessEmbed(newTeam, leagueReference);
+                        return _embedManager.RegisterTeamToLeagueSuccessEmbed(team, league);
                     }
-                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for specified division type: Division - {leagueReference.Format} | Member Count - {newMemberList.Count}.");
+                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members will need to add remaining members using soon to be implemented commands in /team add.");
                 }
                 return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
+
+        //public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
+        //{
+        //    // Load latest save
+        //    _leagueManager.LoadLeaguesDatabase();
+
+        //    // Check if League by given name exists
+        //    if (!_leagueManager.IsLeagueNameUnique(leagueName))
+        //    {
+        //        // Grab reference of league
+        //        League leagueReference = _leagueManager.GetLeagueByName(leagueName);
+
+        //        if (_leagueManager.IsTeamNameUnique(teamName))
+        //        {
+        //            // Convert User Context Info into Member objects
+        //            List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
+
+        //            if (_memberManager.IsMemberCountCorrect(newMemberList, leagueReference.Format) || _settingsManager.IsUserSuperAdmin(context.User.Id))
+        //            {
+        //                // Check if any member is already on a team in the given league
+        //                foreach (Member member in newMemberList)
+        //                {
+        //                    if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
+        //                    {
+        //                        return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {leagueReference.Name} League.");
+        //                    }
+        //                }
+
+        //                // Create team object
+        //                Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.Name, leagueReference.Format, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
+
+        //                // Add team to league
+        //                _leagueManager.AddNewTeamToLeague(newTeam, leagueReference);
+
+        //                // Save and reload Leagues Database
+        //                _leagueManager.SaveAndReloadLeaguesDatabase();
+
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
+
+        //                return _embedManager.RegisterTeamToLeagueSuccessEmbed(newTeam, leagueReference);
+        //            }
+        //            return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for specified division type: Division - {leagueReference.Format} | Member Count - {newMemberList.Count}.");
+        //        }
+        //        return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
+        //    }
+        //    return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        //}
 
         public Embed RemoveTeamFromLeagueProcess(string teamName)
         {

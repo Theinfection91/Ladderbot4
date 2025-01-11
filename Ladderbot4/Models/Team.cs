@@ -28,11 +28,11 @@ namespace Ladderbot4.Models
         // W/L Ratio
         public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
-        public Team(string teamName, string league, string format, int rank, int wins, int losses, List<Member> members)
+        public Team(string teamName, string league, string leagueFormat, int rank, int wins, int losses, List<Member> members)
         {
             Name = teamName;
             League = league;
-            LeagueFormat = format;
+            LeagueFormat = leagueFormat;
             Rank = rank;
             Wins = wins;
             Losses = losses;
@@ -42,13 +42,19 @@ namespace Ladderbot4.Models
 
         public string GetAllMemberNamesToStr()
         {
-            return Members.Count switch
+            //return Members.Count switch
+            //{
+            //    1 => $"{Members[0].DisplayName}",
+            //    2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
+            //    3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[2].DisplayName}",
+            //    _ => $"Incorrect member count. Count: {Members.Count}",
+            //};
+            StringBuilder sb = new();
+            foreach (Member m in Members)
             {
-                1 => $"{Members[0].DisplayName}",
-                2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
-                3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[2].DisplayName}",
-                _ => $"Incorrect member count. Count: {Members.Count}",
-            };
+                sb.Append($"{m.DisplayName}, ");
+            }
+            return sb.ToString();
         }
     }
 }

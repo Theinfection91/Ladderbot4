@@ -118,6 +118,21 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsXvXTeamNameUnique(string teamName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (team.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         public bool IsTeamsInSameLeague(League league, Team teamOne, Team teamTwo)
         {
             foreach (Team team in league.Teams)
@@ -277,6 +292,13 @@ namespace Ladderbot4.Managers
         public void AddNewTeamToLeague(Team newTeam, League league)
         {
             _leagueData.AddTeamToLeague(newTeam, league);
+
+            LoadLeaguesDatabase();
+        }
+
+        public void AddXvXTeamToLeague(Team team, League league)
+        {
+            _leagueRegistryData.AddTeamToLeague(team, league);
 
             LoadLeaguesDatabase();
         }
