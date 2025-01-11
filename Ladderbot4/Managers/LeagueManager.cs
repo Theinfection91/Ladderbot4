@@ -268,6 +268,17 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public Team? GetTeamByNameFromXvXLeagues(string teamName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                Team? team = league.Teams.FirstOrDefault(t => t.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+                if (team != null)
+                    return team;
+            }
+            return null;
+        }
+
         public Team? GetTeamByNameFromLeagues(string teamName)
         {
             // Search all leagues by division
@@ -300,7 +311,7 @@ namespace Ladderbot4.Managers
         {
             _leagueRegistryData.AddTeamToLeague(team, league);
 
-            LoadLeaguesDatabase();
+            LoadLeagueRegistry();
         }
 
         public void RemoveTeamFromLeague(Team team, League league)
@@ -309,6 +320,13 @@ namespace Ladderbot4.Managers
 
             // Load newest save
             LoadLeaguesDatabase();
+        }
+
+        public void RemoveXvXTeamFromLeague(Team team, League league)
+        {
+            _leagueRegistryData.RemoveTeamFromLeague(team, league);
+
+            LoadLeagueRegistry();
         }
 
         public League CreateXvXLeagueObject(string leagueName, string leagueDivision, int teamSize)

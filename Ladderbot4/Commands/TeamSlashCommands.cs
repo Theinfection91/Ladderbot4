@@ -117,16 +117,16 @@ namespace Ladderbot4.Commands
         //    }
         //}
 
-        [SlashCommand("remove_old", "Admin command to remove team from teams database.")]
+        [SlashCommand("remove", "Admin command to remove team from teams database.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task RemoveTeamAsync(
+        public async Task RemoveXvXTeamAsync(
         [Summary("teamName", "Name of the team to be removed.")] string teamName)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
+                var result = _ladderManager.RemoveTeamFromXvXLeagueProcess(teamName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -137,6 +137,27 @@ namespace Ladderbot4.Commands
                 await Context.Interaction.FollowupAsync(embed: errorResult);
             }
         }
+
+        //[SlashCommand("remove_old", "Admin command to remove team from teams database.")]
+        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        //public async Task RemoveTeamAsync(
+        //[Summary("teamName", "Name of the team to be removed.")] string teamName)
+        //{
+        //    try
+        //    {
+        //        await Context.Interaction.DeferAsync();
+
+        //        var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
+
+        //        await Context.Interaction.FollowupAsync(embed: result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+        //        await Context.Interaction.FollowupAsync(embed: errorResult);
+        //    }
+        //}
         #endregion
 
         // Team Add Group

@@ -644,41 +644,73 @@ namespace Ladderbot4.Managers
         //    }
         //    return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         //}
-
-        public Embed RemoveTeamFromLeagueProcess(string teamName)
+        public Embed RemoveTeamFromXvXLeagueProcess(string teamName)
         {
             // Load latest save
-            _leagueManager.LoadLeaguesDatabase();
+            _leagueManager.LoadLeagueRegistry();
 
             // Check if Team exists in any League
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
-                // Grab Team Object
-                Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                // Grab Team object
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Grab League object
-                League correctLeague = _leagueManager.GetLeagueFromTeamName(teamToRemove.Name);
+                League league = _leagueManager.GetXvXLeagueByName(team.League);
 
-                // Remove all Challenges from Database associated with team
-                _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, teamName);
+                // Remove all Challenges associated with Team
+                _challengeManager.SudoRemoveXvXChallenge(league.Name, team.Name);
 
-                //Remove the team correctly and correct ranks
-                _leagueManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
+                // Remove team
+                _leagueManager.RemoveXvXTeamFromLeague(team, league);
 
-                ReassignRanksInLeague(correctLeague);
+                ReassignRanksInLeague(league);
 
                 // Save and reload
-                _leagueManager.SaveAndReloadLeaguesDatabase();
+                _leagueManager.SaveAndReloadLeagueRegistry();
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
 
                 // Return success embed
-                return _embedManager.RemoveTeamSuccessEmbed(teamToRemove, correctLeague);
+                return _embedManager.RemoveTeamSuccessEmbed(team, league);
             }
-
             return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
+
+        //public Embed RemoveTeamFromLeagueProcess(string teamName)
+        //{
+        //    // Load latest save
+        //    _leagueManager.LoadLeaguesDatabase();
+
+        //    // Check if Team exists in any League
+        //    if (!_leagueManager.IsTeamNameUnique(teamName))
+        //    {
+        //        // Grab Team Object
+        //        Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
+
+        //        // Grab League object
+        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(teamToRemove.Name);
+
+        //        // Remove all Challenges from Database associated with team
+        //        _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, teamName);
+
+        //        // Remove the team correctly and correct ranks
+        //        _leagueManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
+
+        //        ReassignRanksInLeague(correctLeague);
+
+        //        // Save and reload
+        //        _leagueManager.SaveAndReloadLeaguesDatabase();
+
+        //        // Backup the database to Git
+        //        _backupManager.CopyAndBackupFilesToGit();
+
+        //        // Return success embed
+        //        return _embedManager.RemoveTeamSuccessEmbed(teamToRemove, correctLeague);
+        //    }
+        //    return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        //}
         #endregion
 
         #region Challenge Based Logic

@@ -182,6 +182,21 @@ namespace Ladderbot4.Managers
             _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
         }
 
+        public void AddNewXvXChallenge(string leagueName, Challenge challenge)
+        {
+            _challengesHubData.AddChallenge(leagueName, challenge);
+        }
+
+        public void RemoveXvXChallenge(string leagueName, Predicate<Challenge> challenge)
+        {
+            _challengesHubData.RemoveChallenge(leagueName, challenge);
+        }
+
+        public void SudoRemoveXvXChallenge(string leagueName, string teamName)
+        {
+            _challengesHubData.SudoRemoveChallenge(leagueName, teamName);
+        }
+
         public void RemoveXvXLeagueFromChallenges(string leagueName)
         {
             _challengesHubData.RemoveLeagueFromChallenges(leagueName);

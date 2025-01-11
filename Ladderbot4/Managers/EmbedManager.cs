@@ -207,7 +207,7 @@ namespace Ladderbot4.Managers
                 .WithTitle("✅ Team Removed Successfully")
                 .WithColor(Color.Green)
                 .WithDescription($"The team **{team.Name}** has been successfully removed from **{league.Name}** ({league.Format} League).")
-                .AddField("Division", league.Format, inline: true)
+                .AddField("Format", league.Format, inline: true)
                 .AddField("Removed Members", team.GetAllMemberNamesToStr(), inline: false)
                 .WithFooter("Team removal is complete.")
                 .WithTimestamp(DateTimeOffset.Now);
