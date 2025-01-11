@@ -40,7 +40,7 @@ namespace Ladderbot4.Managers
         {
             IEnumerable<State> states;
 
-            switch (leagueRef.Division)
+            switch (leagueRef.Format)
             {
                 case "1v1":
                     states = _statesByDivision.States1v1;
@@ -59,17 +59,17 @@ namespace Ladderbot4.Managers
             }
 
             return states?.FirstOrDefault(state =>
-                state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase));
+                state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsLadderRunning(League leagueRef)
         {
-            switch (leagueRef.Division)
+            switch (leagueRef.Format)
             {
                 case "1v1":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             return state.IsLadderRunning;
                         }
@@ -79,7 +79,7 @@ namespace Ladderbot4.Managers
                 case "2v2":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             return state.IsLadderRunning;
                         }
@@ -89,7 +89,7 @@ namespace Ladderbot4.Managers
                 case "3v3":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             return state.IsLadderRunning;
                         }
@@ -154,12 +154,12 @@ namespace Ladderbot4.Managers
 
         public void SetLadderRunning(League leagueRef, bool trueOrFalse)
         {
-            switch (leagueRef.Division)
+            switch (leagueRef.Format)
             {
                 case "1v1":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
                         {
                             state.IsLadderRunning = trueOrFalse;
                         }
@@ -169,7 +169,7 @@ namespace Ladderbot4.Managers
                 case "2v2":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
                         {
                             state.IsLadderRunning = trueOrFalse;
                         }
@@ -179,7 +179,7 @@ namespace Ladderbot4.Managers
                 case "3v3":
                     foreach (State state in _statesByDivision.States1v1)
                     {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
                         {
                             state.IsLadderRunning = trueOrFalse;
                         }

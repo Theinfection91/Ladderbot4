@@ -31,7 +31,7 @@ namespace Ladderbot4.Data
             LeagueRegistry leagueRegistry = Load();
 
             // Find League
-            League? leagueToRemove = leagueRegistry.Leagues.FirstOrDefault(l => l.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
+            League? leagueToRemove = leagueRegistry.Leagues.FirstOrDefault(l => l.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
 
             if (leagueToRemove == null)
             {
@@ -50,7 +50,7 @@ namespace Ladderbot4.Data
 
             foreach (League league in leagueRegistry.Leagues)
             {
-                if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase))
                 {
                     league.AddTeam(team);
                 }
@@ -63,7 +63,7 @@ namespace Ladderbot4.Data
             LeagueRegistry leagueRegistry = Load();
 
             // Find League
-            League? league = leagueRegistry.Leagues.FirstOrDefault(l => l.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase));
+            League? league = leagueRegistry.Leagues.FirstOrDefault(l => l.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase));
 
             // Remove team from League
             league.RemoveTeam(team);
@@ -81,7 +81,7 @@ namespace Ladderbot4.Data
             // Save the League Registry
             Save(leagueRegistry);
 
-            Console.WriteLine($"DEBUG - LeagueRegistryData - Team '{team.TeamName}' removed from League '{league.LeagueName}', and ranks updated.");
+            Console.WriteLine($"DEBUG - LeagueRegistryData - Team '{team.Name}' removed from League '{league.Name}', and ranks updated.");
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Ladderbot4.Data
             var pastMatchesByDivision = LoadAllPastMatches();
 
             // Add match to correct division
-            switch (match.Division)
+            switch (match.LeagueFormat)
             {
                 case "1v1":
                     pastMatchesByDivision.History1v1.Add(match);

@@ -77,7 +77,7 @@ namespace Ladderbot4.Managers
                 foreach (League league in division)
                 {
                     // Compare team names (case-insensitive)
-                    if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                     {
                         return false; // Name is not unique
                     }
@@ -90,7 +90,7 @@ namespace Ladderbot4.Managers
         {
             foreach (League league in _leagueRegistry.Leagues)
             {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                 {
                     return false; // Name is not unique
                 }
@@ -107,7 +107,7 @@ namespace Ladderbot4.Managers
                     foreach (Team team in league.Teams)
                     {
                         // Compare team names (case-insensitive)
-                        if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        if (team.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase))
                         {
                             return false; // Name is not unique
                         }
@@ -153,7 +153,7 @@ namespace Ladderbot4.Managers
             // Iterate and find each League with specified division type and add to list.
             foreach (League league in allLeagues)
             {
-                if (league.Division.Equals(divisionType, StringComparison.OrdinalIgnoreCase))
+                if (league.Format.Equals(divisionType, StringComparison.OrdinalIgnoreCase))
                 {
                     divisionLeagues.Add(league);
                 }
@@ -180,7 +180,7 @@ namespace Ladderbot4.Managers
         {
             foreach (League league in _leagueRegistry.Leagues)
             {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                 {
                     return league;
                 }
@@ -192,19 +192,19 @@ namespace Ladderbot4.Managers
         {
             foreach (var league in _leaguesByDivision.Leagues1v1)
             {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                     return league;
             }
 
             foreach (var league in _leaguesByDivision.Leagues2v2)
             {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                     return league;
             }
 
             foreach (var league in _leaguesByDivision.Leagues3v3)
             {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                     return league;
             }
 
@@ -218,7 +218,7 @@ namespace Ladderbot4.Managers
             {
                 foreach (Team team in league.Teams)
                 {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    if (team.Name.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
                     {
                         correctLeague = league;
                         return league;
@@ -230,7 +230,7 @@ namespace Ladderbot4.Managers
             {
                 foreach (Team team in league.Teams)
                 {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    if (team.Name.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
                     {
                         correctLeague = league;
                         return league;
@@ -242,7 +242,7 @@ namespace Ladderbot4.Managers
             {
                 foreach (Team team in league.Teams)
                 {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    if (team.Name.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
                     {
                         correctLeague = league;
                         return league;
@@ -261,7 +261,7 @@ namespace Ladderbot4.Managers
                 foreach (var league in leagueList)
                 {
                     // Find the team by name
-                    var team = league.Teams.FirstOrDefault(t => t.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+                    var team = league.Teams.FirstOrDefault(t => t.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase));
                     if (team != null)
                         return team; // Return the exact reference
                 }

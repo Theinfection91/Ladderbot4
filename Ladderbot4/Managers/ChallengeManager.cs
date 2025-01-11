@@ -36,8 +36,8 @@ namespace Ladderbot4.Managers
             var challenges = _challengeData.GetChallenges(division, leagueName);
 
             return challenges.FirstOrDefault(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamInChallenge(string division, string leagueName, Team team)
@@ -45,8 +45,8 @@ namespace Ladderbot4.Managers
             var challenges = _challengeData.GetChallenges(division, leagueName);
 
             return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamChallenger(string division, string leagueName, Team team)
@@ -54,7 +54,7 @@ namespace Ladderbot4.Managers
             var challenges = _challengeData.GetChallenges(division, leagueName);
 
             return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
@@ -65,7 +65,7 @@ namespace Ladderbot4.Managers
 
         public List<Challenge> GetChallengesForLeague(League league)
         {
-            return _challengeData.GetChallenges(league.Division, league.LeagueName);
+            return _challengeData.GetChallenges(league.Format, league.Name);
         }
 
         public string GetChallengesData(string division, string leagueName)
@@ -129,7 +129,7 @@ namespace Ladderbot4.Managers
                 var embedBuilder = new EmbedBuilder()
                     .WithTitle("⚔️ You've Been Challenged!")
                     .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.LeagueName}** ({league.Division} League).")
+                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.Name}** ({league.Format} League).")
                     .AddField("Challenger Team", challenge.Challenger, inline: true)
                     .AddField("Your Team", challenge.Challenged, inline: true)
                     .WithFooter("Prepare for your match!")

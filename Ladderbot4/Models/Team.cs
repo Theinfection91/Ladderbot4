@@ -9,10 +9,10 @@ namespace Ladderbot4.Models
     public class Team
     {
         // Basic Info
-        public string TeamName { get; set; }
+        public string Name { get; set; }
         public string League { get; set; }
         public int Size { get; set; }
-        public string Division { get; set; }
+        public string LeagueFormat { get; set; }
         public int Rank { get; set; }
         public int Wins { get; set; }
         public int Losses { get; set; }
@@ -28,11 +28,11 @@ namespace Ladderbot4.Models
         // W/L Ratio
         public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
-        public Team(string teamName, string league, string division, int rank, int wins, int losses, List<Member> members)
+        public Team(string teamName, string league, string format, int rank, int wins, int losses, List<Member> members)
         {
-            TeamName = teamName;
+            Name = teamName;
             League = league;
-            Division = division;
+            LeagueFormat = format;
             Rank = rank;
             Wins = wins;
             Losses = losses;

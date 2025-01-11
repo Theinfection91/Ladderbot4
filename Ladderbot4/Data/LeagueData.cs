@@ -66,7 +66,7 @@ namespace Ladderbot4.Data
         {
             var leaguesByDivision = LoadAllLeagues();
 
-            switch (newLeague.Division)
+            switch (newLeague.Format)
             {
                 case "1v1":
                     leaguesByDivision.Leagues1v1.Add(newLeague);
@@ -103,7 +103,7 @@ namespace Ladderbot4.Data
             }
 
             // Find League
-            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
+            League? leagueToRemove = divisionLeagues.FirstOrDefault(l => l.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase));
 
             if (leagueToRemove == null)
             {
@@ -119,12 +119,12 @@ namespace Ladderbot4.Data
         {
             var leaguesByDivision = LoadAllLeagues();
 
-            switch (newTeam.Division)
+            switch (newTeam.LeagueFormat)
             {
                 case "1v1":
                     foreach (var league in leaguesByDivision.Leagues1v1)
                     {
-                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (league.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             league.AddTeam(newTeam);
                         }
@@ -134,7 +134,7 @@ namespace Ladderbot4.Data
                 case "2v2":
                     foreach (var league in leaguesByDivision.Leagues2v2)
                     {
-                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (league.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             league.AddTeam(newTeam);
                         }
@@ -144,7 +144,7 @@ namespace Ladderbot4.Data
                 case "3v3":
                     foreach (var league in leaguesByDivision.Leagues3v3)
                     {
-                        if (league.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase))
+                        if (league.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             league.AddTeam(newTeam);
                         }
@@ -161,7 +161,7 @@ namespace Ladderbot4.Data
             var leaguesByDivision = LoadAllLeagues();
 
             // Get the leagues list based on the team's division
-            List<League> relevantLeagues = team.Division switch
+            List<League> relevantLeagues = team.LeagueFormat switch
             {
                 "1v1" => leaguesByDivision.Leagues1v1,
                 "2v2" => leaguesByDivision.Leagues2v2,
@@ -171,13 +171,13 @@ namespace Ladderbot4.Data
 
             if (relevantLeagues == null)
             {
-                Console.WriteLine($"Invalid division: {team.Division}");
+                Console.WriteLine($"Invalid division: {team.LeagueFormat}");
                 return;
             }
 
             // Find the matching league
             var league = relevantLeagues.FirstOrDefault(l =>
-                l.LeagueName.Equals(chosenLeague.LeagueName, StringComparison.OrdinalIgnoreCase));
+                l.Name.Equals(chosenLeague.Name, StringComparison.OrdinalIgnoreCase));
 
             league.RemoveTeam(team);
 
@@ -194,7 +194,7 @@ namespace Ladderbot4.Data
             // Save the updated leagues
             SaveLeagues(leaguesByDivision);
 
-            Console.WriteLine($"Team '{team.TeamName}' removed from league '{league.LeagueName}', and ranks updated.");
+            Console.WriteLine($"Team '{team.Name}' removed from league '{league.Name}', and ranks updated.");
         }
 
     }

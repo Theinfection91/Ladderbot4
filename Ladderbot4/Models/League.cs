@@ -9,16 +9,16 @@ namespace Ladderbot4.Models
 {
     public class League
     {
-        public string LeagueName { get; set; }
+        public string Name { get; set; }
         public int TeamSize { get; set; }
-        public string Division { get; set; }
+        public string Format { get; set; }
         public DateTime CreatedOn { get; set; }
         public List<Team> Teams { get; set; }
 
         public League(string leagueName, string leagueDivision)
         {
-            LeagueName = leagueName;
-            Division = leagueDivision;
+            Name = leagueName;
+            Format = leagueDivision;
             CreatedOn = DateTime.Now;
             Teams = [];
         }
@@ -38,7 +38,7 @@ namespace Ladderbot4.Models
                 for (int i = 0; i < Teams.Count; i++)
                 {
                     Team team = Teams[i];
-                    if (Teams[i].TeamName == teamToRemove.TeamName)
+                    if (Teams[i].Name == teamToRemove.Name)
                     {
                         Teams.Remove(team);
                     }

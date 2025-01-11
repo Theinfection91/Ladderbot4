@@ -64,7 +64,7 @@ namespace Ladderbot4.Data
         {
             var statesByDivision = LoadAllStates();
 
-            switch (newState.Division)
+            switch (newState.LeagueFormat)
             {
                 case "1v1":
                     statesByDivision.States1v1.Add(newState);
