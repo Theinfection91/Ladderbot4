@@ -434,7 +434,11 @@ namespace Ladderbot4.Managers
                 // Save and reload LeagueRegistry
                 _leagueManager.SaveAndReloadLeagueRegistry();
 
-                // TODO - Create and add States for new XvX League
+                // Create and add State for new XvX League
+                _statesManager.AddNewXvXState(_statesManager.CreateNewState(newLeague.Name, newLeague.Format));
+
+                // Save and reload StatesAtlas
+                _statesManager.SaveAndReloadStatesAtlas();
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -445,42 +449,42 @@ namespace Ladderbot4.Managers
             return _embedManager.CreateDebugEmbed("In-Progress.");
         }
 
-        public Embed CreateLeagueProcess(string leagueName, string divisionType)
-        {
-            // Check if desired League name is taken
-            if (_leagueManager.IsLeagueNameUnique(leagueName))
-            {
-                // Check if given division type is correct
-                if (_leagueManager.IsValidDivisionType(divisionType))
-                {
-                    // Create new League object
-                    League newLeague = _leagueManager.CreateLeagueObject(leagueName, divisionType);
+        //public Embed CreateLeagueProcess(string leagueName, string divisionType)
+        //{
+        //    // Check if desired League name is taken
+        //    if (_leagueManager.IsLeagueNameUnique(leagueName))
+        //    {
+        //        // Check if given division type is correct
+        //        if (_leagueManager.IsValidDivisionType(divisionType))
+        //        {
+        //            // Create new League object
+        //            League newLeague = _leagueManager.CreateLeagueObject(leagueName, divisionType);
 
-                    // Add new league to database
-                    _leagueManager.AddNewLeague(newLeague);
+        //            // Add new league to database
+        //            _leagueManager.AddNewLeague(newLeague);
 
-                    // Save and reload Leagues Database
-                    _leagueManager.SaveAndReloadLeaguesDatabase();
+        //            // Save and reload Leagues Database
+        //            _leagueManager.SaveAndReloadLeaguesDatabase();
 
-                    // Create new State object for League
-                    State newState = _statesManager.CreateNewState(newLeague.Name, newLeague.Format);
+        //            // Create new State object for League
+        //            State newState = _statesManager.CreateNewState(newLeague.Name, newLeague.Format);
 
-                    // Add new state
-                    _statesManager.AddNewState(newState);
+        //            // Add new state
+        //            _statesManager.AddNewState(newState);
 
-                    // Save and reload
-                    _statesManager.SaveAndReloadStatesDatabase();
+        //            // Save and reload
+        //            _statesManager.SaveAndReloadStatesDatabase();
 
-                    // Backup to Git
-                    _backupManager.CopyAndBackupFilesToGit();
+        //            // Backup to Git
+        //            _backupManager.CopyAndBackupFilesToGit();
 
-                    // Return success embed
-                    return _embedManager.CreateLeagueSuccessEmbed(newLeague);
-                }
-                return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
-            }
-            return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
-        }
+        //            // Return success embed
+        //            return _embedManager.CreateLeagueSuccessEmbed(newLeague);
+        //        }
+        //        return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
+        //    }
+        //    return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
+        //}
 
         public Embed DeleteXvXLeagueProcess(string leagueName)
         {

@@ -29,14 +29,20 @@ namespace Ladderbot4.Managers
             _stateAtlas = _stateAtlasData.Load();
         }
 
-        public void SaveStateAtlas()
+        public void SaveStatesAtlas()
         {
             _stateAtlasData.Save(_stateAtlas);
         }
 
-        public void LoadStateAtlas()
+        public void LoadStatesAtlas()
         {
             _stateAtlas = _stateAtlasData.Load();
+        }
+
+        public void SaveAndReloadStatesAtlas()
+        {
+            SaveStatesAtlas();
+            LoadStatesAtlas();
         }
 
         public void LoadStatesDatabase()
@@ -207,15 +213,29 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public State CreateNewState(string leagueName, string leagueDivision)
+        public State CreateNewState(string leagueName, string leagueFormat)
         {
-            return new State(leagueName, leagueDivision)
+            return new State(leagueName, leagueFormat)
             {
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
                 StandingsChannelId = 0,
                 TeamsChannelId = 0
             };
+        }
+
+        public void AddNewXvXState(State state)
+        {
+            _stateAtlasData.AddState(state);
+
+            LoadStatesAtlas();
+        }
+
+        public void RemoveXvXState(State state)
+        {
+            _stateAtlasData.RemoveState(state);
+
+            LoadStatesAtlas();
         }
 
         public void AddNewState(State state)
