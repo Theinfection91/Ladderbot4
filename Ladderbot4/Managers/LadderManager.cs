@@ -419,7 +419,24 @@ namespace Ladderbot4.Managers
         #region Create/Delete League Logic
         public Embed CreateXvXLeagueProcess(string leagueName, int teamSize)
         {
+            // Check if desired XvX League name is taken
+            if (_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            {
+                // Generate division tag based on team size
+                string divisionTag = _leagueManager.ConvertTeamSizeToDivisionTagStr(teamSize);
 
+                // Create new XvX League Object
+                League newLeague = _leagueManager.CreateXvXLeagueObject(leagueName, divisionTag, teamSize);
+
+                // Add new league to LeagueRegistry
+                _leagueManager.AddNewXvXLeague(newLeague);
+
+                // Save and reload LeagueRegistry
+                _leagueManager.SaveAndReloadLeagueRegistry();
+
+                // TODO - Create and add States for new XvX League
+                return _embedManager.CreateDebugEmbed($"Registered league: Division {newLeague.Division} - Team Size {newLeague.TeamSize}");
+            }
             return _embedManager.CreateDebugEmbed("In-Progress.");
         }
 

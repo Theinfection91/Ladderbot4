@@ -86,6 +86,18 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsXvXLeagueNameUnique(string leagueName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false; // Name is not unique
+                }
+            }
+            return true;
+        }
+
         public bool IsTeamNameUnique(string teamName)
         {
             foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
@@ -245,9 +257,9 @@ namespace Ladderbot4.Managers
             return null; // Return null if no match found
         }
 
-        public string ConvertMemberCountToDivisionTagStr(int memberCount)
+        public string ConvertTeamSizeToDivisionTagStr(int teamSize)
         {
-            return $"{memberCount.ToString()}v{memberCount.ToString()}";
+            return $"{teamSize.ToString()}v{teamSize.ToString()}";
         }
 
         public void AddNewTeamToLeague(Team newTeam, League league)
@@ -265,6 +277,14 @@ namespace Ladderbot4.Managers
             LoadLeaguesDatabase();
         }
 
+        public League CreateXvXLeagueObject(string leagueName, string leagueDivision, int teamSize)
+        {
+            return new League(leagueName, leagueDivision)
+            {
+                TeamSize = teamSize
+            };
+        }
+
         public League CreateLeagueObject(string leagueName, string leagueDivision)
         {
             return new League(leagueName, leagueDivision);
@@ -277,11 +297,25 @@ namespace Ladderbot4.Managers
             LoadLeaguesDatabase();
         }
 
+        public void AddNewXvXLeague(League league)
+        {
+            _leagueRegistryData.AddLeague(league);
+
+            LoadLeagueRegistry();
+        }
+
         public void RemoveLeague(string leagueName, string division)
         {
             _leagueData.RemoveLeague(leagueName, division);
 
             LoadLeaguesDatabase();
+        }
+
+        public void RemoveXvXLeague(string leagueName)
+        {
+            _leagueRegistryData.RemoveLeague(leagueName);
+
+            LoadLeagueRegistry();
         }
     }
 }

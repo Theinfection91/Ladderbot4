@@ -41,6 +41,27 @@ namespace Ladderbot4.Commands
 
         }
 
+        [SlashCommand("create_xvx", "Admin command to create a new XvX League with the given team size.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task CreateXvXLeagueAsync(
+            [Summary("leagueName", "Name of the League to be created")] string leagueName,
+            [Summary("teamSize", "The size of each team")] int teamSize)
+        {
+            try
+            {
+                await Context.Interaction.DeferAsync();
+                var result = _ladderManager.CreateXvXLeagueProcess(leagueName.Trim(), teamSize);
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
+
+        }
+
         [SlashCommand("delete", "Admin command to delete a League entirely. Use with caution.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task DeleteLeagueAsync(
