@@ -226,6 +226,21 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public League GetXvXLeagueFromTeamName(string teamName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (team.Name.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        return league;
+                    }
+                }
+            }
+            return null;
+        }
+
         public League GetLeagueFromTeamName(string teamName)
         {
             League correctLeague;
