@@ -258,7 +258,7 @@ namespace Ladderbot4.Managers
         public Embed CancelChallengeSuccessEmbed(Team challengerTeam)
         {
             var embedBuilder = new EmbedBuilder()
-                .WithTitle("✅ Challenge Canceled")
+                .WithTitle("🚫 Challenge Canceled")
                 .WithColor(Color.Green)
                 .WithDescription($"The challenge sent by **{challengerTeam.Name}** in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League) has been successfully canceled by a team member.")
                 .AddField("Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)

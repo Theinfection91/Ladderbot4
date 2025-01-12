@@ -99,6 +99,18 @@ namespace Ladderbot4.Managers
                 state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public bool IsXvXLadderRunning(League league)
+        {
+            foreach (State state in _statesAtlas.States)
+            {
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state.IsLadderRunning;
+                }
+            }
+            return false;
+        }
+
         public bool IsLadderRunning(League leagueRef)
         {
             switch (leagueRef.Format)

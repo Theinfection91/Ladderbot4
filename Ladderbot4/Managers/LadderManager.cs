@@ -732,12 +732,11 @@ namespace Ladderbot4.Managers
                     // Grab league
                     League league = _leagueManager.GetXvXLeagueByName(objectChallengerTeam.League);
 
-                    Console.WriteLine($"{league.Name}");
-
-                    // TODO - Check if ladder is started in League
-
-
-                    
+                    // Check if ladder is running in League
+                    if (!_statesManager.IsXvXLadderRunning(league))
+                    {
+                        return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{league.Name}** ({league.Format} League). Challenges may not be initiated yet.");
+                    }
 
                     // Grab Discord ID of user who invoked command
                     ulong discordId = context.User.Id;
@@ -903,8 +902,11 @@ namespace Ladderbot4.Managers
                 Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
                 League league = _leagueManager.GetXvXLeagueByName(team.League);
 
-                // TODO - Check if ladder is running in league
-
+                // Check if ladder is running in league
+                if (!_statesManager.IsXvXLadderRunning(league))
+                {
+                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in {league.Name} ({league.Format} League) so there are no challenges to cancel yet.");
+                }
 
                 // Check if invoker is part of challenging team
                 if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, team))
@@ -940,63 +942,63 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
-        public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
-        {
-            // Load latest save of Challenges database
-            _challengeManager.LoadChallengesDatabase();
+        //public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        //{
+        //    // Load latest save of Challenges database
+        //    _challengeManager.LoadChallengesDatabase();
 
-            // Check if team exists
-            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
-            {
-                // Grab team reference
-                Team challengerTeamObject = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+        //    // Check if team exists
+        //    if (!_leagueManager.IsTeamNameUnique(challengerTeam))
+        //    {
+        //        // Grab team reference
+        //        Team challengerTeamObject = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
 
-                // Grab league reference
-                League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeamObject.Name);
+        //        // Grab league reference
+        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeamObject.Name);
 
-                // Check if ladder is running in given league
-                if (!_statesManager.IsLadderRunning(correctLeague))
-                {
-                    return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {correctLeague.Name} League so there are no challenges to cancel yet.");
-                }
+        //        // Check if ladder is running in given league
+        //        if (!_statesManager.IsLadderRunning(correctLeague))
+        //        {
+        //            return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {correctLeague.Name} League so there are no challenges to cancel yet.");
+        //        }
 
-                // Check if invoker is part of challenger team
-                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
-                {
-                    // Check if Team has a challenge actually sent out
-                    if (_challengeManager.IsTeamChallenger(correctLeague.Format, correctLeague.Name, challengerTeamObject))
-                    {
-                        // Grab challenge object
-                        Challenge? challenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, challengerTeamObject);
+        //        // Check if invoker is part of challenger team
+        //        if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
+        //        {
+        //            // Check if Team has a challenge actually sent out
+        //            if (_challengeManager.IsTeamChallenger(correctLeague.Format, correctLeague.Name, challengerTeamObject))
+        //            {
+        //                // Grab challenge object
+        //                Challenge? challenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, challengerTeamObject);
 
-                        // Grab challenged team object
-                        Team challengedTeamObject = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
+        //                // Grab challenged team object
+        //                Team challengedTeamObject = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
 
-                        // Set IsChallengeable for both teams back to true
-                        _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-                        _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
+        //                // Set IsChallengeable for both teams back to true
+        //                _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
+        //                _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
 
-                        // Save and reload leagues and its teams
-                        _leagueManager.SaveAndReloadLeaguesDatabase();
+        //                // Save and reload leagues and its teams
+        //                _leagueManager.SaveAndReloadLeaguesDatabase();
 
-                        // Cancel the challenge
-                        _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, challengerTeamObject.Name);
+        //                // Cancel the challenge
+        //                _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, challengerTeamObject.Name);
 
-                        // Save and reload Challenges
-                        _challengeManager.SaveChallengesDatabase();
-                        _challengeManager.LoadChallengesDatabase();
+        //                // Save and reload Challenges
+        //                _challengeManager.SaveChallengesDatabase();
+        //                _challengeManager.LoadChallengesDatabase();
 
-                        // Backup the database to Git
-                        _backupManager.CopyAndBackupFilesToGit();
+        //                // Backup the database to Git
+        //                _backupManager.CopyAndBackupFilesToGit();
 
-                        return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
-                    }
-                    return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.Name} does not have any pending challenges sent out to cancel.");
-                }
-                return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team **{challengerTeamObject.Name}**\nThat team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
-            }
-            return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
-        }
+        //                return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
+        //            }
+        //            return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.Name} does not have any pending challenges sent out to cancel.");
+        //        }
+        //        return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team **{challengerTeamObject.Name}**\nThat team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
+        //    }
+        //    return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
+        //}
 
         public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
