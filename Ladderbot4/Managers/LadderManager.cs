@@ -350,67 +350,62 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Start/End Ladder Logic
-        public Embed StartLeagueLadderProcess(string leagueName)
+        public Embed StartXvXLeagueLadderProcess(string leagueName)
         {
-            _statesManager.LoadStatesDatabase();
+            // Load states
+            _statesManager.LoadStatesAtlas();
 
-            // Check if League by name exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            // Check if League exists by name
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab league reference
-                League leagueRef = _leagueManager.GetLeagueByName(leagueName);
+                // Grab league
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // Grab associated State for League
-                State state = _statesManager.GetStateByLeague(leagueRef);
+                // Grab state associated with league
+                State state = _statesManager.GetXvXStateByLeague(league);
 
-                // Check ladder running status of league
-                if (!_statesManager.IsLadderRunning(leagueRef))
+                // Check ladder status
+                if (!_statesManager.IsXvXLadderRunning(league))
                 {
                     // Set ladder running to true
-                    _statesManager.SetLadderRunning(leagueRef, true);
-
-                    // Save and reload States database
-                    _statesManager.SaveAndReloadStatesDatabase();
+                    _statesManager.SetXvXLadderRunning(league, true);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
-                    return _embedManager.StartLadderSuccessEmbed(leagueRef);
+                    return _embedManager.StartLadderSuccessEmbed(league);
                 }
-                return _embedManager.StartLadderAlreadyRunningEmbed(leagueRef);
+                return _embedManager.StartLadderAlreadyRunningEmbed(league);
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed EndLeagueLadderProcess(string leagueName)
+        public Embed EndXvXLeagueLadderProcess(string leagueName)
         {
-            _statesManager.LoadStatesDatabase();
+            // Load states
+            _statesManager.LoadStatesAtlas();
 
-            // Check if League by name exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            // Check if League exists by name
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab league reference
-                League leagueRef = _leagueManager.GetLeagueByName(leagueName);
+                // Grab league
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // Grab associated State for League
-                State state = _statesManager.GetStateByLeague(leagueRef);
+                // Grab state associated with league
+                State state = _statesManager.GetXvXStateByLeague(league);
 
-                // Check ladder running status of league
-                if (_statesManager.IsLadderRunning(leagueRef))
+                // Check ladder status
+                if (_statesManager.IsXvXLadderRunning(league))
                 {
-                    // Set ladder running to false in League
-                    _statesManager.SetLadderRunning(leagueRef, false);
+                    // Set ladder running to true
+                    _statesManager.SetXvXLadderRunning(league, false);
 
-                    // Save and reload the database
-                    _statesManager.SaveAndReloadStatesDatabase();
-
-                    // Backup the database to Git
+                    // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
-                    // Return success embed
-                    return _embedManager.EndLadderSuccessEmbed(leagueRef);
+                    return _embedManager.EndLadderSuccessEmbed(league);
                 }
-                return _embedManager.EndLadderNotRunningEmbed(leagueRef);
+                return _embedManager.EndLadderNotRunningEmbed(league);
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
@@ -443,43 +438,6 @@ namespace Ladderbot4.Managers
             return _embedManager.CreateLeagueErrorEmbed($"'{leagueName.Trim()}' already exists as a League in the database.");
         }
 
-        //public Embed CreateLeagueProcess(string leagueName, string divisionType)
-        //{
-        //    // Check if desired League name is taken
-        //    if (_leagueManager.IsLeagueNameUnique(leagueName))
-        //    {
-        //        // Check if given division type is correct
-        //        if (_leagueManager.IsValidDivisionType(divisionType))
-        //        {
-        //            // Create new League object
-        //            League newLeague = _leagueManager.CreateLeagueObject(leagueName, divisionType);
-
-        //            // Add new league to database
-        //            _leagueManager.AddNewLeague(newLeague);
-
-        //            // Save and reload Leagues Database
-        //            _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //            // Create new State object for League
-        //            State newState = _statesManager.CreateNewState(newLeague.Name, newLeague.Format);
-
-        //            // Add new state
-        //            _statesManager.AddNewState(newState);
-
-        //            // Save and reload
-        //            _statesManager.SaveAndReloadStatesDatabase();
-
-        //            // Backup to Git
-        //            _backupManager.CopyAndBackupFilesToGit();
-
-        //            // Return success embed
-        //            return _embedManager.CreateLeagueSuccessEmbed(newLeague);
-        //        }
-        //        return _embedManager.CreateLeagueErrorEmbed($"Invalid Division Type given: {divisionType}. Choose between 1v1, 2v2, or 3v3.");
-        //    }
-        //    return _embedManager.CreateLeagueErrorEmbed($"The given League Name ({leagueName}) is already taken. Choose another name for the new League.");
-        //}
-
         public Embed DeleteXvXLeagueProcess(string leagueName)
         {
             // Load latest save
@@ -491,14 +449,14 @@ namespace Ladderbot4.Managers
                 // Grab league object as reference for correct league info for embed
                 League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // TESTING - Remove all challenges associated with league
+                // Remove all challenges associated with league
                 _challengeManager.RemoveXvXLeagueFromChallenges(league.Name);
-
-                // Delete League from database
-                _leagueManager.DeleteXvXLeague(league.Name);
 
                 // Remove the state associated with the league
                 _statesManager.RemoveXvXState(_statesManager.GetXvXStateByLeague(league));
+
+                // Delete League from database
+                _leagueManager.DeleteXvXLeague(league.Name);
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -508,44 +466,6 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
-
-        //public Embed DeleteLeagueProcess(string leagueName)
-        //{
-        //    // Load latest save
-        //    _leagueManager.LoadLeaguesDatabase();
-
-        //    // Check if League by given name exist
-        //    if (!_leagueManager.IsLeagueNameUnique(leagueName))
-        //    {
-        //        // Grab league object
-        //        League leagueToRemove = _leagueManager.GetLeagueByName(leagueName);
-        //        if (leagueToRemove != null)
-        //        {
-        //            // Remove all challenges associated with all teams in challenges.json
-        //            _challengeManager.RemoveLeagueFromChallenges(leagueToRemove.Format, leagueToRemove.Name);
-
-        //            // Remove League from leagues.json
-        //            _leagueManager.RemoveLeague(leagueToRemove.Name, leagueToRemove.Format);
-
-        //            // Save and reload
-        //            _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //            // Remove the State associated with league
-        //            _statesManager.RemoveLeagueState(leagueToRemove.Name, leagueToRemove.Format);
-
-        //            // Save and reload
-        //            _statesManager.SaveAndReloadStatesDatabase();
-
-        //            // Backup to Git
-        //            _backupManager.CopyAndBackupFilesToGit();
-
-        //            // Return success embed
-        //            return _embedManager.DeleteLeagueSuccessEmbed(leagueToRemove);
-        //        }
-        //        return _embedManager.DeleteLeagueErrorEmbed($"The League object that was found was null. Contact the bot's admin.");
-        //    }
-        //    return _embedManager.DeleteLeagueErrorEmbed($"No League was found by the given League Name: {leagueName}");
-        //}
         #endregion
 
         #region Register/Remove Team Logic
@@ -590,60 +510,13 @@ namespace Ladderbot4.Managers
 
                         return _embedManager.RegisterTeamToLeagueSuccessEmbed(team, league);
                     }
-                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members will need to add remaining members using soon to be implemented commands in /team add.");
+                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members will need to add remaining members using soon to be implemented commands in `/team add`.");
                 }
                 return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        //public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
-        //{
-        //    // Load latest save
-        //    _leagueManager.LoadLeaguesDatabase();
-
-        //    // Check if League by given name exists
-        //    if (!_leagueManager.IsLeagueNameUnique(leagueName))
-        //    {
-        //        // Grab reference of league
-        //        League leagueReference = _leagueManager.GetLeagueByName(leagueName);
-
-        //        if (_leagueManager.IsTeamNameUnique(teamName))
-        //        {
-        //            // Convert User Context Info into Member objects
-        //            List<Member> newMemberList = _memberManager.ConvertMembersListToObjects(members);
-
-        //            if (_memberManager.IsMemberCountCorrect(newMemberList, leagueReference.Format) || _settingsManager.IsUserSuperAdmin(context.User.Id))
-        //            {
-        //                // Check if any member is already on a team in the given league
-        //                foreach (Member member in newMemberList)
-        //                {
-        //                    if (_memberManager.IsMemberOnTeamInLeague(member, leagueReference.Teams) && !_settingsManager.IsUserSuperAdmin(context.User.Id))
-        //                    {
-        //                        return _embedManager.RegisterTeamErrorEmbed($"{member.DisplayName} is already on a team in the {leagueReference.Name} League.");
-        //                    }
-        //                }
-
-        //                // Create team object
-        //                Team newTeam = _teamManager.CreateTeamObject(teamName, leagueReference.Name, leagueReference.Format, _teamManager.GetTeamCountInLeague(leagueReference) + 1, newMemberList);
-
-        //                // Add team to league
-        //                _leagueManager.AddNewTeamToLeague(newTeam, leagueReference);
-
-        //                // Save and reload Leagues Database
-        //                _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
-
-        //                return _embedManager.RegisterTeamToLeagueSuccessEmbed(newTeam, leagueReference);
-        //            }
-        //            return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for specified division type: Division - {leagueReference.Format} | Member Count - {newMemberList.Count}.");
-        //        }
-        //        return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
-        //    }
-        //    return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
-        //}
         public Embed RemoveTeamFromXvXLeagueProcess(string teamName)
         {
             // Load latest save
@@ -677,40 +550,6 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
-
-        //public Embed RemoveTeamFromLeagueProcess(string teamName)
-        //{
-        //    // Load latest save
-        //    _leagueManager.LoadLeaguesDatabase();
-
-        //    // Check if Team exists in any League
-        //    if (!_leagueManager.IsTeamNameUnique(teamName))
-        //    {
-        //        // Grab Team Object
-        //        Team? teamToRemove = _leagueManager.GetTeamByNameFromLeagues(teamName);
-
-        //        // Grab League object
-        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(teamToRemove.Name);
-
-        //        // Remove all Challenges from Database associated with team
-        //        _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, teamName);
-
-        //        // Remove the team correctly and correct ranks
-        //        _leagueManager.RemoveTeamFromLeague(teamToRemove, correctLeague);
-
-        //        ReassignRanksInLeague(correctLeague);
-
-        //        // Save and reload
-        //        _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //        // Backup the database to Git
-        //        _backupManager.CopyAndBackupFilesToGit();
-
-        //        // Return success embed
-        //        return _embedManager.RemoveTeamSuccessEmbed(teamToRemove, correctLeague);
-        //    }
-        //    return _embedManager.TeamNotFoundErrorEmbed(teamName);
-        //}
         #endregion
 
         #region Challenge Based Logic
@@ -799,96 +638,7 @@ namespace Ladderbot4.Managers
                 return _embedManager.TeamNotFoundErrorEmbed(challengedTeam);
             }
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
-        }
-
-        //public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
-        //{
-        //    // Load the latest save of the Challenges and Leagues database
-        //    _leagueManager.LoadLeaguesDatabase();
-        //    _challengeManager.LoadChallengesDatabase();
-
-        //    // Check if both teams exist in the database
-        //    if (!_leagueManager.IsTeamNameUnique(challengerTeam) && !_leagueManager.IsTeamNameUnique(challengedTeam))
-        //    {
-        //        // Grab correct league
-        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
-
-        //        // Check if ladder is started in League
-        //        if (!_statesManager.IsLadderRunning(correctLeague))
-        //        {
-        //            return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{correctLeague.Name}** ({correctLeague.Format} League). Challenges may not be initiated yet.");
-        //        }
-
-        //        // Grab team objects
-        //        Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
-        //        Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
-
-        //        // Grab Discord ID of the user who invoked the command
-        //        ulong discordId = context.User.Id;
-
-        //        // Check if the user is on the challenger team
-        //        if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
-        //        {
-        //            // Check if teams are in the same League
-        //            if (_leagueManager.IsTeamsInSameLeague(correctLeague, objectChallengerTeam, objectChallengedTeam))
-        //            {
-        //                // Ensure the ranks are within range
-        //                if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
-        //                {
-        //                    // Check if the challenger has no pending challenges
-        //                    if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengerTeam))
-        //                    {
-        //                        // Check if the challenged has no pending challenges
-        //                        if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengedTeam))
-        //                        {
-        //                            // Create and save new Challenge
-        //                            _challengeManager.AddNewChallenge(correctLeague.Format, correctLeague.Name, new Challenge(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank));
-
-        //                            // Change IsChallengeable of both teams to false
-        //                            _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-        //                            _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
-        //                            _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //                            // Save and reload database
-        //                            _challengeManager.SaveChallengesDatabase();
-        //                            _challengeManager.LoadChallengesDatabase();
-
-        //                            // Backup to git
-        //                            _backupManager.CopyAndBackupFilesToGit();
-
-        //                            // Grab newly created Challenge object
-        //                            Challenge? newChallenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, objectChallengerTeam);
-
-        //                            // Notify the challenged team
-        //                            foreach (Member member in objectChallengedTeam.Members)
-        //                            {
-        //                                _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge, correctLeague);
-        //                            }
-
-        //                            return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
-        //                        }
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.Name} is already awaiting a challenge match. Please try again later.");
-        //                    }
-        //                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name} is already awaiting a challenge match. Please try again later.");
-        //                }
-        //                else
-        //                {
-        //                    if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
-        //                    {
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
-        //                    }
-        //                    else
-        //                    {
-        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
-        //                    }
-        //                }
-        //            }
-        //            return _embedManager.ChallengeErrorEmbed($"The teams are not in the same League. Challenger team's League: {objectChallengerTeam.League}, Challenged team's League: {objectChallengedTeam.League}. Please try again.");
-        //        }
-        //        return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.Name}. Please try again.");
-        //    }
-        //    return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
-        //}
+        }        
 
         public Embed CancelXvXChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
@@ -941,65 +691,7 @@ namespace Ladderbot4.Managers
             }
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
-
-        //public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
-        //{
-        //    // Load latest save of Challenges database
-        //    _challengeManager.LoadChallengesDatabase();
-
-        //    // Check if team exists
-        //    if (!_leagueManager.IsTeamNameUnique(challengerTeam))
-        //    {
-        //        // Grab team reference
-        //        Team challengerTeamObject = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
-
-        //        // Grab league reference
-        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeamObject.Name);
-
-        //        // Check if ladder is running in given league
-        //        if (!_statesManager.IsLadderRunning(correctLeague))
-        //        {
-        //            return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in the {correctLeague.Name} League so there are no challenges to cancel yet.");
-        //        }
-
-        //        // Check if invoker is part of challenger team
-        //        if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, challengerTeamObject))
-        //        {
-        //            // Check if Team has a challenge actually sent out
-        //            if (_challengeManager.IsTeamChallenger(correctLeague.Format, correctLeague.Name, challengerTeamObject))
-        //            {
-        //                // Grab challenge object
-        //                Challenge? challenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, challengerTeamObject);
-
-        //                // Grab challenged team object
-        //                Team challengedTeamObject = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
-
-        //                // Set IsChallengeable for both teams back to true
-        //                _teamManager.ChangeChallengeStatus(challengerTeamObject, true);
-        //                _teamManager.ChangeChallengeStatus(challengedTeamObject, true);
-
-        //                // Save and reload leagues and its teams
-        //                _leagueManager.SaveAndReloadLeaguesDatabase();
-
-        //                // Cancel the challenge
-        //                _challengeManager.SudoRemoveChallenge(correctLeague.Format, correctLeague.Name, challengerTeamObject.Name);
-
-        //                // Save and reload Challenges
-        //                _challengeManager.SaveChallengesDatabase();
-        //                _challengeManager.LoadChallengesDatabase();
-
-        //                // Backup the database to Git
-        //                _backupManager.CopyAndBackupFilesToGit();
-
-        //                return _embedManager.CancelChallengeSuccessEmbed(challengerTeamObject);
-        //            }
-        //            return _embedManager.CancelChallengeErrorEmbed($"Team {challengerTeamObject.Name} does not have any pending challenges sent out to cancel.");
-        //        }
-        //        return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team **{challengerTeamObject.Name}**\nThat team's member(s) consists of: {challengerTeamObject.GetAllMemberNamesToStr()}");
-        //    }
-        //    return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
-        //}
-
+        
         public Embed AdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Load the latest save of the Challenges and Leagues database

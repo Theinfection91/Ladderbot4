@@ -27,7 +27,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.StartLeagueLadderProcess(leagueName.Trim().ToLower());
+                var result = _ladderManager.StartXvXLeagueLadderProcess(leagueName.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -46,7 +46,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.EndLeagueLadderProcess(leagueName.Trim().ToLower());
+                var result = _ladderManager.EndXvXLeagueLadderProcess(leagueName.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)

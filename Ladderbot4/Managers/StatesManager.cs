@@ -201,6 +201,18 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void SetXvXLadderRunning(League league, bool trueOrFalse)
+        {
+            foreach (State state in _statesAtlas.States)
+            {
+                if (league.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                {
+                    state.IsLadderRunning = trueOrFalse;
+                    SaveAndReloadStatesAtlas();
+                }
+            }
+        }
+
         public void SetLadderRunning(League leagueRef, bool trueOrFalse)
         {
             switch (leagueRef.Format)

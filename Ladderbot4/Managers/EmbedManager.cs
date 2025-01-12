@@ -60,7 +60,7 @@ namespace Ladderbot4.Managers
                 .WithTitle("🏁 Ladder Started!")
                 .WithColor(Color.Green)
                 .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has been successfully started.")
-                .AddField("Division Type", leagueRef.Format, inline: true)
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("Good luck to all teams!")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -73,7 +73,7 @@ namespace Ladderbot4.Managers
                 .WithTitle("⚠️ Ladder Already Running")
                 .WithColor(Color.Red)
                 .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) is already running.")
-                .AddField("Division Type", leagueRef.Format, inline: true)
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -86,7 +86,7 @@ namespace Ladderbot4.Managers
                 .WithTitle("🏁 Ladder Ended")
                 .WithColor(Color.Green)
                 .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has successfully ended.")
-                .AddField("Division Type", leagueRef.Format, inline: true)
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("Thank you for participating!")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -99,7 +99,7 @@ namespace Ladderbot4.Managers
                 .WithTitle("⚠️ Ladder Not Running")
                 .WithColor(Color.Red)
                 .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) is not currently running.")
-                .AddField("Division Type", leagueRef.Format, inline: true)
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
