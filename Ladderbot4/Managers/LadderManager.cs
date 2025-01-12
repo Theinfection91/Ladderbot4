@@ -714,6 +714,94 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Challenge Based Logic
+        public Embed SendXvXChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        {
+            // Load Challenges and Leagues
+            _leagueManager.LoadLeagueRegistry();
+            _challengeManager.LoadChallengesHub();
+
+            // Check if each team exists in the database
+            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
+            {
+                if (!_leagueManager.IsXvXTeamNameUnique(challengedTeam))
+                {
+                    // Grab team objects
+                    Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
+                    Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengedTeam);
+
+                    // Grab league
+                    League league = _leagueManager.GetXvXLeagueByName(objectChallengerTeam.League);
+
+                    Console.WriteLine($"{league.Name}");
+
+                    // TODO - Check if ladder is started in League
+
+
+                    
+
+                    // Grab Discord ID of user who invoked command
+                    ulong discordId = context.User.Id;
+
+                    // Check if user is on the challenger team
+                    if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
+                    {
+                        // Check if teams are in the same League
+                        if (_leagueManager.IsTeamsInSameLeague(league, objectChallengerTeam, objectChallengedTeam))
+                        {
+                            // Ensure the ranks are within range
+                            if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+                            {
+                                // Check if Challenger team has any pending challenges
+                                if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengerTeam))
+                                {
+                                    // Check if the challenged has any pending challenges
+                                    if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengedTeam))
+                                    {
+                                        // Create and save new Challenge
+                                        Challenge challenge = new(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank);
+                                        _challengeManager.AddNewXvXChallenge(league.Name, challenge);
+
+                                        // Change IsChallengeable of both teams to false and save league
+                                        _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+                                        _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+                                        _leagueManager.SaveAndReloadLeagueRegistry();
+
+                                        // Backup to Git
+                                        _backupManager.CopyAndBackupFilesToGit();
+
+                                        // Send challenge message
+                                        foreach (Member member in objectChallengedTeam.Members)
+                                        {
+                                            _challengeManager.SendChallengeNotification(member.DiscordId, challenge, league);
+                                        }
+
+                                        return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, challenge);
+                                    }
+                                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.Name} is already awaiting a challenge match.");
+                                }
+                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name} is already awaiting a challenge match.");
+                            }
+                            else
+                            {
+                                if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+                                {
+                                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated.");
+                                }
+                                else
+                                {
+                                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above.");
+                                }
+                            }
+                        }
+                        return _embedManager.ChallengeErrorEmbed($"The teams are not in the same League. Challenger team's League: {objectChallengerTeam.League}, Challenged team's League: {objectChallengedTeam.League}. Please try again.");
+                    }
+                    return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.Name}.");
+                }
+                return _embedManager.TeamNotFoundErrorEmbed(challengedTeam);
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
+        }
+
         public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Load the latest save of the Challenges and Leagues database

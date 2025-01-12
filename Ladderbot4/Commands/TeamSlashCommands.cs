@@ -210,9 +210,9 @@ namespace Ladderbot4.Commands
                     var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
                     await Context.Interaction.FollowupAsync(embed: errorResult);
                 }
-            }
-            #endregion
+            }           
         }
+        #endregion
 
         // Team Subtract Group
         [Group("subtract", "Slashs commands to subtract wins/losses from teams.")]
