@@ -802,93 +802,142 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
-        public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        //public Embed ChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        //{
+        //    // Load the latest save of the Challenges and Leagues database
+        //    _leagueManager.LoadLeaguesDatabase();
+        //    _challengeManager.LoadChallengesDatabase();
+
+        //    // Check if both teams exist in the database
+        //    if (!_leagueManager.IsTeamNameUnique(challengerTeam) && !_leagueManager.IsTeamNameUnique(challengedTeam))
+        //    {
+        //        // Grab correct league
+        //        League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
+
+        //        // Check if ladder is started in League
+        //        if (!_statesManager.IsLadderRunning(correctLeague))
+        //        {
+        //            return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{correctLeague.Name}** ({correctLeague.Format} League). Challenges may not be initiated yet.");
+        //        }
+
+        //        // Grab team objects
+        //        Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+        //        Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
+
+        //        // Grab Discord ID of the user who invoked the command
+        //        ulong discordId = context.User.Id;
+
+        //        // Check if the user is on the challenger team
+        //        if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
+        //        {
+        //            // Check if teams are in the same League
+        //            if (_leagueManager.IsTeamsInSameLeague(correctLeague, objectChallengerTeam, objectChallengedTeam))
+        //            {
+        //                // Ensure the ranks are within range
+        //                if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
+        //                {
+        //                    // Check if the challenger has no pending challenges
+        //                    if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengerTeam))
+        //                    {
+        //                        // Check if the challenged has no pending challenges
+        //                        if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengedTeam))
+        //                        {
+        //                            // Create and save new Challenge
+        //                            _challengeManager.AddNewChallenge(correctLeague.Format, correctLeague.Name, new Challenge(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank));
+
+        //                            // Change IsChallengeable of both teams to false
+        //                            _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
+        //                            _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
+        //                            _leagueManager.SaveAndReloadLeaguesDatabase();
+
+        //                            // Save and reload database
+        //                            _challengeManager.SaveChallengesDatabase();
+        //                            _challengeManager.LoadChallengesDatabase();
+
+        //                            // Backup to git
+        //                            _backupManager.CopyAndBackupFilesToGit();
+
+        //                            // Grab newly created Challenge object
+        //                            Challenge? newChallenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, objectChallengerTeam);
+
+        //                            // Notify the challenged team
+        //                            foreach (Member member in objectChallengedTeam.Members)
+        //                            {
+        //                                _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge, correctLeague);
+        //                            }
+
+        //                            return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
+        //                        }
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.Name} is already awaiting a challenge match. Please try again later.");
+        //                    }
+        //                    return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name} is already awaiting a challenge match. Please try again later.");
+        //                }
+        //                else
+        //                {
+        //                    if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
+        //                    }
+        //                    else
+        //                    {
+        //                        return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
+        //                    }
+        //                }
+        //            }
+        //            return _embedManager.ChallengeErrorEmbed($"The teams are not in the same League. Challenger team's League: {objectChallengerTeam.League}, Challenged team's League: {objectChallengedTeam.League}. Please try again.");
+        //        }
+        //        return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.Name}. Please try again.");
+        //    }
+        //    return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
+        //}
+
+        public Embed CancelXvXChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
-            // Load the latest save of the Challenges and Leagues database
-            _leagueManager.LoadLeaguesDatabase();
-            _challengeManager.LoadChallengesDatabase();
+            // Load latest Challenges database save
+            _challengeManager.LoadChallengesHub();
 
-            // Check if both teams exist in the database
-            if (!_leagueManager.IsTeamNameUnique(challengerTeam) && !_leagueManager.IsTeamNameUnique(challengedTeam))
+            // Check if team exists
+            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
             {
-                // Grab correct league
-                League correctLeague = _leagueManager.GetLeagueFromTeamName(challengerTeam);
+                // Grab team and league objects
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
+                League league = _leagueManager.GetXvXLeagueByName(team.League);
 
-                // Check if ladder is started in League
-                if (!_statesManager.IsLadderRunning(correctLeague))
+                // TODO - Check if ladder is running in league
+
+
+                // Check if invoker is part of challenging team
+                if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, team))
                 {
-                    return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{correctLeague.Name}** ({correctLeague.Format} League). Challenges may not be initiated yet.");
-                }
-
-                // Grab team objects
-                Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
-                Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
-
-                // Grab Discord ID of the user who invoked the command
-                ulong discordId = context.User.Id;
-
-                // Check if the user is on the challenger team
-                if (_memberManager.IsDiscordIdOnGivenTeam(discordId, objectChallengerTeam))
-                {
-                    // Check if teams are in the same League
-                    if (_leagueManager.IsTeamsInSameLeague(correctLeague, objectChallengerTeam, objectChallengedTeam))
+                    // Check if team has a challenge sent out to actually cancel
+                    if (_challengeManager.IsXvXTeamChallenger(team.League, team))
                     {
-                        // Ensure the ranks are within range
-                        if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
-                        {
-                            // Check if the challenger has no pending challenges
-                            if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengerTeam))
-                            {
-                                // Check if the challenged has no pending challenges
-                                if (!_challengeManager.IsTeamInChallenge(correctLeague.Format, correctLeague.Name, objectChallengedTeam))
-                                {
-                                    // Create and save new Challenge
-                                    _challengeManager.AddNewChallenge(correctLeague.Format, correctLeague.Name, new Challenge(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank));
+                        // Grab Challenge object
+                        Challenge? challenge = _challengeManager.GetXvXChallengeForTeam(team.League, team);
 
-                                    // Change IsChallengeable of both teams to false
-                                    _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
-                                    _teamManager.ChangeChallengeStatus(objectChallengedTeam, false);
-                                    _leagueManager.SaveAndReloadLeaguesDatabase();
+                        // Grab challenger Team object
+                        Team? otherTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challenge.Challenged);
 
-                                    // Save and reload database
-                                    _challengeManager.SaveChallengesDatabase();
-                                    _challengeManager.LoadChallengesDatabase();
+                        // Set IsChallengeable for both teams back to true
+                        _teamManager.ChangeChallengeStatus(team, true);
+                        _teamManager.ChangeChallengeStatus(otherTeam, true);
 
-                                    // Backup to git
-                                    _backupManager.CopyAndBackupFilesToGit();
+                        // Save leagues
+                        _leagueManager.SaveAndReloadLeagueRegistry();
 
-                                    // Grab newly created Challenge object
-                                    Challenge? newChallenge = _challengeManager.GetChallengeForTeam(correctLeague.Format, correctLeague.Name, objectChallengerTeam);
+                        // Cancel the challenge
+                        _challengeManager.SudoRemoveXvXChallenge(team.League, team.Name);
 
-                                    // Notify the challenged team
-                                    foreach (Member member in objectChallengedTeam.Members)
-                                    {
-                                        _challengeManager.SendChallengeNotification(member.DiscordId, newChallenge, correctLeague);
-                                    }
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
 
-                                    return _embedManager.ChallengeSuccessEmbed(objectChallengerTeam, objectChallengedTeam, newChallenge);
-                                }
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengedTeam.Name} is already awaiting a challenge match. Please try again later.");
-                            }
-                            return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name} is already awaiting a challenge match. Please try again later.");
-                        }
-                        else
-                        {
-                            if (objectChallengerTeam.Rank < objectChallengedTeam.Rank)
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is higher than {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). A challenge cannot be initiated. Please try again.");
-                            }
-                            else
-                            {
-                                return _embedManager.ChallengeErrorEmbed($"Team {objectChallengerTeam.Name}'s rank ({objectChallengerTeam.Rank}) is not within the allowed range to challenge {objectChallengedTeam.Name}'s rank ({objectChallengedTeam.Rank}). Challenges can only be made for teams within two ranks above. Please try again.");
-                            }
-                        }
+                        return _embedManager.CancelChallengeSuccessEmbed(team);
                     }
-                    return _embedManager.ChallengeErrorEmbed($"The teams are not in the same League. Challenger team's League: {objectChallengerTeam.League}, Challenged team's League: {objectChallengedTeam.League}. Please try again.");
+                    return _embedManager.CancelChallengeErrorEmbed($"Team {team.Name} does not have any pending challenges sent out to cancel.");
                 }
-                return _embedManager.ChallengeErrorEmbed($"You are not a member of Team {objectChallengerTeam.Name}. Please try again.");
+                return _embedManager.CancelChallengeErrorEmbed($"You are not a member of Team **{team.Name}**\nThat team's member(s) consists of: {team.GetAllMemberNamesToStr()}");
             }
-            return _embedManager.ChallengeErrorEmbed($"One or both team names were not found in the database. Please try again.");
+            return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
         public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)

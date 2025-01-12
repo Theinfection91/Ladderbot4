@@ -60,12 +60,12 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
         public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+            [Summary("challengerTeam", "Name of team that sent the challenge")] string challengerTeam)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam.Trim().ToLower());
+                var result = _ladderManager.CancelXvXChallengeProcess(Context, challengerTeam.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -75,6 +75,24 @@ namespace Ladderbot4.Commands
                 await Context.Interaction.FollowupAsync(embed: errorResult);
             }
         }
+
+        //[SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
+        //public async Task CancelChallengeAsync(
+        //    [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+        //{
+        //    try
+        //    {
+        //        await Context.Interaction.DeferAsync();
+        //        var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam.Trim().ToLower());
+        //        await Context.Interaction.FollowupAsync(embed: result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+        //        await Context.Interaction.FollowupAsync(embed: errorResult);
+        //    }
+        //}
 
         [Group("admin", "Admin slash commands related to challenges.")]
         public class AdminChallengeSlashCommands : InteractionModuleBase<SocketInteractionContext>

@@ -44,6 +44,12 @@ namespace Ladderbot4.Managers
             _challengesHub = _challengesHubData.Load();
         }
 
+        public void SaveAndReloadChallengesHub()
+        {
+            SaveChallengesHub();
+            LoadChallengesHub();
+        }
+
         public void LoadChallengesDatabase()
         {
             _challengeData.LoadAllChallenges();
@@ -52,6 +58,15 @@ namespace Ladderbot4.Managers
         public void SaveChallengesDatabase()
         {
             _challengeData.SaveChallenges(_challengeData.LoadAllChallenges());
+        }
+
+        public Challenge? GetXvXChallengeForTeam(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
+
+            return challenges.FirstOrDefault(challenge =>
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public Challenge? GetChallengeForTeam(string division, string leagueName, Team team)
@@ -79,6 +94,14 @@ namespace Ladderbot4.Managers
             return challenges.Any(challenge =>
                 challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool IsXvXTeamChallenger(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
+
+            return challenges.Any(challenge =>
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamChallenger(string division, string leagueName, Team team)
