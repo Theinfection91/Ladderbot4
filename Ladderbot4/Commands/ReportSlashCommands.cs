@@ -53,7 +53,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.ReportWinAdminProcess(Context, winningTeamName.Trim().ToLower());
+                    var result = _ladderManager.ReportXvXWinAdminProcess(Context, winningTeamName.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)

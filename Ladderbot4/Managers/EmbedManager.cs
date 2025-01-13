@@ -283,12 +283,12 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed AdminCancelChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam)
+        public Embed AdminCancelChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam, Team challengedTeam)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🚫 Challenge Canceled by Admin")
                 .WithColor(Color.Green)
-                .WithDescription($"The challenge sent by **{challengerTeam.Name}** in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League) has been successfully canceled by an admin.")
+                .WithDescription($"The challenge sent by **{challengerTeam.Name}** in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League) against **{challengedTeam.Name}** has been successfully canceled by an admin.")
                 .AddField("Admin", context.User.GlobalName ?? context.User.Username, inline: true)
                 .AddField("Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)
                 .AddField("League", challengerTeam.League, inline: true)
