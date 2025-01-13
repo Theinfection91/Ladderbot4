@@ -117,7 +117,7 @@ namespace Ladderbot4.Managers
             // Get all leagues from LeagueManager
             foreach (var league in _leagueManager.GetAllLeagues())
             {
-                ulong channelId = _statesManager.GetXvXChallengesChannelId(league);
+                ulong channelId = _statesManager.GetChallengesChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -198,7 +198,7 @@ namespace Ladderbot4.Managers
             // Get all leagues from LeagueManager
             foreach (var league in _leagueManager.GetAllLeagues())
             {
-                ulong channelId = _statesManager.GetXvXStandingsChannelId(league);
+                ulong channelId = _statesManager.GetStandingsChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -283,7 +283,7 @@ namespace Ladderbot4.Managers
             // Get all leagues from LeagueManager
             foreach (var league in _leagueManager.GetAllLeagues())
             {
-                ulong channelId = _statesManager.GetXvXTeamsChannelId(league);
+                ulong channelId = _statesManager.GetTeamsChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -362,13 +362,13 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab state associated with league
-                State state = _statesManager.GetXvXStateByLeague(league);
+                State state = _statesManager.GetStateByLeague(league);
 
                 // Check ladder status
-                if (!_statesManager.IsXvXLadderRunning(league))
+                if (!_statesManager.IsLadderRunning(league))
                 {
                     // Set ladder running to true
-                    _statesManager.SetXvXLadderRunning(league, true);
+                    _statesManager.SetLadderRunning(league, true);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -392,13 +392,13 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab state associated with league
-                State state = _statesManager.GetXvXStateByLeague(league);
+                State state = _statesManager.GetStateByLeague(league);
 
                 // Check ladder status
-                if (_statesManager.IsXvXLadderRunning(league))
+                if (_statesManager.IsLadderRunning(league))
                 {
                     // Set ladder running to true
-                    _statesManager.SetXvXLadderRunning(league, false);
+                    _statesManager.SetLadderRunning(league, false);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -427,7 +427,7 @@ namespace Ladderbot4.Managers
                 _leagueManager.AddNewLeague(newLeague);
 
                 // Create and add State for new XvX League
-                _statesManager.AddNewXvXState(_statesManager.CreateNewState(newLeague.Name, newLeague.Format));
+                _statesManager.AddNewState(_statesManager.CreateNewState(newLeague.Name, newLeague.Format));
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -453,7 +453,7 @@ namespace Ladderbot4.Managers
                 _challengeManager.RemoveLeagueFromChallenges(league.Name);
 
                 // Remove the state associated with the league
-                _statesManager.RemoveXvXState(_statesManager.GetXvXStateByLeague(league));
+                _statesManager.RemoveState(_statesManager.GetStateByLeague(league));
 
                 // Delete League from database
                 _leagueManager.DeleteLeague(league.Name);
@@ -572,7 +572,7 @@ namespace Ladderbot4.Managers
                     League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
-                    if (!_statesManager.IsXvXLadderRunning(league))
+                    if (!_statesManager.IsLadderRunning(league))
                     {
                         return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{league.Name}** ({league.Format} League). Challenges may not be initiated yet.");
                     }
@@ -653,7 +653,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
-                if (!_statesManager.IsXvXLadderRunning(league))
+                if (!_statesManager.IsLadderRunning(league))
                 {
                     return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in {league.Name} ({league.Format} League) so there are no challenges to cancel yet.");
                 }
@@ -711,7 +711,7 @@ namespace Ladderbot4.Managers
                     League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
-                    if (!_statesManager.IsXvXLadderRunning(league))
+                    if (!_statesManager.IsLadderRunning(league))
                     {
                         return _embedManager.ChallengeErrorEmbed($"The ladder is not currently running in **{league.Name}** ({league.Format} League). Challenges may not be initiated yet.");
                     }
@@ -783,7 +783,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
-                if (!_statesManager.IsXvXLadderRunning(league))
+                if (!_statesManager.IsLadderRunning(league))
                 {
                     return _embedManager.CancelChallengeErrorEmbed($"The ladder is not currently running in {league.Name} ({league.Format} League) so there are no challenges to cancel yet.");
                 }
@@ -831,7 +831,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
-                if (!_statesManager.IsXvXLadderRunning(league))
+                if (!_statesManager.IsLadderRunning(league))
                 {
                     return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in {league.Name} ({league.Format} League) so there are no matches to report on yet.");
                 }
@@ -942,7 +942,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
-                if (!_statesManager.IsXvXLadderRunning(league))
+                if (!_statesManager.IsLadderRunning(league))
                 {
                     return _embedManager.ReportWinErrorEmbed($"The ladder is not currently running in {league.Name} ({league.Format} League) so there are no matches to report on yet.");
                 }
@@ -1191,7 +1191,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetXvXChallengesChannelId(league, channel.Id);
+                _statesManager.SetChallengesChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1210,7 +1210,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetXvXStandingsChannelId(league, channel.Id);
+                _statesManager.SetStandingsChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1229,7 +1229,7 @@ namespace Ladderbot4.Managers
                 League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetXvXTeamsChannelId(league, channel.Id);
+                _statesManager.SetTeamsChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
