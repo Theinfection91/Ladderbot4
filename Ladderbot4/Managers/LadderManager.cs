@@ -1175,75 +1175,61 @@ namespace Ladderbot4.Managers
 
         #endregion
 
-        #region Post Standings/Challenges/Teams Logic        
-        public Embed PostChallengesProcess(SocketInteractionContext context, string leagueName)
+        #region Post Standings/Challenges/Teams Logic
+        public Embed PostXvXChallengesProcess(SocketInteractionContext context, string leagueName)
         {
-            _challengeManager.LoadChallengesDatabase();
+            // Load challenges
+            _challengeManager.LoadChallengesHub();
 
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab league reference
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                // Grab league
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // Grab List of challenges for given League
-                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
+                // Grab list of challenges in league
+                List<Challenge> challenges = _challengeManager.GetXvXChallengesForLeague(league);
 
                 return _embedManager.PostChallengesEmbed(league, challenges);
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed PostLeaguesProcess(SocketInteractionContext context, string divisionType)
+        public Embed PostXvXLeaguesProcess(SocketInteractionContext context, string leagueFormat)
         {
-            _leagueManager.LoadLeaguesDatabase();
-            // Check given division type
-            if (_leagueManager.IsValidDivisionType(divisionType))
-            {
-                // Grab list of Leagues that match division type
-                List<League> leagues = _leagueManager.GetLeaguesByDivisionType(divisionType);
-
-                // Pass list of Leagues to embed manager and return embed
-                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
-            }
-            else if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                List<League> leagues = _leagueManager.GetAllLeaguesAsList();
-
-                return _embedManager.PostLeaguesEmbed(leagues, divisionType);
-            }
-            return _embedManager.PostLeaguesErrorEmbed(divisionType);
+            return _embedManager.CreateDebugEmbed("TODO");
         }
 
-        public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
+        public Embed PostXvXStandingsProcess(SocketInteractionContext context, string leagueName)
         {
-            _leagueManager.LoadLeaguesDatabase();
+            // Load leagues
+            _leagueManager.LoadLeagueRegistry();
 
-            // Check if League exists by given name
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            // Check if league exists
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab league reference
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                // Grab league
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
                 return _embedManager.PostStandingsEmbed(league);
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed PostTeamsProcess(SocketInteractionContext context, string leagueName)
+        public Embed PostXvXTeamsProcess(SocketInteractionContext context, string leagueName)
         {
-            if (_leagueManager.IsTeamNameUnique(leagueName))
+            // Load leagues
+            _leagueManager.LoadLeagueRegistry();
+
+            // Check if league exists
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
-                // Grab league reference
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                // Grab league
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
-                // Grab list of teams from league
-                List<Team>? teams = _teamManager.GetTeamsInLeague(league);
-
-                return _embedManager.PostTeamsEmbed(league, teams);
+                return _embedManager.PostTeamsEmbed(league, league.Teams);
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
-
         #endregion
 
         #region Set Rank Logic        

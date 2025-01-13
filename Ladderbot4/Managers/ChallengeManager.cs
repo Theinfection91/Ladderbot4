@@ -123,6 +123,11 @@ namespace Ladderbot4.Managers
             return _challengeData.GetChallenges(league.Format, league.Name);
         }
 
+        public List<Challenge> GetXvXChallengesForLeague(League league)
+        {
+            return _challengesHub.GetChallenges(league.Name);
+        }
+
         public string GetChallengesData(string division, string leagueName)
         {
             var challenges = _challengeData.GetChallenges(division, leagueName);
