@@ -10,22 +10,13 @@ namespace Ladderbot4.Managers
 {
     public class StatesManager
     {
-        private readonly LadderData _ladderData;
         private readonly StatesAtlasData _statesAtlasData;
 
-        private StatesByDivision _statesByDivision;
         private StatesAtlas _statesAtlas;
 
-        public StatesManager(LadderData ladderData, StatesAtlasData statesAtlasData)
+        public StatesManager(StatesAtlasData statesAtlasData)
         {
-            // OLD
-            _ladderData = ladderData;
-            // NEW
             _statesAtlasData = statesAtlasData;
-
-            // OLD
-            _statesByDivision = _ladderData.LoadAllStates();
-            // NEW
             _statesAtlas = _statesAtlasData.Load();
         }
 
@@ -45,22 +36,6 @@ namespace Ladderbot4.Managers
             LoadStatesAtlas();
         }
 
-        public void LoadStatesDatabase()
-        {
-            _statesByDivision = _ladderData.LoadAllStates();
-        }
-
-        public void SaveStatesDatabase()
-        {
-            _ladderData.SaveAllStates(_statesByDivision);
-        }
-
-        public void SaveAndReloadStatesDatabase()
-        {
-            SaveStatesDatabase();
-            LoadStatesDatabase();
-        }
-
         public State GetXvXStateByLeague(League league)
         {
             foreach (State state in _statesAtlas.States)
@@ -73,32 +48,6 @@ namespace Ladderbot4.Managers
             return null;
         }
 
-        public State GetStateByLeague(League leagueRef)
-        {
-            IEnumerable<State> states;
-
-            switch (leagueRef.Format)
-            {
-                case "1v1":
-                    states = _statesByDivision.States1v1;
-                    break;
-
-                case "2v2":
-                    states = _statesByDivision.States2v2;
-                    break;
-
-                case "3v3":
-                    states = _statesByDivision.States3v3;
-                    break;
-
-                default:
-                    return null;
-            }
-
-            return states?.FirstOrDefault(state =>
-                state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
         public bool IsXvXLadderRunning(League league)
         {
             foreach (State state in _statesAtlas.States)
@@ -109,46 +58,7 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
-        }
-
-        public bool IsLadderRunning(League leagueRef)
-        {
-            switch (leagueRef.Format)
-            {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.Name, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                default:
-                    return false;
-            }
-        }
+        }     
 
         public ulong GetXvXChallengesChannelId(League leagueRef)
         {
@@ -164,23 +74,6 @@ namespace Ladderbot4.Managers
             {
                 state.ChallengesChannelId = channelId;
                 SaveAndReloadStatesAtlas();
-            }
-        }
-
-        public ulong GetChallengesChannelId(League leagueRef)
-        {
-            State state = GetStateByLeague(leagueRef);
-            return state?.ChallengesChannelId ?? 0;
-        }
-
-        public void SetChallengesChannelId(League leagueRef, ulong channelId)
-        {
-            State state = GetStateByLeague(leagueRef);
-
-            if (state != null)
-            {
-                state.ChallengesChannelId = channelId;
-                SaveAndReloadStatesDatabase();
             }
         }
 
@@ -201,23 +94,6 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public ulong GetStandingsChannelId(League leagueRef)
-        {
-            State state = GetStateByLeague(leagueRef);
-            return state?.StandingsChannelId ?? 0;
-        }
-
-        public void SetStandingsChannelId(League leagueRef, ulong channelId)
-        {
-            State state = GetStateByLeague(leagueRef);
-
-            if (state != null)
-            {
-                state.StandingsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
-            }
-        }
-
         public ulong GetXvXTeamsChannelId(League leagueRef)
         {
             State state = GetXvXStateByLeague(leagueRef);
@@ -235,23 +111,6 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public ulong GetTeamsChannelId(League leagueRef)
-        {
-            State state = GetStateByLeague(leagueRef);
-            return state?.TeamsChannelId ?? 0;
-        }
-
-        public void SetTeamsChannelId(League leagueRef, ulong channelId)
-        {
-            State state = GetStateByLeague(leagueRef);
-
-            if (state != null)
-            {
-                state.TeamsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
-            }
-        }
-
         public void SetXvXLadderRunning(League league, bool trueOrFalse)
         {
             foreach (State state in _statesAtlas.States)
@@ -261,42 +120,6 @@ namespace Ladderbot4.Managers
                     state.IsLadderRunning = trueOrFalse;
                     SaveAndReloadStatesAtlas();
                 }
-            }
-        }
-
-        public void SetLadderRunning(League leagueRef, bool trueOrFalse)
-        {
-            switch (leagueRef.Format)
-            {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
             }
         }
 
@@ -323,20 +146,6 @@ namespace Ladderbot4.Managers
             _statesAtlasData.RemoveState(state);
 
             LoadStatesAtlas();
-        }
-
-        public void AddNewState(State state)
-        {
-            _ladderData.AddState(state);
-
-            LoadStatesDatabase();
-        }
-
-        public void RemoveLeagueState(string leagueName, string division)
-        {
-            _ladderData.RemoveState(leagueName, division);
-
-            LoadStatesDatabase();
         }
     }
 }
