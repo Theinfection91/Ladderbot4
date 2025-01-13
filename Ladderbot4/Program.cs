@@ -23,7 +23,7 @@ namespace Ladderbot4
         private InteractionService _interactionService;
 
         private static SettingsManager _settingsManager;
-        private static SettingsData _settingsData;
+        private static SettingsVaultData _settingsVaultData;
 
         public static async Task Main(string[] args)
         {
@@ -54,12 +54,10 @@ namespace Ladderbot4
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
 
-                    // Phase out OLD no base 'Data' classes                                     
-                    services.AddSingleton<SettingsData>();
-
                     // Register NEW 4.2.0 'Data' services
                     services.AddSingleton<ChallengesHubData>();
                     services.AddSingleton<LeagueRegistryData>();
+                    services.AddSingleton<SettingsVaultData>();
                     services.AddSingleton<StatesAtlasData>();
 
                     // Register Managers
@@ -80,7 +78,7 @@ namespace Ladderbot4
             // Retrieve required services
             _services = host.Services;
             _settingsManager = _services.GetRequiredService<SettingsManager>();
-            _settingsData = _services.GetRequiredService<SettingsData>();
+            _settingsVaultData = _services.GetRequiredService<SettingsVaultData>();
 
             // Ensure settings are loaded
             _settingsManager.SetBotTokenProcess();

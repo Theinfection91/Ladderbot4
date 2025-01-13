@@ -11,36 +11,39 @@ namespace Ladderbot4.Managers
 {
     public class SettingsManager
     {
+
         private DiscordSocketClient _client;
-        private readonly SettingsData _settingsData;
+
+        private readonly SettingsVaultData _settingsVaultData;
+
         public Settings Settings { get; set; }
 
-        public SettingsManager(DiscordSocketClient client, SettingsData settingsData)
+        public SettingsManager(DiscordSocketClient client, SettingsVaultData settingsVaultData)
         {
             _client = client;
-            _settingsData = settingsData;
-            Settings = _settingsData.LoadSettings();
+            _settingsVaultData = settingsVaultData;
+            Settings = _settingsVaultData.Load();
         }
 
-        public void LoadSettingsData()
+        public void SaveSettingsVaultData()
         {
-            Settings = _settingsData.LoadSettings();
+            _settingsVaultData.Save(Settings);
         }
 
-        public void SaveSettings()
+        public void LoadSettingsVaultData()
         {
-            _settingsData.SaveSettings(Settings);
+            _settingsVaultData.Load();
         }
 
-        public void SaveAndReloadSettingsDatabase()
+        public void SaveAndReloadSettingsVault()
         {
-            SaveSettings();
-            LoadSettingsData();
+            SaveSettingsVaultData();
+            LoadSettingsVaultData();
         }
 
         public bool IsDiscordIdInSuperAdminList(ulong discordId)
         {
-            LoadSettingsData();
+            LoadSettingsVaultData();
 
             foreach (ulong adminIds in Settings.SuperAdminDiscordIds)
             {
@@ -101,7 +104,7 @@ namespace Ladderbot4.Managers
                     if (IsValidBotToken(botToken))
                     {
                         Settings.DiscordBotToken = botToken;
-                        SaveAndReloadSettingsDatabase();
+                        SaveAndReloadSettingsVault();
                         IsBotTokenProcessComplete = true;
                     }
                     else
@@ -138,7 +141,7 @@ namespace Ladderbot4.Managers
                             if (IsGuildIdValidBool(guildId))
                             {
                                 Settings.GuildId = guildId;
-                                SaveAndReloadSettingsDatabase();
+                                SaveAndReloadSettingsVault();
                                 IsGuildIdProcessComplete = true;
                             }
                             else
@@ -171,7 +174,7 @@ namespace Ladderbot4.Managers
                         string? gitUrlPath = Console.ReadLine();
                         Settings.GitUrlPath = gitUrlPath;
                         Console.WriteLine($"{DateTime.Now} SettingsManager - Repo Url set to: {gitUrlPath}\nYou can manually change your token and url path in the Settings/config.json file as well.");
-                        SaveAndReloadSettingsDatabase();
+                        SaveAndReloadSettingsVault();
                         IsGitBackupProcessComplete = true;
                     }
                     else

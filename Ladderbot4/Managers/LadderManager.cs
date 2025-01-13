@@ -1399,8 +1399,7 @@ namespace Ladderbot4.Managers
 
             // Set in Settings using SettingsManager then save and reload Settings
             _settingsManager.Settings.GuildId = guildId;
-            _settingsManager.SaveSettings();
-            _settingsManager.LoadSettingsData();
+            _settingsManager.SaveAndReloadSettingsVault();
 
             return _embedManager.SetGuildIdSuccessEmbed(guildId);
         }
@@ -1411,12 +1410,12 @@ namespace Ladderbot4.Managers
             {
                 case "on":
                     _settingsManager.SetSuperAdminModeOnOff(true);
-                    _settingsManager.SaveAndReloadSettingsDatabase();
+                    _settingsManager.SaveAndReloadSettingsVault();
                     return _embedManager.SuperAdminModeOnEmbed();
 
                 case "off":
                     _settingsManager.SetSuperAdminModeOnOff(false);
-                    _settingsManager.SaveAndReloadSettingsDatabase();
+                    _settingsManager.SaveAndReloadSettingsVault();
                     return _embedManager.SuperAdminModeOffEmbed();
 
                 default:
@@ -1432,7 +1431,7 @@ namespace Ladderbot4.Managers
             if (!_settingsManager.IsDiscordIdInSuperAdminList(newAdminId))
             {
                 _settingsManager.AddSuperAdminId(newAdminId);
-                _settingsManager.SaveAndReloadSettingsDatabase();
+                _settingsManager.SaveAndReloadSettingsVault();
                 return _embedManager.AddSuperAdminIdSuccessEmbed(user);
             }
             return _embedManager.AddSuperAdminIdAlreadyExistsEmbed(user);
@@ -1446,7 +1445,7 @@ namespace Ladderbot4.Managers
             if (_settingsManager.IsDiscordIdInSuperAdminList(adminId))
             {
                 _settingsManager.RemoveSuperAdminId(adminId);
-                _settingsManager.SaveAndReloadSettingsDatabase();
+                _settingsManager.SaveAndReloadSettingsVault();
                 return _embedManager.RemoveSuperAdminIdSuccessEmbed(user);
             }
             return _embedManager.RemoveSuperAdminIdNotFoundEmbed(user);
