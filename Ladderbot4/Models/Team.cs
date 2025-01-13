@@ -42,13 +42,6 @@ namespace Ladderbot4.Models
 
         public string GetAllMemberNamesToStr()
         {
-            //return Members.Count switch
-            //{
-            //    1 => $"{Members[0].DisplayName}",
-            //    2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
-            //    3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[2].DisplayName}",
-            //    _ => $"Incorrect member count. Count: {Members.Count}",
-            //};
             StringBuilder sb = new();
             foreach (Member m in Members)
             {
