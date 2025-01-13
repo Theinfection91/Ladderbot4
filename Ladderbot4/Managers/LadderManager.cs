@@ -115,7 +115,7 @@ namespace Ladderbot4.Managers
         private async Task SendChallengesToChannelAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllXvXLeagues())
+            foreach (var league in _leagueManager.GetAllLeagues())
             {
                 ulong channelId = _statesManager.GetXvXChallengesChannelId(league);
 
@@ -134,7 +134,7 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the challenges embed for the league
-                List<Challenge> challenges = _challengeManager.GetXvXChallengesForLeague(league);
+                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
                 Embed challengesEmbed = _embedManager.PostChallengesEmbed(league, challenges);
 
                 if (challengesEmbed == null)
@@ -196,7 +196,7 @@ namespace Ladderbot4.Managers
         private async Task SendStandingsToChannelsAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllXvXLeagues())
+            foreach (var league in _leagueManager.GetAllLeagues())
             {
                 ulong channelId = _statesManager.GetXvXStandingsChannelId(league);
 
@@ -281,7 +281,7 @@ namespace Ladderbot4.Managers
         private async Task SendTeamsToChannelAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllXvXLeagues())
+            foreach (var league in _leagueManager.GetAllLeagues())
             {
                 ulong channelId = _statesManager.GetXvXTeamsChannelId(league);
 
@@ -356,10 +356,10 @@ namespace Ladderbot4.Managers
             _statesManager.LoadStatesAtlas();
 
             // Check if League exists by name
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab state associated with league
                 State state = _statesManager.GetXvXStateByLeague(league);
@@ -386,10 +386,10 @@ namespace Ladderbot4.Managers
             _statesManager.LoadStatesAtlas();
 
             // Check if League exists by name
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab state associated with league
                 State state = _statesManager.GetXvXStateByLeague(league);
@@ -415,16 +415,16 @@ namespace Ladderbot4.Managers
         public Embed CreateXvXLeagueProcess(string leagueName, int teamSize)
         {
             // Check if desired XvX League name is taken
-            if (_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Generate division tag based on team size
-                string divisionTag = _leagueManager.ConvertTeamSizeToDivisionTagStr(teamSize);
+                string divisionTag = _leagueManager.ConvertTeamSizeToDivisionTag(teamSize);
 
                 // Create new XvX League Object
-                League newLeague = _leagueManager.CreateXvXLeagueObject(leagueName, divisionTag, teamSize);
+                League newLeague = _leagueManager.CreateLeagueObject(leagueName, divisionTag, teamSize);
 
                 // Add new league to LeagueRegistry
-                _leagueManager.AddNewXvXLeague(newLeague);
+                _leagueManager.AddNewLeague(newLeague);
 
                 // Create and add State for new XvX League
                 _statesManager.AddNewXvXState(_statesManager.CreateNewState(newLeague.Name, newLeague.Format));
@@ -444,19 +444,19 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if League by given name exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object as reference for correct league info for embed
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Remove all challenges associated with league
-                _challengeManager.RemoveXvXLeagueFromChallenges(league.Name);
+                _challengeManager.RemoveLeagueFromChallenges(league.Name);
 
                 // Remove the state associated with the league
                 _statesManager.RemoveXvXState(_statesManager.GetXvXStateByLeague(league));
 
                 // Delete League from database
-                _leagueManager.DeleteXvXLeague(league.Name);
+                _leagueManager.DeleteLeague(league.Name);
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -475,13 +475,13 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if league by given name exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab reference of League
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Check if given team name is unique across every league
-                if (_leagueManager.IsXvXTeamNameUnique(teamName))
+                if (_leagueManager.IsTeamNameUnique(teamName))
                 {
                     // Convert IUser list to Members list
                     List<Member> membersList = _memberManager.ConvertMembersListToObjects(members);
@@ -500,10 +500,10 @@ namespace Ladderbot4.Managers
                         }
 
                         // Create team object
-                        Team team = _teamManager.CreateXvXTeamObject(teamName, league.Name, league.TeamSize, league.Format, _teamManager.GetTeamCountInLeague(league) + 1, membersList);
+                        Team team = _teamManager.CreateTeamObject(teamName, league.Name, league.TeamSize, league.Format, _teamManager.GetTeamCountInLeague(league) + 1, membersList);
 
                         // Add team to league
-                        _leagueManager.AddXvXTeamToLeague(team, league);
+                        _leagueManager.AddTeamToLeague(team, league);
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -523,19 +523,19 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if Team exists in any League
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab Team object
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Grab League object
-                League league = _leagueManager.GetXvXLeagueByName(team.League);
+                League league = _leagueManager.GetLeagueByName(team.League);
 
                 // Remove all Challenges associated with Team
-                _challengeManager.SudoRemoveXvXChallenge(league.Name, team.Name);
+                _challengeManager.SudoRemoveChallenge(league.Name, team.Name);
 
                 // Remove team
-                _leagueManager.RemoveXvXTeamFromLeague(team, league);
+                _leagueManager.RemoveTeamFromLeague(team, league);
 
                 ReassignRanksInLeague(league);
 
@@ -560,16 +560,16 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesHub();
 
             // Check if each team exists in the database
-            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
             {
-                if (!_leagueManager.IsXvXTeamNameUnique(challengedTeam))
+                if (!_leagueManager.IsTeamNameUnique(challengedTeam))
                 {
                     // Grab team objects
-                    Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
-                    Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengedTeam);
+                    Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+                    Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
 
                     // Grab league
-                    League league = _leagueManager.GetXvXLeagueByName(objectChallengerTeam.League);
+                    League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
                     if (!_statesManager.IsXvXLadderRunning(league))
@@ -590,14 +590,14 @@ namespace Ladderbot4.Managers
                             if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
                             {
                                 // Check if Challenger team has any pending challenges
-                                if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengerTeam))
+                                if (!_challengeManager.IsTeamInChallenge(league.Name, objectChallengerTeam))
                                 {
                                     // Check if the challenged has any pending challenges
-                                    if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengedTeam))
+                                    if (!_challengeManager.IsTeamInChallenge(league.Name, objectChallengedTeam))
                                     {
                                         // Create and save new Challenge
                                         Challenge challenge = new(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank);
-                                        _challengeManager.AddNewXvXChallenge(league.Name, challenge);
+                                        _challengeManager.AddNewChallenge(league.Name, challenge);
 
                                         // Change IsChallengeable of both teams to false and save league
                                         _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
@@ -646,11 +646,11 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesHub();
 
             // Check if team exists
-            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
             {
                 // Grab team and league objects
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
-                League league = _leagueManager.GetXvXLeagueByName(team.League);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+                League league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
                 if (!_statesManager.IsXvXLadderRunning(league))
@@ -662,13 +662,13 @@ namespace Ladderbot4.Managers
                 if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, team))
                 {
                     // Check if team has a challenge sent out to actually cancel
-                    if (_challengeManager.IsXvXTeamChallenger(team.League, team))
+                    if (_challengeManager.IsTeamChallenger(team.League, team))
                     {
                         // Grab Challenge object
-                        Challenge? challenge = _challengeManager.GetXvXChallengeForTeam(team.League, team);
+                        Challenge? challenge = _challengeManager.GetChallengeForTeam(team.League, team);
 
                         // Grab challenger Team object
-                        Team? otherTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challenge.Challenged);
+                        Team? otherTeam = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
 
                         // Set IsChallengeable for both teams back to true
                         _teamManager.ChangeChallengeStatus(team, true);
@@ -678,7 +678,7 @@ namespace Ladderbot4.Managers
                         _leagueManager.SaveAndReloadLeagueRegistry();
 
                         // Cancel the challenge
-                        _challengeManager.SudoRemoveXvXChallenge(team.League, team.Name);
+                        _challengeManager.SudoRemoveChallenge(team.League, team.Name);
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -699,16 +699,16 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesHub();
 
             // Check if each team exists in the database
-            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
             {
-                if (!_leagueManager.IsXvXTeamNameUnique(challengedTeam))
+                if (!_leagueManager.IsTeamNameUnique(challengedTeam))
                 {
                     // Grab team objects
-                    Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
-                    Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challengedTeam);
+                    Team? objectChallengerTeam = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+                    Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
 
                     // Grab league
-                    League league = _leagueManager.GetXvXLeagueByName(objectChallengerTeam.League);
+                    League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
                     if (!_statesManager.IsXvXLadderRunning(league))
@@ -722,14 +722,14 @@ namespace Ladderbot4.Managers
                         if (_challengeManager.IsTeamChallengeable(objectChallengerTeam, objectChallengedTeam))
                         {
                             // Check if Challenger team has any pending challenges
-                            if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengerTeam))
+                            if (!_challengeManager.IsTeamInChallenge(league.Name, objectChallengerTeam))
                             {
                                 // Check if the challenged has any pending challenges
-                                if (!_challengeManager.IsXvXTeamInChallenge(league.Name, objectChallengedTeam))
+                                if (!_challengeManager.IsTeamInChallenge(league.Name, objectChallengedTeam))
                                 {
                                     // Create and save new Challenge
                                     Challenge challenge = new(objectChallengerTeam.Name, objectChallengerTeam.Rank, objectChallengedTeam.Name, objectChallengedTeam.Rank);
-                                    _challengeManager.AddNewXvXChallenge(league.Name, challenge);
+                                    _challengeManager.AddNewChallenge(league.Name, challenge);
 
                                     // Change IsChallengeable of both teams to false and save league
                                     _teamManager.ChangeChallengeStatus(objectChallengerTeam, false);
@@ -776,11 +776,11 @@ namespace Ladderbot4.Managers
             _challengeManager.LoadChallengesHub();
 
             // Check if team exists
-            if (!_leagueManager.IsXvXTeamNameUnique(challengerTeam))
+            if (!_leagueManager.IsTeamNameUnique(challengerTeam))
             {
                 // Grab team and league objects
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(challengerTeam);
-                League league = _leagueManager.GetXvXLeagueByName(team.League);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
+                League league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
                 if (!_statesManager.IsXvXLadderRunning(league))
@@ -789,13 +789,13 @@ namespace Ladderbot4.Managers
                 }
 
                 // Check if team has a challenge sent out to actually cancel
-                if (_challengeManager.IsXvXTeamChallenger(team.League, team))
+                if (_challengeManager.IsTeamChallenger(team.League, team))
                 {
                     // Grab Challenge object
-                    Challenge? challenge = _challengeManager.GetXvXChallengeForTeam(team.League, team);
+                    Challenge? challenge = _challengeManager.GetChallengeForTeam(team.League, team);
 
                     // Grab challenger Team object
-                    Team? otherTeam = _leagueManager.GetTeamByNameFromXvXLeagues(challenge.Challenged);
+                    Team? otherTeam = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
 
                     // Set IsChallengeable for both teams back to true
                     _teamManager.ChangeChallengeStatus(team, true);
@@ -805,7 +805,7 @@ namespace Ladderbot4.Managers
                     _leagueManager.SaveAndReloadLeagueRegistry();
 
                     // Cancel the challenge
-                    _challengeManager.SudoRemoveXvXChallenge(team.League, team.Name);
+                    _challengeManager.SudoRemoveChallenge(team.League, team.Name);
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -825,10 +825,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists
-            if (!_leagueManager.IsXvXTeamNameUnique(winningTeamName))
+            if (!_leagueManager.IsTeamNameUnique(winningTeamName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueFromTeamName(winningTeamName);
+                League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
                 if (!_statesManager.IsXvXLadderRunning(league))
@@ -837,17 +837,17 @@ namespace Ladderbot4.Managers
                 }
 
                 // Grab winningTeam object, add placeholder for losingTeam object
-                Team? winningTeam = _leagueManager.GetTeamByNameFromXvXLeagues(winningTeamName);
+                Team? winningTeam = _leagueManager.GetTeamByNameFromLeagues(winningTeamName);
                 Team? losingTeam;
 
                 // Is invoker on the winningTeam
                 if (_memberManager.IsDiscordIdOnGivenTeam(context.User.Id, winningTeam))
                 {
                     // Is the team part of an active challenge (Challenger or Challenged)
-                    if (_challengeManager.IsXvXTeamInChallenge(winningTeam.League, winningTeam))
+                    if (_challengeManager.IsTeamInChallenge(winningTeam.League, winningTeam))
                     {
                         // Grab challenge
-                        Challenge? challenge = _challengeManager.GetXvXChallengeForTeam(winningTeam.League, winningTeam);
+                        Challenge? challenge = _challengeManager.GetChallengeForTeam(winningTeam.League, winningTeam);
 
                         // Determine if winningTeam is Challenger or Challenged
                         bool isWinningTeamChallenger;
@@ -887,7 +887,7 @@ namespace Ladderbot4.Managers
                             _leagueManager.SaveAndReloadLeagueRegistry();
 
                             // Remove the challenge
-                            _challengeManager.SudoRemoveXvXChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
                             // Backup to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -914,7 +914,7 @@ namespace Ladderbot4.Managers
                             _leagueManager.SaveAndReloadLeagueRegistry();
 
                             // Remove the challenge
-                            _challengeManager.SudoRemoveXvXChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -936,10 +936,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists
-            if (!_leagueManager.IsXvXTeamNameUnique(winningTeamName))
+            if (!_leagueManager.IsTeamNameUnique(winningTeamName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueFromTeamName(winningTeamName);
+                League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
                 if (!_statesManager.IsXvXLadderRunning(league))
@@ -948,13 +948,13 @@ namespace Ladderbot4.Managers
                 }
 
                 // Grab winningTeam object, add placeholder for losingTeam object
-                Team? winningTeam = _leagueManager.GetTeamByNameFromXvXLeagues(winningTeamName);
+                Team? winningTeam = _leagueManager.GetTeamByNameFromLeagues(winningTeamName);
                 Team? losingTeam;
                     // Is the team part of an active challenge (Challenger or Challenged)
-                    if (_challengeManager.IsXvXTeamInChallenge(winningTeam.League, winningTeam))
+                    if (_challengeManager.IsTeamInChallenge(winningTeam.League, winningTeam))
                     {
                         // Grab challenge
-                        Challenge? challenge = _challengeManager.GetXvXChallengeForTeam(winningTeam.League, winningTeam);
+                        Challenge? challenge = _challengeManager.GetChallengeForTeam(winningTeam.League, winningTeam);
 
                         // Determine if winningTeam is Challenger or Challenged
                         bool isWinningTeamChallenger;
@@ -994,7 +994,7 @@ namespace Ladderbot4.Managers
                             _leagueManager.SaveAndReloadLeagueRegistry();
 
                             // Remove the challenge
-                            _challengeManager.SudoRemoveXvXChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
                             // Backup to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -1021,7 +1021,7 @@ namespace Ladderbot4.Managers
                             _leagueManager.SaveAndReloadLeagueRegistry();
 
                             // Remove the challenge
-                            _challengeManager.SudoRemoveXvXChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -1056,13 +1056,13 @@ namespace Ladderbot4.Managers
             // Load challenges
             _challengeManager.LoadChallengesHub();
 
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab list of challenges in league
-                List<Challenge> challenges = _challengeManager.GetXvXChallengesForLeague(league);
+                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
 
                 return _embedManager.PostChallengesEmbed(league, challenges);
             }
@@ -1080,10 +1080,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if league exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 return _embedManager.PostStandingsEmbed(league);
             }
@@ -1096,10 +1096,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if league exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 return _embedManager.PostTeamsEmbed(league, league.Teams);
             }
@@ -1111,16 +1111,16 @@ namespace Ladderbot4.Managers
         public Embed SetRankProcess(SocketInteractionContext context, string teamName, int newRank)
         {
             // Check if team exists
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Get league object
-                League league = _leagueManager.GetXvXLeagueFromTeamName(teamName);
+                League league = _leagueManager.GetLeagueFromTeamName(teamName);
 
                 // Get team object
-                Team? teamToAdjust = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Check if team has an open challenge
-                if (_challengeManager.IsXvXTeamInChallenge(league.Name, teamToAdjust))
+                if (_challengeManager.IsTeamInChallenge(league.Name, teamToAdjust))
                 {
                     return _embedManager.SetRankErrorEmbed($"Team {teamToAdjust.Name} is currently apart of a challenge and can not have their rank adjusted at this time. Please resolve the challenge by completing the match or canceling the challenge first.");
                 }
@@ -1185,10 +1185,10 @@ namespace Ladderbot4.Managers
         public Embed SetXvXChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetXvXChallengesChannelId(league, channel.Id);
@@ -1204,10 +1204,10 @@ namespace Ladderbot4.Managers
         public Embed SetXvXStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetXvXStandingsChannelId(league, channel.Id);
@@ -1223,10 +1223,10 @@ namespace Ladderbot4.Managers
         public Embed SetXvXTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetXvXLeagueByName(leagueName);
+                League league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetXvXTeamsChannelId(league, channel.Id);
@@ -1249,10 +1249,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists in database
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Add the numberOfWins to the team
                 _teamManager.AddToWins(team, numberOfWins);
@@ -1274,10 +1274,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists in database
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Wins - numberOfWins;
@@ -1308,10 +1308,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists in database
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Add the numberOfLosses to the team
                 _teamManager.AddToLosses(team, numberOfLosses);
@@ -1332,10 +1332,10 @@ namespace Ladderbot4.Managers
             _leagueManager.LoadLeagueRegistry();
 
             // Check if team name exists in database
-            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
+            if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Losses - numberOfLosses;

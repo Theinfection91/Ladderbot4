@@ -14,23 +14,14 @@ namespace Ladderbot4.Managers
     {
         private readonly DiscordSocketClient _client;
 
-        // OLD
-        private readonly ChallengeData _challengeData;
-        // NEW
         private readonly ChallengesHubData _challengesHubData;
 
-        // NEW
         private ChallengesHub _challengesHub;
 
-        public ChallengeManager(ChallengeData challengeData, ChallengesHubData challengesHubData, DiscordSocketClient client)
+        public ChallengeManager(ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
             _client = client;
-            // OLD
-            _challengeData = challengeData;
-
-            // NEW
             _challengesHubData = challengesHubData;
-            // Load _challengesHub field from json
             _challengesHub = _challengesHubData.Load();
         }
 
@@ -50,17 +41,7 @@ namespace Ladderbot4.Managers
             LoadChallengesHub();
         }
 
-        public void LoadChallengesDatabase()
-        {
-            _challengeData.LoadAllChallenges();
-        }
-
-        public void SaveChallengesDatabase()
-        {
-            _challengeData.SaveChallenges(_challengeData.LoadAllChallenges());
-        }
-
-        public Challenge? GetXvXChallengeForTeam(string leagueName, Team team)
+        public Challenge? GetChallengeForTeam(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);
 
@@ -69,16 +50,7 @@ namespace Ladderbot4.Managers
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public Challenge? GetChallengeForTeam(string division, string leagueName, Team team)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            return challenges.FirstOrDefault(challenge =>
-                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public bool IsXvXTeamInChallenge(string leagueName, Team team)
+        public bool IsTeamInChallenge(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);
 
@@ -87,26 +59,9 @@ namespace Ladderbot4.Managers
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public bool IsTeamInChallenge(string division, string leagueName, Team team)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public bool IsXvXTeamChallenger(string leagueName, Team team)
+        public bool IsTeamChallenger(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);
-
-            return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        public bool IsTeamChallenger(string division, string leagueName, Team team)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
 
             return challenges.Any(challenge =>
                 challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
@@ -120,56 +75,7 @@ namespace Ladderbot4.Managers
 
         public List<Challenge> GetChallengesForLeague(League league)
         {
-            return _challengeData.GetChallenges(league.Format, league.Name);
-        }
-
-        public List<Challenge> GetXvXChallengesForLeague(League league)
-        {
             return _challengesHub.GetChallenges(league.Name);
-        }
-
-        public string GetChallengesData(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-            StringBuilder sb = new();
-
-            sb.AppendLine($"```\n");
-            foreach (var challenge in challenges)
-            {
-                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created: {challenge.CreatedOn}\n");
-            }
-            sb.AppendLine("\n```");
-
-            return sb.ToString();
-        }
-
-        public Embed GetChallengesEmbed(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle($"⚔️ Active Challenges for {leagueName} in {division} Division")
-                .WithColor(Color.Orange)
-                .WithDescription($"Current active challenges in **{leagueName} ({division} Division)**:");
-
-            if (challenges.Count > 0)
-            {
-                foreach (var challenge in challenges)
-                {
-                    embedBuilder.AddField(
-                        $"Challenger: {challenge.Challenger}",
-                        $"*Challenged:* *{challenge.Challenged}*\n> Created On: {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
-                        inline: false
-                    );
-                }
-            }
-            else
-            {
-                embedBuilder.WithDescription($"There are no active challenges in **{leagueName} ({division} Division)** at this time.");
-            }
-
-            embedBuilder.WithFooter("Last Updated").WithTimestamp(DateTimeOffset.Now);
-            return embedBuilder.Build();
         }
 
         public async void SendChallengeNotification(ulong userId, Challenge challenge, League league)
@@ -204,48 +110,28 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void AddNewChallenge(string division, string leagueName, Challenge challenge)
-        {
-            _challengeData.AddChallenge(division, leagueName, challenge);
-        }
-
-        public void RemoveChallenge(string division, string leagueName, Predicate<Challenge> match)
-        {
-            _challengeData.RemoveChallenge(division, leagueName, match);
-        }
-
-        public void SudoRemoveChallenge(string division, string leagueName, string teamName)
-        {
-            _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
-        }
-
-        public void AddNewXvXChallenge(string leagueName, Challenge challenge)
+        public void AddNewChallenge(string leagueName, Challenge challenge)
         {
             _challengesHubData.AddChallenge(leagueName, challenge);
             LoadChallengesHub();
         }
 
-        public void RemoveXvXChallenge(string leagueName, Predicate<Challenge> challenge)
+        public void RemoveChallenge(string leagueName, Predicate<Challenge> challenge)
         {
             _challengesHubData.RemoveChallenge(leagueName, challenge);
             LoadChallengesHub();
         }
 
-        public void SudoRemoveXvXChallenge(string leagueName, string teamName)
+        public void SudoRemoveChallenge(string leagueName, string teamName)
         {
             _challengesHubData.SudoRemoveChallenge(leagueName, teamName);
         }
 
-        public void RemoveXvXLeagueFromChallenges(string leagueName)
+        public void RemoveLeagueFromChallenges(string leagueName)
         {
             _challengesHubData.RemoveLeagueFromChallenges(leagueName);
 
             LoadChallengesHub();
-        }
-
-        public void RemoveLeagueFromChallenges(string division, string leagueName)
-        {
-            _challengeData.RemoveLeagueFromChallenges(division, leagueName);
         }
     }
 }
