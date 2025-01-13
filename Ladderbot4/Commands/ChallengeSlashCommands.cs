@@ -28,7 +28,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.SendXvXChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                var result = _ladderManager.SendChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -65,7 +65,7 @@ namespace Ladderbot4.Commands
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.CancelXvXChallengeProcess(Context, challengerTeam.Trim().ToLower());
+                var result = _ladderManager.CancelChallengeProcess(Context, challengerTeam.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -113,7 +113,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.SendAdminXvXChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                    var result = _ladderManager.SendAdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -132,7 +132,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AdminCancelXvXChallengeProcess(Context, challengerTeam.Trim().ToLower());
+                    var result = _ladderManager.AdminCancelChallengeProcess(Context, challengerTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)

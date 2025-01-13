@@ -350,7 +350,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Start/End Ladder Logic
-        public Embed StartXvXLeagueLadderProcess(string leagueName)
+        public Embed StartLeagueLadderProcess(string leagueName)
         {
             // Load states
             _statesManager.LoadStatesAtlas();
@@ -380,7 +380,7 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed EndXvXLeagueLadderProcess(string leagueName)
+        public Embed EndLeagueLadderProcess(string leagueName)
         {
             // Load states
             _statesManager.LoadStatesAtlas();
@@ -412,7 +412,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Create/Delete League Logic
-        public Embed CreateXvXLeagueProcess(string leagueName, int teamSize)
+        public Embed CreateLeagueProcess(string leagueName, int teamSize)
         {
             // Check if desired XvX League name is taken
             if (_leagueManager.IsLeagueNameUnique(leagueName))
@@ -438,7 +438,7 @@ namespace Ladderbot4.Managers
             return _embedManager.CreateLeagueErrorEmbed($"'{leagueName.Trim()}' already exists as a League in the database.");
         }
 
-        public Embed DeleteXvXLeagueProcess(string leagueName)
+        public Embed DeleteLeagueProcess(string leagueName)
         {
             // Load latest save
             _leagueManager.LoadLeagueRegistry();
@@ -469,7 +469,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Register/Remove Team Logic
-        public Embed RegisterTeamToXvXLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
+        public Embed RegisterTeamToLeagueProcess(SocketInteractionContext context, string teamName, string leagueName, List<IUser> members)
         {
             // Load latest LeagueRegistry save
             _leagueManager.LoadLeagueRegistry();
@@ -488,7 +488,7 @@ namespace Ladderbot4.Managers
 
                     // Check if member count matches team size
                     // !! Teams that require 21 or more members will need to add remaining members using soon to be implemented commands !!
-                    if (_memberManager.IsXvXMemberCountCorrect(membersList, league.TeamSize) || _settingsManager.IsUserSuperAdmin(context.User.Id))
+                    if (_memberManager.IsMemberCountCorrect(membersList, league.TeamSize) || _settingsManager.IsUserSuperAdmin(context.User.Id))
                     {
                         // Check if any member is already on a team in the given league
                         foreach (Member member in membersList)
@@ -517,7 +517,7 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed RemoveTeamFromXvXLeagueProcess(string teamName)
+        public Embed RemoveTeamFromLeagueProcess(string teamName)
         {
             // Load latest save
             _leagueManager.LoadLeagueRegistry();
@@ -553,7 +553,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Challenge Based Logic
-        public Embed SendXvXChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        public Embed SendChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Load Challenges and Leagues
             _leagueManager.LoadLeagueRegistry();
@@ -640,7 +640,7 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
-        public Embed CancelXvXChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        public Embed CancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             // Load latest Challenges database save
             _challengeManager.LoadChallengesHub();
@@ -692,7 +692,7 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
-        public Embed SendAdminXvXChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
+        public Embed SendAdminChallengeProcess(SocketInteractionContext context, string challengerTeam, string challengedTeam)
         {
             // Load Challenges and Leagues
             _leagueManager.LoadLeagueRegistry();
@@ -770,7 +770,7 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
         }
 
-        public Embed AdminCancelXvXChallengeProcess(SocketInteractionContext context, string challengerTeam)
+        public Embed AdminCancelChallengeProcess(SocketInteractionContext context, string challengerTeam)
         {
             // Load latest Challenges database save
             _challengeManager.LoadChallengesHub();
@@ -819,7 +819,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Reporting Logic
-        public Embed ReportXvXWinProcess(SocketInteractionContext context, string winningTeamName)
+        public Embed ReportWinProcess(SocketInteractionContext context, string winningTeamName)
         {
             // Load latest LeagueRegistry save
             _leagueManager.LoadLeagueRegistry();
@@ -930,7 +930,7 @@ namespace Ladderbot4.Managers
             return _embedManager.TeamNotFoundErrorEmbed(winningTeamName);
         }
 
-        public Embed ReportXvXWinAdminProcess(SocketInteractionContext context, string winningTeamName)
+        public Embed ReportWinAdminProcess(SocketInteractionContext context, string winningTeamName)
         {
             // Load latest LeagueRegistry save
             _leagueManager.LoadLeagueRegistry();
@@ -1051,7 +1051,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Post Standings/Challenges/Teams Logic
-        public Embed PostXvXChallengesProcess(SocketInteractionContext context, string leagueName)
+        public Embed PostChallengesProcess(SocketInteractionContext context, string leagueName)
         {
             // Load challenges
             _challengeManager.LoadChallengesHub();
@@ -1069,12 +1069,12 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed PostXvXLeaguesProcess(SocketInteractionContext context, string leagueFormat)
+        public Embed PostLeaguesProcess(SocketInteractionContext context, string leagueFormat)
         {
             return _embedManager.CreateDebugEmbed("TODO");
         }
 
-        public Embed PostXvXStandingsProcess(SocketInteractionContext context, string leagueName)
+        public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
         {
             // Load leagues
             _leagueManager.LoadLeagueRegistry();
@@ -1090,7 +1090,7 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed PostXvXTeamsProcess(SocketInteractionContext context, string leagueName)
+        public Embed PostTeamsProcess(SocketInteractionContext context, string leagueName)
         {
             // Load leagues
             _leagueManager.LoadLeagueRegistry();
@@ -1182,7 +1182,7 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic
-        public Embed SetXvXChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
@@ -1201,7 +1201,7 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed SetXvXStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
@@ -1220,7 +1220,7 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed SetXvXTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
             if (!_leagueManager.IsLeagueNameUnique(leagueName))

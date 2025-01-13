@@ -76,7 +76,7 @@ namespace Ladderbot4.Commands
                 if (member19 != null) members.Add(member19);
                 if (member20 != null) members.Add(member20);
 
-                var result = _ladderManager.RegisterTeamToXvXLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
+                var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -126,7 +126,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.RemoveTeamFromXvXLeagueProcess(teamName.Trim().ToLower());
+                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }

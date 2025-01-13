@@ -27,7 +27,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostXvXChallengesProcess(Context, leagueName.Trim().ToLower());
+                var result = _ladderManager.PostChallengesProcess(Context, leagueName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -47,7 +47,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostXvXLeaguesProcess(Context, leagueFormat.Trim().ToLower());
+                var result = _ladderManager.PostLeaguesProcess(Context, leagueFormat.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -68,7 +68,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostXvXStandingsProcess(Context, leagueName.Trim().ToLower());
+                var result = _ladderManager.PostStandingsProcess(Context, leagueName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -88,7 +88,7 @@ namespace Ladderbot4.Commands
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostXvXTeamsProcess(Context, leagueName.Trim().ToLower());
+                var result = _ladderManager.PostTeamsProcess(Context, leagueName.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }

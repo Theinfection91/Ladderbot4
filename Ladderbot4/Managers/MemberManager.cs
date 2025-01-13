@@ -46,7 +46,7 @@ namespace Ladderbot4.Managers
             return membersList;
         }
 
-        public bool IsXvXMemberCountCorrect(List<Member> members, int teamSize)
+        public bool IsMemberCountCorrect(List<Member> members, int teamSize)
         {
             if (members.Count.Equals(teamSize)) return true;
 
