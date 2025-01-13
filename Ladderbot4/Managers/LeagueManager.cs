@@ -157,6 +157,11 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        public List<League> GetAllXvXLeagues()
+        {
+            return _leagueRegistry.Leagues;
+        }
+
         public List<League> GetLeaguesByDivisionType(string divisionType)
         {
             // Grab every league in the program's memory

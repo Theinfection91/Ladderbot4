@@ -150,6 +150,23 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public ulong GetXvXChallengesChannelId(League leagueRef)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+            return state?.ChallengesChannelId ?? 0;
+        }
+
+        public void SetXvXChallengesChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+
+            if (state != null)
+            {
+                state.ChallengesChannelId = channelId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
         public ulong GetChallengesChannelId(League leagueRef)
         {
             State state = GetStateByLeague(leagueRef);
@@ -167,6 +184,23 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public ulong GetXvXStandingsChannelId(League leagueRef)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+            return state?.StandingsChannelId ?? 0;
+        }
+
+        public void SetXvXStandingsChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+
+            if (state != null)
+            {
+                state.StandingsChannelId = channelId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
         public ulong GetStandingsChannelId(League leagueRef)
         {
             State state = GetStateByLeague(leagueRef);
@@ -181,6 +215,23 @@ namespace Ladderbot4.Managers
             {
                 state.StandingsChannelId = channelId;
                 SaveAndReloadStatesDatabase();
+            }
+        }
+
+        public ulong GetXvXTeamsChannelId(League leagueRef)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+            return state?.TeamsChannelId ?? 0;
+        }
+
+        public void SetXvXTeamsChannelId(League leagueRef, ulong channelId)
+        {
+            State state = GetXvXStateByLeague(leagueRef);
+
+            if (state != null)
+            {
+                state.TeamsChannelId = channelId;
+                SaveAndReloadStatesAtlas();
             }
         }
 

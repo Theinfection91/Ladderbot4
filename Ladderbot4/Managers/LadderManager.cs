@@ -115,9 +115,9 @@ namespace Ladderbot4.Managers
         private async Task SendChallengesToChannelAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllLeagues())
+            foreach (var league in _leagueManager.GetAllXvXLeagues())
             {
-                ulong channelId = _statesManager.GetChallengesChannelId(league);
+                ulong channelId = _statesManager.GetXvXChallengesChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -134,7 +134,7 @@ namespace Ladderbot4.Managers
                 }
 
                 // Get the challenges embed for the league
-                List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
+                List<Challenge> challenges = _challengeManager.GetXvXChallengesForLeague(league);
                 Embed challengesEmbed = _embedManager.PostChallengesEmbed(league, challenges);
 
                 if (challengesEmbed == null)
@@ -196,9 +196,9 @@ namespace Ladderbot4.Managers
         private async Task SendStandingsToChannelsAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllLeagues())
+            foreach (var league in _leagueManager.GetAllXvXLeagues())
             {
-                ulong channelId = _statesManager.GetStandingsChannelId(league);
+                ulong channelId = _statesManager.GetXvXStandingsChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -281,9 +281,9 @@ namespace Ladderbot4.Managers
         private async Task SendTeamsToChannelAsync()
         {
             // Get all leagues from LeagueManager
-            foreach (var league in _leagueManager.GetAllLeagues())
+            foreach (var league in _leagueManager.GetAllXvXLeagues())
             {
-                ulong channelId = _statesManager.GetTeamsChannelId(league);
+                ulong channelId = _statesManager.GetXvXTeamsChannelId(league);
 
                 if (channelId == 0)
                 {
@@ -821,6 +821,9 @@ namespace Ladderbot4.Managers
         #region Reporting Logic
         public Embed ReportXvXWinProcess(SocketInteractionContext context, string winningTeamName)
         {
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists
             if (!_leagueManager.IsXvXTeamNameUnique(winningTeamName))
             {
@@ -929,6 +932,9 @@ namespace Ladderbot4.Managers
 
         public Embed ReportXvXWinAdminProcess(SocketInteractionContext context, string winningTeamName)
         {
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists
             if (!_leagueManager.IsXvXTeamNameUnique(winningTeamName))
             {
@@ -1105,16 +1111,16 @@ namespace Ladderbot4.Managers
         public Embed SetRankProcess(SocketInteractionContext context, string teamName, int newRank)
         {
             // Check if team exists
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
                 // Get league object
-                League league = _leagueManager.GetLeagueFromTeamName(teamName);
+                League league = _leagueManager.GetXvXLeagueFromTeamName(teamName);
 
                 // Get team object
-                Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                Team? teamToAdjust = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Check if team has an open challenge
-                if (_challengeManager.IsTeamInChallenge(league.Format, league.Name, teamToAdjust))
+                if (_challengeManager.IsXvXTeamInChallenge(league.Name, teamToAdjust))
                 {
                     return _embedManager.SetRankErrorEmbed($"Team {teamToAdjust.Name} is currently apart of a challenge and can not have their rank adjusted at this time. Please resolve the challenge by completing the match or canceling the challenge first.");
                 }
@@ -1164,7 +1170,7 @@ namespace Ladderbot4.Managers
                 ReassignRanksInLeague(league);
 
                 // Save and reload database
-                _leagueManager.SaveAndReloadLeaguesDatabase();
+                _leagueManager.SaveAndReloadLeagueRegistry();
 
                 // Backup to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1176,16 +1182,16 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Set Standings/Challenges/Teams Channel Logic
-        public Embed SetChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetXvXChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetChallengesChannelId(league, channel.Id);
+                _statesManager.SetXvXChallengesChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1195,16 +1201,16 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed SetStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetXvXStandingsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetStandingsChannelId(league, channel.Id);
+                _statesManager.SetXvXStandingsChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1214,16 +1220,16 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed SetTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
+        public Embed SetXvXTeamsChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
-            if (!_leagueManager.IsLeagueNameUnique(leagueName))
+            if (!_leagueManager.IsXvXLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League league = _leagueManager.GetXvXLeagueByName(leagueName);
 
                 // Set channel Id
-                _statesManager.SetTeamsChannelId(league, channel.Id);
+                _statesManager.SetXvXTeamsChannelId(league, channel.Id);
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1239,17 +1245,20 @@ namespace Ladderbot4.Managers
         // For Admin command use, ReportWin logic uses directly to TeamManager
         public Embed AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists in database
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Add the numberOfWins to the team
                 _teamManager.AddToWins(team, numberOfWins);
 
                 // Save and reload teams database
-                _leagueManager.SaveAndReloadLeaguesDatabase();
+                _leagueManager.SaveAndReloadLeagueRegistry();
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1261,11 +1270,14 @@ namespace Ladderbot4.Managers
 
         public Embed SubtractFromWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists in database
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Wins - numberOfWins;
@@ -1275,7 +1287,7 @@ namespace Ladderbot4.Managers
                     _teamManager.SubtractFromWins(team, numberOfWins);
 
                     // Save and reload teams database
-                    _leagueManager.SaveAndReloadLeaguesDatabase();
+                    _leagueManager.SaveAndReloadLeagueRegistry();
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -1292,17 +1304,20 @@ namespace Ladderbot4.Managers
 
         public Embed AddToLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
         {
+            // Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists in database
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Add the numberOfLosses to the team
                 _teamManager.AddToLosses(team, numberOfLosses);
 
                 // Save and reload teams database
-                _leagueManager.SaveAndReloadLeaguesDatabase();
+                _leagueManager.SaveAndReloadLeagueRegistry();
 
                 // Backup the database to Git
                 _backupManager.CopyAndBackupFilesToGit();
@@ -1313,12 +1328,14 @@ namespace Ladderbot4.Managers
         }
 
         public Embed SubtractFromLossCountProcess(SocketInteractionContext context, string teamName, int numberOfLosses)
-        {
+        {// Load latest LeagueRegistry save
+            _leagueManager.LoadLeagueRegistry();
+
             // Check if team name exists in database
-            if (!_leagueManager.IsTeamNameUnique(teamName))
+            if (!_leagueManager.IsXvXTeamNameUnique(teamName))
             {
                 // Grab team object
-                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                Team? team = _leagueManager.GetTeamByNameFromXvXLeagues(teamName);
 
                 // Make sure the result will not be negative
                 int result = team.Losses - numberOfLosses;
@@ -1328,7 +1345,7 @@ namespace Ladderbot4.Managers
                     _teamManager.SubtractFromLosses(team, numberOfLosses);
 
                     // Save and reload teams database
-                    _leagueManager.SaveAndReloadLeaguesDatabase();
+                    _leagueManager.SaveAndReloadLeagueRegistry();
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -1339,7 +1356,6 @@ namespace Ladderbot4.Managers
                 {
                     return _embedManager.NegativeCountErrorEmbed(team, numberOfLosses, "Losses");
                 }
-
             }
             return _embedManager.TeamNotFoundErrorEmbed(teamName);
         }
