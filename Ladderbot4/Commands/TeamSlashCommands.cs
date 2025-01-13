@@ -88,35 +88,6 @@ namespace Ladderbot4.Commands
             }
         }
 
-        //[SlashCommand("register", "Admin command to register a team in the specified league.")]
-        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        //public async Task RegisterTeamAsync(
-        //[Summary("teamName", "Name of the team to be registered")] string teamName,
-        //[Summary("leagueName", "The league to register the team to")] string leagueName,
-        //[Summary("member1", "For creating 1v1 team")] IUser member1,
-        //[Summary("member2", "For creating 2v2 team")] IUser? member2 = null,
-        //[Summary("member3", "For creating 3v3 team")] IUser? member3 = null)
-        //{
-        //    try
-        //    {
-        //        await Context.Interaction.DeferAsync();
-
-        //        // Compile members into a list
-        //        var members = new List<IUser> { member1 };
-        //        if (member2 != null) members.Add(member2);
-        //        if (member3 != null) members.Add(member3);
-
-        //        var result = _ladderManager.RegisterTeamToLeagueProcess(Context, teamName.Trim(), leagueName.Trim().ToLower(), members);
-        //        await Context.Interaction.FollowupAsync(embed: result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
-        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-        //        await Context.Interaction.FollowupAsync(embed: errorResult);
-        //    }
-        //}
-
         [SlashCommand("remove", "Admin command to remove team from teams database.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RemoveXvXTeamAsync(
@@ -137,27 +108,6 @@ namespace Ladderbot4.Commands
                 await Context.Interaction.FollowupAsync(embed: errorResult);
             }
         }
-
-        //[SlashCommand("remove_old", "Admin command to remove team from teams database.")]
-        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        //public async Task RemoveTeamAsync(
-        //[Summary("teamName", "Name of the team to be removed.")] string teamName)
-        //{
-        //    try
-        //    {
-        //        await Context.Interaction.DeferAsync();
-
-        //        var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
-
-        //        await Context.Interaction.FollowupAsync(embed: result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
-        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-        //        await Context.Interaction.FollowupAsync(embed: errorResult);
-        //    }
-        //}
         #endregion
 
         // Team Add Group

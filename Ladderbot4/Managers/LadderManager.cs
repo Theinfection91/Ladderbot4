@@ -64,7 +64,6 @@ namespace Ladderbot4.Managers
         {
             return _embedManager.CreateErrorEmbed(ex, commandName);
         }
-
         #endregion
 
         #region Automated Backup Logic
@@ -92,7 +91,6 @@ namespace Ladderbot4.Managers
                 _backupManager.ForceBackupFiles();
             }
         }
-
         #endregion
 
         #region Channel Tasks Logic
@@ -1241,8 +1239,6 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Add/Subtract Win/Loss Logic
-
-        // For Admin command use, ReportWin logic uses directly to TeamManager
         public Embed AddToWinCountProcess(SocketInteractionContext context, string teamName, int numberOfWins)
         {
             // Load latest LeagueRegistry save

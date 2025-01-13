@@ -20,25 +20,6 @@ namespace Ladderbot4.Commands
         }
 
         #region Create/Delete League Commands
-        //[SlashCommand("create", "Admin command to create a new League of the given divison type")]
-        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        //public async Task CreateLeagueAsync(
-        //    [Summary("leagueName", "Name of the League to be created")] string leagueName,
-        //    [Summary("divisionType", "Division type (1v1, 2v2, 3v3)")] string divisionType)
-        //{
-        //    try
-        //    {
-        //        await Context.Interaction.DeferAsync();
-        //        var result = _ladderManager.CreateLeagueProcess(leagueName.Trim(), divisionType.Trim().ToLower());
-        //        await Context.Interaction.FollowupAsync(embed: result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
-        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-        //        await Context.Interaction.FollowupAsync(embed: errorResult);
-        //    }
-        //}
 
         [SlashCommand("create", "Admin command to create a new XvX League with the given team size.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
@@ -60,25 +41,6 @@ namespace Ladderbot4.Commands
             }
 
         }
-
-        //[SlashCommand("delete", "Admin command to delete a League entirely. Use with caution.")]
-        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        //public async Task DeleteLeagueAsync(
-        //    [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
-        //{
-        //    try
-        //    {
-        //        await Context.Interaction.DeferAsync();
-        //        var result = _ladderManager.DeleteLeagueProcess(leagueName.Trim().ToLower());
-        //        await Context.Interaction.FollowupAsync(embed: result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
-        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-        //        await Context.Interaction.FollowupAsync(embed: errorResult);
-        //    }
-        //}
 
         [SlashCommand("delete", "Admin command to delete an XvX League entirely. Use with caution.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
