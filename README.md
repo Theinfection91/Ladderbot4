@@ -8,63 +8,51 @@
 
 ---
 
-## Overview
-**Ladderbot4** is an advanced Discord bot designed for competitive ladder management, enabling dynamic league creation, flexible division handling, and a robust user experience. Built in C#, it offers powerful tools for managing team-based tournaments with features like Git-based backup storage, SlashCommands, and a dynamic ladder-based ranking system.
+# Ladderbot 4.2.0 - What's New
 
-This bot uses a **ladder tournament system** where teams challenge others to climb ranks, creating a continuously evolving competitive environment that rewards consistent performance.
+## Overview
+The first update to the **4.2.0 branch** introduces significant changes to support flexible league configurations and lays the groundwork for enhanced data handling. These changes include the decoupling of team sizes for leagues (XvX), a new `Data` class structure, and the replacement of several JSON files for improved organization and scalability. This marks the first step toward the fully realized 4.2.0 update.
 
 ---
 
-## What's New in v4.1.1
+## What's New in 4.2.0 (Merge 0)
 
 ### Feature Enhancements
 
-### Git Backup Rework
-- **Interactive Database Overwrite Prompt**:
-  - During the cloning process, the bot now prompts users to decide whether to overwrite the local database with the cloned backup repository:
-    ```plaintext
-    [DateTime] - GitBackupManager - Do you want to use the newly cloned backup data from the repository as your Database? 
-    Yes is typically the answer here. NOTE - This will overwrite data currently present in your JSON files in 'Database'. This can not be reversed.
-    
-    HINT: If the files in your backup repo online are more up-to-date than your local files in the 'Database' folder, input Y.
-    If your JSON files in the 'Database' folder are more up-to-date than the files in your backup repo online, input N.
-    ```
-  - Acceptable inputs:
-    - `Y`: Copies the newly cloned files from `BackupRepo` to the `Database` folder.
-    - `N`: Keeps the local files intact. Users are warned that this may cause discrepancies if the local data is outdated.
-    - Invalid inputs are met with a retry prompt.
+#### **Decoupling Team Sizes for XvX Leagues**
+- The static structure of predefined division types (1v1, 2v2, 3v3) has been replaced with flexible, customizable XvX leagues.
+- Users can now define leagues with any team size, such as 4v4, 5v5, or other configurations.
+- The system dynamically manages leagues of various team sizes concurrently, improving scalability and allowing for diverse league setups.
 
-- **Backup Manager Trigger Fix**:
-  - Resolved an issue where the `BackupManager` was not triggered when channel IDs were set (e.g., `/set standings_channel_id`). Now, `states.json` is backed up immediately after such changes.
+#### **Improved Data Handling**
+- Introduced a new base `Data` class in the codebase, simplifying the management of JSON-based data files. This structure improves consistency and maintainability.
+- Certain data files now inherit from this base class, enabling more efficient data processing and extensibility for future updates.
 
-### Post Leagues Command
-- **New `/post leagues` Command**:
-  - Posts all leagues in the database, displaying each league and the teams within it.
-  - Optionally, filter by division type (e.g., `1v1`, `2v2`, `3v3`) to show leagues of a specific type.
-  - Useful for quickly sharing league data in Discord channels with clear, formatted embeds.
-  - Will be adding the ability to assign this to a channel like standings/challenges/teams in future updates.
+#### **New JSON File Structure**
+- Several JSON files have been replaced to align with the new data handling system:
+  - **`leagues.json` → `league_registry.json`**  
+    The new file structure enhances the storage and retrieval of league data, supporting the flexible XvX configuration.
+  - **`challenges.json` → `challenges_hub.json`**  
+    Challenge data is now organized for better integration with dynamic league management.
+  - **`states.json` → `states_atlas.json`**  
+    State tracking data has been restructured for improved clarity and future scalability.
+- **Note for Users**:  
+  - These changes will automatically generate new files. The old files will no longer be used but can be retained as backups if needed.
 
-### Administrative Updates
-- **Admin Privileges Required**:
-  - Running the bot now requires **Administrator permissions** to prevent potential errors during operations.
+#### **Settings Compatibility**
+- The `SettingsData` class has been renamed to `SettingsVaultData` internally.  
+  - **User Impact**: No changes to the `config.json` file in the `Settings` folder. The transition is seamless for end-users.
 
-- **Embedded Debugging Information**:
-  - The .pdb file is now embedded into the .exe and .dll files, streamlining deployments and reducing clutter.
-    
-- **Streamlined Git Cloning Workflow**:
-  - Enhanced user clarity during the backup cloning process to prevent unintended data overwrites or loss.
-
-### Bug Fixes
-- **Challenge Restrictions**:
-  - Fixed a bug where admins could adjust team ranks while challenges were active. The bot now blocks this action and provides instructions to resolve or cancel the challenge first.
-
-- **Improved Backup Logic**:
-  - Addressed inconsistencies in event-driven backups to ensure all relevant data changes are saved to the online repository.
-
-- **General Stability Improvements**:
-  - Various performance optimizations and minor bug fixes for smoother operations.
-    
 ---
+
+## Next Steps
+This merge represents the foundation of the 4.2.0 update. Future updates will build upon these changes, introducing features such as:
+- **Member profile stats.**
+- **Autocomplete suggestions for league names.**
+- **Additional bug fixes and enhancements.**
+
+For detailed documentation on setup and configuration, refer to the [Ladderbot4 Documentation](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md).
+
 
 ## Features
 

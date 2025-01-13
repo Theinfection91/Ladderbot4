@@ -14,7 +14,7 @@ namespace Ladderbot4.Models
         public int ChallengedRank { get; set; }
         public DateTime CreatedOn { get; set; }
 
-        public Challenge(string division, string challenger, int challengerRank, string challenged, int challengedRank)
+        public Challenge(string challenger, int challengerRank, string challenged, int challengedRank)
         {
             Challenger = challenger;
             ChallengerRank = challengerRank;
@@ -35,7 +35,7 @@ namespace Ladderbot4.Models
 
         public override int GetHashCode()
         {
-            // Combine hash codes of Division and Challenger to match override Equals logic
+            // Combine hash codes of Format and Challenger to match override Equals logic
             return HashCode.Combine(Challenger, Challenged);
         }
     }

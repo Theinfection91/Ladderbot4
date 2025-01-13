@@ -41,13 +41,13 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("leagues", "Slash command for posting all leagues or all of given division type")]
         public async Task PostLeaguesAsync(
-            [Summary("divisionType", "If given a division type, will post all of that type.")] string divisionType = "all")
+            [Summary("leagueFormat", "If given a leagueFormat, will post all of that type.")] string leagueFormat = "all")
         {
             try
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostLeaguesProcess(Context, divisionType.Trim().ToLower());
+                var result = _ladderManager.PostLeaguesProcess(Context, leagueFormat.Trim().ToLower());
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }

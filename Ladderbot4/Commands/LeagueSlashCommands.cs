@@ -20,16 +20,17 @@ namespace Ladderbot4.Commands
         }
 
         #region Create/Delete League Commands
-        [SlashCommand("create", "Admin command to create a new League of the given divison type")]
+
+        [SlashCommand("create", "Admin command to create a new XvX League with the given team size.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task CreateLeagueAsync(
+        public async Task CreateXvXLeagueAsync(
             [Summary("leagueName", "Name of the League to be created")] string leagueName,
-            [Summary("divisionType", "Division type (1v1, 2v2, 3v3)")] string divisionType)
+            [Summary("teamSize", "The size of each team")] int teamSize)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.CreateLeagueProcess(leagueName.Trim(), divisionType.Trim().ToLower());
+                var result = _ladderManager.CreateLeagueProcess(leagueName.Trim(), teamSize);
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -41,9 +42,9 @@ namespace Ladderbot4.Commands
 
         }
 
-        [SlashCommand("delete", "Admin command to delete a League entirely. Use with caution.")]
+        [SlashCommand("delete", "Admin command to delete an XvX League entirely. Use with caution.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task DeleteLeagueAsync(
+        public async Task DeleteXvXLeagueAsync(
             [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
         {
             try

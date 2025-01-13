@@ -13,48 +13,58 @@ namespace Ladderbot4.Managers
     public class ChallengeManager
     {
         private readonly DiscordSocketClient _client;
-        private readonly ChallengeData _challengeData;
 
-        public ChallengeManager(ChallengeData challengeData, DiscordSocketClient client)
+        private readonly ChallengesHubData _challengesHubData;
+
+        private ChallengesHub _challengesHub;
+
+        public ChallengeManager(ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
             _client = client;
-            _challengeData = challengeData;
+            _challengesHubData = challengesHubData;
+            _challengesHub = _challengesHubData.Load();
         }
 
-        public void LoadChallengesDatabase()
+        public void SaveChallengesHub()
         {
-            _challengeData.LoadAllChallenges();
+            _challengesHubData.Save(_challengesHub);
         }
 
-        public void SaveChallengesDatabase()
+        public void LoadChallengesHub()
         {
-            _challengeData.SaveChallenges(_challengeData.LoadAllChallenges());
+            _challengesHub = _challengesHubData.Load();
         }
 
-        public Challenge? GetChallengeForTeam(string division, string leagueName, Team team)
+        public void SaveAndReloadChallengesHub()
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
+            SaveChallengesHub();
+            LoadChallengesHub();
+        }
+
+        public Challenge? GetChallengeForTeam(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
 
             return challenges.FirstOrDefault(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public bool IsTeamInChallenge(string division, string leagueName, Team team)
+        public bool IsTeamInChallenge(string leagueName, Team team)
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
+            var challenges = _challengesHub.GetChallenges(leagueName);
 
             return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public bool IsTeamChallenger(string division, string leagueName, Team team)
+        public bool IsTeamChallenger(string leagueName, Team team)
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
+            var challenges = _challengesHub.GetChallenges(leagueName);
 
             return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
@@ -65,51 +75,7 @@ namespace Ladderbot4.Managers
 
         public List<Challenge> GetChallengesForLeague(League league)
         {
-            return _challengeData.GetChallenges(league.Division, league.LeagueName);
-        }
-
-        public string GetChallengesData(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-            StringBuilder sb = new();
-
-            sb.AppendLine($"```\n");
-            foreach (var challenge in challenges)
-            {
-                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created: {challenge.CreatedOn}\n");
-            }
-            sb.AppendLine("\n```");
-
-            return sb.ToString();
-        }
-
-        public Embed GetChallengesEmbed(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle($"⚔️ Active Challenges for {leagueName} in {division} Division")
-                .WithColor(Color.Orange)
-                .WithDescription($"Current active challenges in **{leagueName} ({division} Division)**:");
-
-            if (challenges.Count > 0)
-            {
-                foreach (var challenge in challenges)
-                {
-                    embedBuilder.AddField(
-                        $"Challenger: {challenge.Challenger}",
-                        $"*Challenged:* *{challenge.Challenged}*\n> Created On: {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
-                        inline: false
-                    );
-                }
-            }
-            else
-            {
-                embedBuilder.WithDescription($"There are no active challenges in **{leagueName} ({division} Division)** at this time.");
-            }
-
-            embedBuilder.WithFooter("Last Updated").WithTimestamp(DateTimeOffset.Now);
-            return embedBuilder.Build();
+            return _challengesHub.GetChallenges(league.Name);
         }
 
         public async void SendChallengeNotification(ulong userId, Challenge challenge, League league)
@@ -129,7 +95,7 @@ namespace Ladderbot4.Managers
                 var embedBuilder = new EmbedBuilder()
                     .WithTitle("⚔️ You've Been Challenged!")
                     .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.LeagueName}** ({league.Division} League).")
+                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.Name}** ({league.Format} League).")
                     .AddField("Challenger Team", challenge.Challenger, inline: true)
                     .AddField("Your Team", challenge.Challenged, inline: true)
                     .WithFooter("Prepare for your match!")
@@ -144,24 +110,28 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void AddNewChallenge(string division, string leagueName, Challenge challenge)
+        public void AddNewChallenge(string leagueName, Challenge challenge)
         {
-            _challengeData.AddChallenge(division, leagueName, challenge);
+            _challengesHubData.AddChallenge(leagueName, challenge);
+            LoadChallengesHub();
         }
 
-        public void RemoveChallenge(string division, string leagueName, Predicate<Challenge> match)
+        public void RemoveChallenge(string leagueName, Predicate<Challenge> challenge)
         {
-            _challengeData.RemoveChallenge(division, leagueName, match);
+            _challengesHubData.RemoveChallenge(leagueName, challenge);
+            LoadChallengesHub();
         }
 
-        public void SudoRemoveChallenge(string division, string leagueName, string teamName)
+        public void SudoRemoveChallenge(string leagueName, string teamName)
         {
-            _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
+            _challengesHubData.SudoRemoveChallenge(leagueName, teamName);
         }
 
-        public void RemoveLeagueFromChallenges(string division, string leagueName)
+        public void RemoveLeagueFromChallenges(string leagueName)
         {
-            _challengeData.RemoveLeagueFromChallenges(division, leagueName);
+            _challengesHubData.RemoveLeagueFromChallenges(leagueName);
+
+            LoadChallengesHub();
         }
     }
 }

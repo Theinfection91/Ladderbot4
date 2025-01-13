@@ -6,8 +6,7 @@ Welcome to the **Ladderbot4 Documentation**! This guide is designed to help user
 Ladderbot4 offers powerful tools for managing competitive ladders, including:
 - Dynamic team management and ranking systems.
 - Automated challenge and match result reporting.
-- Comprehensive statistics tracking for teams and individual members.
-- Achievements, historical match data, and much more!
+- Comprehensive statistics tracking for teams and individual members (WIP).
 
 ## Getting Started
 This documentation will guide you through the following essential setup steps:
@@ -284,20 +283,20 @@ The `/league` commands allow administrators to manage leagues within Ladderbot. 
 ### Create League Command (`/league create`)
 
 **Description:**  
-Creates a new league with the specified name and division type. Only administrators can use this command.
+Creates a new league with the specified name and the size each team will be. Only administrators can use this command.
 
 **Usage:**
 ```plaintext
-/league create leagueName:<string> divisionType:<1v1|2v2|3v3>
+/league create leagueName:<string> teamSize:<int>
 ```
 
 **Parameters:**  
 - `leagueName` (string): The name of the league to create. Must be unique.  
-- `divisionType` (1v1, 2v2, 3v3): The type of division for the league. Must be one of the valid division types.
+- `teamSize` (int): The members needed to create a full team. (1 creates a 1v1, 5 would create a 5v5, 42 would create 42v42)
 
 **Process:**  
 1. Checks if the league name is unique.  
-2. Verifies the division type is valid (`1v1`, `2v2`, or `3v3`).  
+2. Converts the team size to a league format tag
 3. Creates a new league object and adds it to the database.  
 4. Saves and reloads the leagues database.  
 5. Creates a new state object for the league and adds it to the states database.  
@@ -309,8 +308,6 @@ Creates a new league with the specified name and division type. Only administrat
   "🏆 League Created: TestLeague (2v2)"
 
 **Error Response Examples:**  
-- Invalid division type:
-  "❌ Invalid Division Type given: 4v4. Choose between 1v1, 2v2, or 3v3."
 
 - Duplicate league name:
   "❌ The given League Name (TestLeague) is already taken. Choose another name for the new League."
@@ -364,22 +361,23 @@ Registers a new team to a specified league. Only administrators can use this com
 
 **Usage:**
 ```plaintext
-/team register teamName:<string> leagueName:<string> member1:<user> [member2:<user>] [member3:<user>]
+/team register teamName:<string> leagueName:<string> member1:<user> [member2:<user>] [member3:<user>] [etc.]
 ```
 
 **Parameters:**  
 - `teamName` (string): The name of the team to be registered. Must be unique.  
 - `leagueName` (string): The name of the league to register the team to.  
-- `member1` (user): The primary member of the team (required).  
-- `member2` (user): The second member of the team (optional for 1v1).  
-- `member3` (user): The third member of the team (optional for 1v1 and 2v2).
+- `member1` (user): The first member of the team.  
+- `member2` (user): The second member of the team.  
+- `member3` (user): The third member of the team.
+- Can handle adding 20 members total. Any team with 21 or more will use soon to be implemented `/team add member` command.
 
 **Process:**  
 1. Loads the latest leagues database.  
 2. Checks if the league exists.  
 3. Verifies the team name is unique within the league.  
 4. Converts the users into `Member` objects.  
-5. Ensures the correct number of members for the league's division type (e.g., 1 for 1v1, 2 for 2v2).  
+5. Ensures the correct number of members for the league's team size format (e.g., 1 for 1v1, 2 for 2v2).  
 6. Checks if any member is already on another team in the same league.  
 7. Creates a new `Team` object and assigns it to the league.  
 8. Updates the leagues database and backs it up to Git.  

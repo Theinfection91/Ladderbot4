@@ -21,14 +21,14 @@ namespace Ladderbot4.Commands
         }
 
         [SlashCommand("send", "Attempts to send a challenge from invoker's team they are on to another team.")]
-        public async Task ChallengeAsync(
+        public async Task SendChallengeAsync(
             [Summary("challengerTeam", "Name of team sending challenge")] string challengerTeam,
             [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.ChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                var result = _ladderManager.SendChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
         public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+            [Summary("challengerTeam", "Name of team that sent the challenge")] string challengerTeam)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace Ladderbot4.Commands
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                    var result = _ladderManager.SendAdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)

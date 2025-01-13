@@ -10,96 +10,54 @@ namespace Ladderbot4.Managers
 {
     public class StatesManager
     {
-        private readonly LadderData _ladderData;
+        private readonly StatesAtlasData _statesAtlasData;
+        private StatesAtlas _statesAtlas;
 
-        private StatesByDivision _statesByDivision;
-
-        public StatesManager(LadderData ladderData)
+        public StatesManager(StatesAtlasData statesAtlasData)
         {
-            _ladderData = ladderData;
-            _statesByDivision = _ladderData.LoadAllStates();
+            _statesAtlasData = statesAtlasData;
+            _statesAtlas = _statesAtlasData.Load();
         }
 
-        public void LoadStatesDatabase()
+        public void SaveStatesAtlas()
         {
-            _statesByDivision = _ladderData.LoadAllStates();
+            _statesAtlasData.Save(_statesAtlas);
         }
 
-        public void SaveStatesDatabase()
+        public void LoadStatesAtlas()
         {
-            _ladderData.SaveAllStates(_statesByDivision);
+            _statesAtlas = _statesAtlasData.Load();
         }
 
-        public void SaveAndReloadStatesDatabase()
+        public void SaveAndReloadStatesAtlas()
         {
-            SaveStatesDatabase();
-            LoadStatesDatabase();
+            SaveStatesAtlas();
+            LoadStatesAtlas();
         }
 
-        public State GetStateByLeague(League leagueRef)
+        public State GetStateByLeague(League league)
         {
-            IEnumerable<State> states;
-
-            switch (leagueRef.Division)
+            foreach (State state in _statesAtlas.States)
             {
-                case "1v1":
-                    states = _statesByDivision.States1v1;
-                    break;
-
-                case "2v2":
-                    states = _statesByDivision.States2v2;
-                    break;
-
-                case "3v3":
-                    states = _statesByDivision.States3v3;
-                    break;
-
-                default:
-                    return null;
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state;
+                }
             }
-
-            return states?.FirstOrDefault(state =>
-                state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase));
+            return null;
         }
 
-        public bool IsLadderRunning(League leagueRef)
+        public bool IsLadderRunning(League league)
         {
-            switch (leagueRef.Division)
+            foreach (State state in _statesAtlas.States)
             {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                default:
-                    return false;
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state.IsLadderRunning;
+                }
             }
-        }
+            return false;
+        }     
 
         public ulong GetChallengesChannelId(League leagueRef)
         {
@@ -114,7 +72,7 @@ namespace Ladderbot4.Managers
             if (state != null)
             {
                 state.ChallengesChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
             }
         }
 
@@ -131,7 +89,7 @@ namespace Ladderbot4.Managers
             if (state != null)
             {
                 state.StandingsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
             }
         }
 
@@ -148,49 +106,25 @@ namespace Ladderbot4.Managers
             if (state != null)
             {
                 state.TeamsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
             }
         }
 
-        public void SetLadderRunning(League leagueRef, bool trueOrFalse)
+        public void SetLadderRunning(League league, bool trueOrFalse)
         {
-            switch (leagueRef.Division)
+            foreach (State state in _statesAtlas.States)
             {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
+                if (league.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                {
+                    state.IsLadderRunning = trueOrFalse;
+                    SaveAndReloadStatesAtlas();
+                }
             }
         }
 
-        public State CreateNewState(string leagueName, string leagueDivision)
+        public State CreateNewState(string leagueName, string leagueFormat)
         {
-            return new State(leagueName, leagueDivision)
+            return new State(leagueName, leagueFormat)
             {
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
@@ -201,16 +135,16 @@ namespace Ladderbot4.Managers
 
         public void AddNewState(State state)
         {
-            _ladderData.AddState(state);
+            _statesAtlasData.AddState(state);
 
-            LoadStatesDatabase();
+            LoadStatesAtlas();
         }
 
-        public void RemoveLeagueState(string leagueName, string division)
+        public void RemoveState(State state)
         {
-            _ladderData.RemoveState(leagueName, division);
+            _statesAtlasData.RemoveState(state);
 
-            LoadStatesDatabase();
+            LoadStatesAtlas();
         }
     }
 }

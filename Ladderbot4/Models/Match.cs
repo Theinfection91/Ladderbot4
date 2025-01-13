@@ -9,7 +9,7 @@ namespace Ladderbot4.Models
     public class Match
     {
         public int MatchId { get; set; }
-        public string Division { get; set; }
+        public string LeagueFormat { get; set; }
         public string Challenger { get; set; }
         public int ChallengerRank { get; set; }
         public string Challenged { get; set; }
@@ -19,10 +19,10 @@ namespace Ladderbot4.Models
         public DateTime ChallengeDate { get; set; }
         public DateTime CompleteDate { get; set; }
 
-        public Match(int matchId, string division, string challenger, int challengerRank, string challenged, int challengedRank, string winner, string loser, DateTime challengeDate)
+        public Match(int matchId, string leagueFormat, string challenger, int challengerRank, string challenged, int challengedRank, string winner, string loser, DateTime challengeDate)
         {
             MatchId = matchId;
-            Division = division;
+            LeagueFormat = leagueFormat;
             Challenger = challenger;
             ChallengerRank = challengerRank;
             Challenged = challenged;
