@@ -1,6 +1,7 @@
 ﻿using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Managers;
+using Ladderbot4.Models.Modals;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("start", "Starts the ladder in the given League if it's not already running.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task StartLadderAsync(
-            [Summary("leagueName", "The League you want to start the ladder in.")]string leagueName)
+            [Summary("leagueName", "The League you want to start the ladder in.")] string leagueName)
         {
             try
             {
@@ -55,6 +56,14 @@ namespace Ladderbot4.Commands
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
                 await Context.Interaction.FollowupAsync(embed: errorResult);
             }
+        }
+
+        [SlashCommand("end_modal", "Ends the ladder for a given League with confirmation.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task EndLadderModalAsync()
+        {
+            // Use the group-qualified interaction ID
+            await RespondWithModalAsync<LadderEndModal>("ladder_end");
         }
     }
 }

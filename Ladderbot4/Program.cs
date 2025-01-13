@@ -153,6 +153,14 @@ namespace Ladderbot4
             // Register SlashCommand modules
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
+            var modules = _interactionService.Modules;
+            Console.WriteLine($"{DateTime.Now} - Registered Modules:");
+            foreach (var module in modules)
+            {
+                Console.WriteLine($"- {module.Name}");
+            }
+
+
             // Setup guild ID if not set
             _settingsManager.SetGuildIdProcess();
 
@@ -163,8 +171,13 @@ namespace Ladderbot4
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
         {
+            Console.WriteLine($"Interaction created: {interaction.Type}");
+
             var context = new SocketInteractionContext(_client, interaction);
-            await _interactionService.ExecuteCommandAsync(context, _services);
+            var result = await _interactionService.ExecuteCommandAsync(context, _services);
+
+            if (!result.IsSuccess)
+                Console.WriteLine($"Interaction Error: {result.ErrorReason}");
         }
 
         private async Task HandleCommandAsync(SocketMessage socketMessage)
