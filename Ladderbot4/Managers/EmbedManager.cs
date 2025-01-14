@@ -105,6 +105,18 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+
+        public Embed EndLadderModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ End Ladder Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
         #endregion
 
         #region Create/Delete League
