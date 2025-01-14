@@ -56,6 +56,5 @@ namespace Ladderbot4.Models
 
             return sb.ToString();
         }
-
     }
 }
