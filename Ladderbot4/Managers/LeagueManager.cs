@@ -49,6 +49,29 @@ namespace Ladderbot4.Managers
             return true;
         }
 
+        public bool IsLeagueNameUnique(string leagueName, bool caseSensitive)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                if (caseSensitive)
+                {
+                    if (league.Name.Equals(leagueName))
+                    {
+                        return false; // Name is not unique
+                    }
+                }
+                else
+                {
+                    // Case-insensitive comparison
+                    if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return false; // Name is not unique
+                    }
+                }
+            }
+            return true;
+        }
+
         public bool IsTeamNameUnique(string teamName)
         {
             foreach (League league in _leagueRegistry.Leagues)
