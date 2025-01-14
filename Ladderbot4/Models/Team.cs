@@ -47,7 +47,15 @@ namespace Ladderbot4.Models
             {
                 sb.Append($"{m.DisplayName}, ");
             }
+
+            // Remove the last comma and space
+            if (sb.Length > 2)
+            {
+                sb.Length -= 2;
+            }
+
             return sb.ToString();
         }
+
     }
 }

@@ -12,11 +12,11 @@ namespace Ladderbot4.Models.Modals
         public string Title => "End Ladder Confirmation";
 
         [InputLabel("League Name (Case-Sensitive)")]
-        [ModalTextInput("league_name_one", placeholder: "Enter the league name")]
+        [ModalTextInput("league_name_one", placeholder: "Enter the league name...")]
         public string LeagueNameOne { get; set; }
 
         [InputLabel("League Name (Case-Sensitive)")]
-        [ModalTextInput("league_name_two", placeholder: "Enter the league name again")]
+        [ModalTextInput("league_name_two", placeholder: "Enter the league name again...")]
         public string LeagueNameTwo { get; set; }        
     }
 }
