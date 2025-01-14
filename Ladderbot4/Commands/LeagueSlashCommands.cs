@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Managers;
+using Ladderbot4.Models.Modals;
 
 namespace Ladderbot4.Commands
 {
@@ -42,22 +43,19 @@ namespace Ladderbot4.Commands
 
         }
 
-        [SlashCommand("delete", "Admin command to delete an XvX League entirely. Use with caution.")]
+        [SlashCommand("delete", "Load confirmation modal to begin Delete League process.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task DeleteXvXLeagueAsync(
-            [Summary("leagueName", "Name of the League to be deleted")] string leagueName)
+        public async Task DeleteLeagueModalAsync()
         {
             try
             {
-                await Context.Interaction.DeferAsync();
-                var result = _ladderManager.DeleteLeagueProcess(leagueName.Trim().ToLower());
-                await Context.Interaction.FollowupAsync(embed: result);
+                await RespondWithModalAsync<LeagueDeleteModal>("league_delete");
             }
             catch (Exception ex)
             {
                 string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-                await Context.Interaction.FollowupAsync(embed: errorResult);
+                await FollowupAsync(embed: errorResult, ephemeral: true);
             }
         }
         #endregion

@@ -222,6 +222,18 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+
+        public Embed LeagueModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Delete League Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
         #endregion
 
         #region Register/Remove Team
@@ -274,6 +286,18 @@ namespace Ladderbot4.Managers
                 .AddField("Removed Members", team.GetAllMemberNamesToStr(), inline: false)
                 .WithFooter("Team removal is complete.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed TeamModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Remove Team Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }

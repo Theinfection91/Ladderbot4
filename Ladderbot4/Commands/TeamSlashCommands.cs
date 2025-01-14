@@ -3,6 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Managers;
 using Ladderbot4.Models;
+using Ladderbot4.Models.Modals;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,24 +89,19 @@ namespace Ladderbot4.Commands
             }
         }
 
-        [SlashCommand("remove", "Admin command to remove team from teams database.")]
+        [SlashCommand("remove", "Load confirmation modal to begin Remove Team process.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task RemoveXvXTeamAsync(
-        [Summary("teamName", "Name of the team to be removed.")] string teamName)
+        public async Task StartTeamModalAsync()
         {
             try
             {
-                await Context.Interaction.DeferAsync();
-
-                var result = _ladderManager.RemoveTeamFromLeagueProcess(teamName.Trim().ToLower());
-
-                await Context.Interaction.FollowupAsync(embed: result);
+                await RespondWithModalAsync<TeamRemoveModal>("team_remove");
             }
             catch (Exception ex)
             {
                 string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-                await Context.Interaction.FollowupAsync(embed: errorResult);
+                await FollowupAsync(embed: errorResult, ephemeral: true);
             }
         }
         #endregion

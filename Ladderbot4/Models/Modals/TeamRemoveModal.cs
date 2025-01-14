@@ -13,10 +13,10 @@ namespace Ladderbot4.Models.Modals
 
         [InputLabel("Team Name (Case-Sensitive)")]
         [ModalTextInput("team_name_one", placeholder: "Enter the team name...")]
-        public string LeagueNameOne { get; set; }
+        public string TeamNameOne { get; set; }
 
         [InputLabel("Team Name (Case-Sensitive)")]
         [ModalTextInput("team_name_two", placeholder: "Enter the team name again...")]
-        public string LeagueNameTwo { get; set; }
+        public string TeamNameTwo { get; set; }
     }
 }

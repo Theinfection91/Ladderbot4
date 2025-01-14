@@ -87,11 +87,65 @@ namespace Ladderbot4.Commands.ModalHandlers
         #endregion
 
         #region League Delete
+        [ModalInteraction("league_delete")]
+        public async Task HandleLeagueModalAsync(LeagueDeleteModal modal)
+        {
+            string leagueNameOne = modal.LeagueNameOne;
+            string leagueNameTwo = modal.LeagueNameTwo;
 
+            // Compare league names user has given
+            if (leagueNameOne.Equals(leagueNameTwo))
+            {
+                // Check if league is in database. Case sensitive.
+                if (!_leagueManager.IsLeagueNameUnique(leagueNameOne, true))
+                {
+                    // Init end ladder process
+                    Embed result = _ladderManager.DeleteLeagueProcess(leagueNameOne.Trim().ToLower());
+                    await RespondAsync(embed: result);
+                }
+                else
+                {
+                    Embed result = _embedManager.LeagueModalErrorEmbed($"The given league name of `{leagueNameOne}` does not exist in the database. Check your spelling and capitalization as the Delete League confirmation process is case sensitive and your input must match the league name exactly.");
+                    await RespondAsync(embed: result, ephemeral: true);
+                }
+            }
+            else
+            {
+                Embed result = _embedManager.LeagueModalErrorEmbed($"The given league names did not match. The Delete League confirmation process is case sensitive so check your spelling and capitalization. Your input entries:\n\t1 - {leagueNameOne}\n\t2 - {leagueNameTwo}");
+                await RespondAsync(embed: result, ephemeral: true);
+            }
+        }
         #endregion
 
         #region Team Remove
+        [ModalInteraction("team_remove")]
+        public async Task HandleTeamModalAsync(TeamRemoveModal modal)
+        {
+            string TeamNameOne = modal.TeamNameOne;
+            string TeamNameTwo = modal.TeamNameTwo;
 
+            // Compare league names user has given
+            if (TeamNameOne.Equals(TeamNameTwo))
+            {
+                // Check if league is in database. Case sensitive.
+                if (!_leagueManager.IsTeamNameUnique(TeamNameOne, true))
+                {
+                    // Init end ladder process
+                    Embed result = _ladderManager.RemoveTeamFromLeagueProcess(TeamNameOne.Trim().ToLower());
+                    await RespondAsync(embed: result);
+                }
+                else
+                {
+                    Embed result = _embedManager.TeamModalErrorEmbed($"The given team name of `{TeamNameOne}` does not exist in the database. Check your spelling and capitalization as the Remove Team confirmation process is case sensitive and your input must match the team name exactly.");
+                    await RespondAsync(embed: result, ephemeral: true);
+                }
+            }
+            else
+            {
+                Embed result = _embedManager.TeamModalErrorEmbed($"The given team names did not match. The Remove Team confirmation process is case sensitive so check your spelling and capitalization. Your input entries:\n\t1 - {TeamNameOne}\n\t2 - {TeamNameTwo}");
+                await RespondAsync(embed: result, ephemeral: true);
+            }
+        }
         #endregion
     }
 }
