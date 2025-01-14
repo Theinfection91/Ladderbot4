@@ -157,10 +157,10 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed EndLadderModalErrorEmbed(string errorMessage)
+        public Embed LadderModalErrorEmbed(string errorMessage, string category)
         {
             var embedBuilder = new EmbedBuilder()
-            .WithTitle("⚠️ End Ladder Confirmation Error")
+            .WithTitle($"⚠️ {category} Ladder Confirmation Error")
             .WithColor(Color.Red)
             .WithDescription(errorMessage)
             .WithFooter("Please try again.")

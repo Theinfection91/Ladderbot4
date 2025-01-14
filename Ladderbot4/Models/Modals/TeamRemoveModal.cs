@@ -10,5 +10,13 @@ namespace Ladderbot4.Models.Modals
     public class TeamRemoveModal : IModal
     {
         public string Title => "Remove Team Confirmation";
+
+        [InputLabel("Team Name (Case-Sensitive)")]
+        [ModalTextInput("team_name_one", placeholder: "Enter the team name...")]
+        public string LeagueNameOne { get; set; }
+
+        [InputLabel("Team Name (Case-Sensitive)")]
+        [ModalTextInput("team_name_two", placeholder: "Enter the team name again...")]
+        public string LeagueNameTwo { get; set; }
     }
 }

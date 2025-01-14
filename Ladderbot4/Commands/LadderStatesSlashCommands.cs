@@ -20,24 +20,40 @@ namespace Ladderbot4.Commands
             _ladderManager = ladderManager;
         }
 
-        [SlashCommand("start", "Starts the ladder in the given League if it's not already running.")]
+        [SlashCommand("start", "Load confirmation modal to begin Start Ladder process.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task StartLadderAsync(
-            [Summary("leagueName", "The League you want to start the ladder in.")] string leagueName)
+        public async Task StartLadderModalAsync()
         {
             try
             {
-                await Context.Interaction.DeferAsync();
-                var result = _ladderManager.StartLeagueLadderProcess(leagueName.Trim().ToLower());
-                await Context.Interaction.FollowupAsync(embed: result);
+                await RespondWithModalAsync<LadderStartModal>("ladder_start");
             }
             catch (Exception ex)
             {
                 string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-                await Context.Interaction.FollowupAsync(embed: errorResult);
+                await FollowupAsync(embed: errorResult, ephemeral: true);
             }
         }
+
+        //[SlashCommand("start", "Starts the ladder in the given League if it's not already running.")]
+        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        //public async Task StartLadderAsync(
+        //    [Summary("leagueName", "The League you want to start the ladder in.")] string leagueName)
+        //{
+        //    try
+        //    {
+        //        await Context.Interaction.DeferAsync();
+        //        var result = _ladderManager.StartLeagueLadderProcess(leagueName.Trim().ToLower());
+        //        await Context.Interaction.FollowupAsync(embed: result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+        //        await Context.Interaction.FollowupAsync(embed: errorResult);
+        //    }
+        //}
 
         [SlashCommand("end", "Load confirmation modal to begin End Ladder process.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
