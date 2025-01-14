@@ -365,6 +365,12 @@ namespace Ladderbot4.Managers
                 // Check ladder status
                 if (!_statesManager.IsLadderRunning(league))
                 {
+                    // Ensure every team in league is at 0 wins/losses
+                    league.ResetTeamsToZero();
+
+                    // Save and reload leagues
+                    _leagueManager.SaveAndReloadLeagueRegistry();
+
                     // Set ladder running to true
                     _statesManager.SetLadderRunning(league, true);
 
@@ -395,12 +401,16 @@ namespace Ladderbot4.Managers
                 // Check ladder status
                 if (_statesManager.IsLadderRunning(league))
                 {
-                    // Set ladder running to true
+                    // Set ladder running to false
                     _statesManager.SetLadderRunning(league, false);
+
+                    // Remove league index from challenges entirely
+                    _challengeManager.RemoveLeagueFromChallenges(league.Name);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
+                    // Return embed with ladder results
                     return _embedManager.EndLadderSuccessEmbed(league);
                 }
                 return _embedManager.EndLadderNotRunningEmbed(league);

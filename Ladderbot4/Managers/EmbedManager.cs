@@ -82,16 +82,67 @@ namespace Ladderbot4.Managers
 
         public Embed EndLadderSuccessEmbed(League leagueRef)
         {
+            // Get the top 3 teams (we'll safely handle cases where fewer than 3 teams exist)
+            Team? firstPlace = leagueRef.Teams.Count > 0 ? leagueRef.Teams[0] : null;
+            Team? secondPlace = leagueRef.Teams.Count > 1 ? leagueRef.Teams[1] : null;
+            Team? thirdPlace = leagueRef.Teams.Count > 2 ? leagueRef.Teams[2] : null;
+
+            // Prepare the members for each team if they exist
+            string firstPlaceMembers = firstPlace?.GetAllMemberNamesToStr() ?? "No members available";
+            string secondPlaceMembers = secondPlace?.GetAllMemberNamesToStr() ?? "No members available";
+            string thirdPlaceMembers = thirdPlace?.GetAllMemberNamesToStr() ?? "No members available";
+
+            // Start building the embed
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Ended")
-                .WithColor(Color.Green)
-                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has successfully ended.")
-                .AddField("Format", leagueRef.Format, inline: true)
-                .WithFooter("Thank you for participating!")
-                .WithTimestamp(DateTimeOffset.Now);
+                .WithColor(Color.Gold)
+                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has officially ended.");
+
+            // 1st Place (Winner) - Always included if there is at least one team
+            if (firstPlace != null)
+            {
+                embedBuilder.AddField("🏆 1st Place - Winner", $"{firstPlace.Name}\n" +
+                                                                   $"**Wins**: {firstPlace.Wins} | **Losses**: {firstPlace.Losses}\n" +
+                                                                   $"**W/L%**: {firstPlace.WinRatio:P1}\n" +
+                                                                   $"**Members**: {firstPlaceMembers}", inline: false);
+            }
+
+            // 2nd Place (Runner-up) - Only included if there is at least two teams
+            if (secondPlace != null)
+            {
+                embedBuilder.AddField("🥈 2nd Place - Runner-up", $"{secondPlace.Name}\n" +
+                                                                    $"**Wins**: {secondPlace.Wins} | **Losses**: {secondPlace.Losses}\n" +
+                                                                    $"**W/L%**: {secondPlace.WinRatio:P1}\n" +
+                                                                    $"**Members**: {secondPlaceMembers}", inline: false);
+            }
+
+            // 3rd Place - Only included if there is at least three teams
+            if (thirdPlace != null)
+            {
+                embedBuilder.AddField("🥉 3rd Place", $"{thirdPlace.Name}\n" +
+                                                     $"**Wins**: {thirdPlace.Wins} | **Losses**: {thirdPlace.Losses}\n" +
+                                                     $"**W/L%**: {thirdPlace.WinRatio:P1}\n" +
+                                                     $"**Members**: {thirdPlaceMembers}", inline: false);
+            }
+
+            // Show all remaining teams in the league
+            var remainingTeams = leagueRef.Teams.Skip(3).ToList(); // Skip top 3 teams
+            if (remainingTeams.Any())
+            {
+                // Create a simple string that lists the remaining teams with basic stats
+                string remainingTeamsStr = string.Join("\n", remainingTeams.Select(t =>
+                    $"{t.Name} - Wins: {t.Wins} | Losses: {t.Losses} | W/L%: {t.WinRatio:P1}"));
+
+                embedBuilder.AddField("Remaining Team(s)", remainingTeamsStr, inline: false);
+            }
+
+            // Footer and timestamp
+            embedBuilder.WithFooter($"Thanks for participating in the {leagueRef.Name} Ladder!")
+                        .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
+
 
         public Embed EndLadderNotRunningEmbed(League leagueRef)
         {
@@ -102,6 +153,18 @@ namespace Ladderbot4.Managers
                 .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed LadderModalErrorEmbed(string errorMessage, string category)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ {category} Ladder Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
@@ -159,6 +222,18 @@ namespace Ladderbot4.Managers
 
             return embedBuilder.Build();
         }
+
+        public Embed LeagueModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Delete League Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
         #endregion
 
         #region Register/Remove Team
@@ -211,6 +286,18 @@ namespace Ladderbot4.Managers
                 .AddField("Removed Members", team.GetAllMemberNamesToStr(), inline: false)
                 .WithFooter("Team removal is complete.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed TeamModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Remove Team Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }

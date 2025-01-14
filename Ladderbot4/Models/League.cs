@@ -50,5 +50,17 @@ namespace Ladderbot4.Models
         {
             Teams = Teams.OrderBy(t => t.Rank).ToList();
         }
+
+        public void ResetTeamsToZero()
+        {
+            foreach (var team in Teams)
+            {
+                team.Wins = 0;
+                team.WinStreak = 0;
+                team.Losses = 0;
+                team.LoseStreak = 0;
+                team.IsChallengeable = true;
+            }
+        }
     }
 }
