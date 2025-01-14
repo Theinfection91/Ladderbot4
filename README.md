@@ -11,7 +11,11 @@
 # Ladderbot 4.2.0 - What's New
 
 ## Overview
+### (Merge 0)
 The first update to the **4.2.0 branch** introduces significant changes to support flexible league configurations and lays the groundwork for enhanced data handling. These changes include the decoupling of team sizes for leagues (XvX), a new `Data` class structure, and the replacement of several JSON files for improved organization and scalability. This marks the first step toward the fully realized 4.2.0 update.
+
+### (Merge 1)
+The second update to the **4.2.0 branch** introduces the **Modal Confirmation System**, which enhances critical operations by requiring users to confirm sensitive actions twice, ensuring case-sensitive accuracy. This system is applied to key operations like starting, ending, deleting leagues, and removing teams. Additional improvements include a more streamlined approach to handling the ladder lifecycle, with enhancements like resets for team stats at the start of a ladder and new results embeds at the end. A reusable handler class (`ModalInteractionHandlers`) was also created for better maintainability and scalability of modal processes. This update sets the stage for more interactive components in future releases.
 
 ---
 
