@@ -39,31 +39,39 @@ namespace Ladderbot4.Commands
             }
         }
 
-        [SlashCommand("end", "Ends the ladder in the given League if it's not already running.")]
+        //[SlashCommand("end", "Ends the ladder in the given League if it's not already running.")]
+        //[Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        //public async Task EndLadderAsync(
+        //    [Summary("leagueName", "The League you want to end the ladder in.")] string leagueName)
+        //{
+        //    try
+        //    {
+        //        await Context.Interaction.DeferAsync();
+        //        var result = _ladderManager.EndLeagueLadderProcess(leagueName.Trim().ToLower());
+        //        await Context.Interaction.FollowupAsync(embed: result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+        //        var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+        //        await Context.Interaction.FollowupAsync(embed: errorResult);
+        //    }
+        //}
+
+        [SlashCommand("end", "Load confirmation modal to begin End Ladder process.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task EndLadderAsync(
-            [Summary("leagueName", "The League you want to end the ladder in.")] string leagueName)
+        public async Task EndLadderModalAsync()
         {
             try
             {
-                await Context.Interaction.DeferAsync();
-                var result = _ladderManager.EndLeagueLadderProcess(leagueName.Trim().ToLower());
-                await Context.Interaction.FollowupAsync(embed: result);
+                await RespondWithModalAsync<LadderEndModal>("ladder_end");
             }
             catch (Exception ex)
             {
                 string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-                await Context.Interaction.FollowupAsync(embed: errorResult);
+                await FollowupAsync(embed: errorResult, ephemeral: true);
             }
-        }
-
-        [SlashCommand("end_modal", "Ends the ladder for a given League with confirmation.")]
-        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-        public async Task EndLadderModalAsync()
-        {
-            // Use the group-qualified interaction ID
-            await RespondWithModalAsync<LadderEndModal>("ladder_end");
         }
     }
 }
