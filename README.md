@@ -15,7 +15,39 @@ The first update to the **4.2.0 branch** introduces significant changes to suppo
 
 ---
 
-## What's New in 4.2.0 (Merge 0)
+## What's New in 4.2.0 (Merge 1) - (01/14/2025)
+
+### Feature Enhancements
+
+#### **Modal Confirmation System**
+- Introduced a robust Modal Confirmation process to ensure accuracy and prevent unintended actions when performing critical operations. Users are required to confirm sensitive inputs twice in a case-sensitive manner.
+- Key operations updated to use the Modal Confirmation system:
+  - **Start Ladder**: Users must input the league name twice, ensuring precise matches with the database before starting a new ladder.
+  - **End Ladder**: Users must input the league name twice, ensuring precise matches with the database to prevent errors when ending a ladder.
+  - **Delete League**: Similar confirmation logic applied to prevent accidental deletion of entire leagues.
+  - **Remove Team**: Enhanced safeguards added using modal confirmation to handle team removal responsibly.
+
+#### **Ladder Lifecycle Enhancements**
+- **Start Ladder**:
+  - Team statistics (wins, losses, streaks) are reset to zero at the start of a new ladder to ensure a fresh slate.
+  - The modal process for Start Ladder includes case-sensitive league name validation.
+- **End Ladder**:
+  - New results embed added to display standings when a ladder is ended.
+  - Challenges are cleared upon ladder termination to finalize the league state.
+  - Future feature: Consider exporting standings as a PDF for archival purposes.
+
+#### **Reusable Modal Handlers**
+- Created a centralized `ModalInteractionHandlers` class for managing modal interactions:
+  - Supports consistent handling of ladder start/end, league deletion, and team removal processes.
+  - Reduces redundant code and enhances maintainability by utilizing shared logic for modal validation and confirmation.
+
+#### **Interactive UX Framework**
+- Established the foundation for future interactive components (e.g., buttons).
+- The modal framework offers scalability for adding new features and interactive processes.
+
+---
+
+## What's New in 4.2.0 (Merge 0) - (01/13/2025)
 
 ### Feature Enhancements
 
