@@ -365,6 +365,12 @@ namespace Ladderbot4.Managers
                 // Check ladder status
                 if (!_statesManager.IsLadderRunning(league))
                 {
+                    // Ensure every team in league is at 0 wins/losses
+                    league.ResetTeamsToZero();
+
+                    // Save and reload leagues
+                    _leagueManager.SaveAndReloadLeagueRegistry();
+
                     // Set ladder running to true
                     _statesManager.SetLadderRunning(league, true);
 

@@ -25,7 +25,7 @@ namespace Ladderbot4.Commands.ModalHandlers
             _ladderManager = ladderManager;
             _leagueManager = leagueManager;
         }
-
+        
         #region Ladder Start/End
         [ModalInteraction("ladder_start")]
         public async Task HandleLadderModalAsync(LadderStartModal modal)
@@ -39,7 +39,7 @@ namespace Ladderbot4.Commands.ModalHandlers
                 // Check if league is in database. Case sensitive.
                 if (!_leagueManager.IsLeagueNameUnique(leagueNameOne, true))
                 {
-                    // Init end ladder process with case-insensitive arguments now like normal
+                    // Init end ladder process
                     Embed result = _ladderManager.StartLeagueLadderProcess(leagueNameOne.Trim().ToLower());
                     await RespondAsync(embed: result);
                 }
@@ -68,7 +68,7 @@ namespace Ladderbot4.Commands.ModalHandlers
                 // Check if league is in database. Case sensitive.
                 if (!_leagueManager.IsLeagueNameUnique(leagueNameOne, true))
                 {
-                    // Init end ladder process with case-insensitive arguments now like normal
+                    // Init end ladder process
                     Embed result = _ladderManager.EndLeagueLadderProcess(leagueNameOne.Trim().ToLower());
                     await RespondAsync(embed: result);
                 }
