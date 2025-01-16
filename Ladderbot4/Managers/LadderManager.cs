@@ -1001,6 +1001,10 @@ namespace Ladderbot4.Managers
                             _teamManager.ChangeChallengeStatus(losingTeam, true);
                             _leagueManager.SaveAndReloadLeagueRegistry();
 
+                            // TODO: Compare team ranks with rank in current challenges and adjust accordingly
+                            //
+                            
+
                             // Remove the challenge
                             _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 

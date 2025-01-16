@@ -50,6 +50,11 @@ namespace Ladderbot4.Managers
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
+        public bool IsChallengeRankOld(Team team, int rank)
+        {
+            return false;
+        }
+
         public bool IsTeamInChallenge(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);
