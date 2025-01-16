@@ -823,7 +823,7 @@ namespace Ladderbot4.Managers
                 return _embedManager.CancelChallengeErrorEmbed($"**{team.Name}** does not have any pending challenges sent out to cancel.");
             }
             return _embedManager.TeamNotFoundErrorEmbed(challengerTeam);
-        }    
+        }
         #endregion
 
         #region Reporting Logic
@@ -958,94 +958,98 @@ namespace Ladderbot4.Managers
                 // Grab winningTeam object, add placeholder for losingTeam object
                 Team? winningTeam = _leagueManager.GetTeamByNameFromLeagues(winningTeamName);
                 Team? losingTeam;
-                    // Is the team part of an active challenge (Challenger or Challenged)
-                    if (_challengeManager.IsTeamInChallenge(winningTeam.League, winningTeam))
+                // Is the team part of an active challenge (Challenger or Challenged)
+                if (_challengeManager.IsTeamInChallenge(winningTeam.League, winningTeam))
+                {
+                    // Grab challenge
+                    Challenge? challenge = _challengeManager.GetChallengeForTeam(winningTeam.League, winningTeam);
+
+                    // Determine if winningTeam is Challenger or Challenged
+                    bool isWinningTeamChallenger;
+                    if (challenge.Challenger.Equals(winningTeam.Name, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Grab challenge
-                        Challenge? challenge = _challengeManager.GetChallengeForTeam(winningTeam.League, winningTeam);
+                        isWinningTeamChallenger = true;
+                        losingTeam = league.Teams.FirstOrDefault(t => t.Name.Equals(challenge.Challenged, StringComparison.OrdinalIgnoreCase));
+                    }
+                    else
+                    {
+                        isWinningTeamChallenger = false;
+                        losingTeam = league.Teams.FirstOrDefault(t => t.Name.Equals(challenge.Challenger, StringComparison.OrdinalIgnoreCase));
+                    }
+                    // If winningTeam is challenger, rank change will occur
+                    if (isWinningTeamChallenger)
+                    {
+                        // The winning team takes the rank of the losing team
+                        winningTeam.Rank = losingTeam.Rank;
+                        losingTeam.Rank++;
 
-                        // Determine if winningTeam is Challenger or Challenged
-                        bool isWinningTeamChallenger;
-                        if (challenge.Challenger.Equals(winningTeam.Name, StringComparison.OrdinalIgnoreCase))
+                        // Reassign ranks for the entire League
+                        ReassignRanksInLeague(league);
+
+                        // Add wins and losses correctly
+                        _teamManager.AddToWins(winningTeam, 1);
+                        _teamManager.AddToLosses(losingTeam, 1);
+
+                        // TODO - Add wins and losses to Member Profiles
+
+
+                        // TODO - Create Match object to add to History (Past Matches)
+
+
+                        // Set IsChallengeable status of both teams back to true
+                        _teamManager.ChangeChallengeStatus(winningTeam, true);
+                        _teamManager.ChangeChallengeStatus(losingTeam, true);
+                        _leagueManager.SaveAndReloadLeagueRegistry();
+
+                        // TODO: Compare team ranks with rank in current challenges and adjust accordingly
+                        foreach (Team team in league.Teams)
                         {
-                            isWinningTeamChallenger = true;
-                            losingTeam = league.Teams.FirstOrDefault(t => t.Name.Equals(challenge.Challenged, StringComparison.OrdinalIgnoreCase));
+                            // TODO
+                            Console.WriteLine($"Name: {team.Name} - bool: {_challengeManager.IsChallengeRankCorrect(team)}");
                         }
-                        else
-                        {
-                            isWinningTeamChallenger = false;
-                            losingTeam = league.Teams.FirstOrDefault(t => t.Name.Equals(challenge.Challenger, StringComparison.OrdinalIgnoreCase));
-                        }
-                        // If winningTeam is challenger, rank change will occur
-                        if (isWinningTeamChallenger)
-                        {
-                            // The winning team takes the rank of the losing team
-                            winningTeam.Rank = losingTeam.Rank;
-                            losingTeam.Rank++;
-
-                            // Reassign ranks for the entire League
-                            ReassignRanksInLeague(league);
-
-                            // Add wins and losses correctly
-                            _teamManager.AddToWins(winningTeam, 1);
-                            _teamManager.AddToLosses(losingTeam, 1);
-
-                            // TODO - Add wins and losses to Member Profiles
 
 
-                            // TODO - Create Match object to add to History (Past Matches)
+                        // Remove the challenge
+                        _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
+                        // Backup to Git
+                        _backupManager.CopyAndBackupFilesToGit();
 
-                            // Set IsChallengeable status of both teams back to true
-                            _teamManager.ChangeChallengeStatus(winningTeam, true);
-                            _teamManager.ChangeChallengeStatus(losingTeam, true);
-                            _leagueManager.SaveAndReloadLeagueRegistry();
-
-                            // TODO: Compare team ranks with rank in current challenges and adjust accordingly
-                            //
-                            
-
-                            // Remove the challenge
-                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
-
-                            // Backup to Git
-                            _backupManager.CopyAndBackupFilesToGit();
-
-                            // Return Success Embed with true, showing rank change
-                            return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, true, league);
+                        // Return Success Embed with true, showing rank change
+                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, true, league);
                     }
-                        // If winningTeam is challenged team, no rank change will occur
-                        else
-                        {
-                            // Assign win and loss correctly
-                            _teamManager.AddToWins(winningTeam, 1);
-                            _teamManager.AddToLosses(losingTeam, 1);
+                    // If winningTeam is challenged team, no rank change will occur
+                    else
+                    {
+                        // Assign win and loss correctly
+                        _teamManager.AddToWins(winningTeam, 1);
+                        _teamManager.AddToLosses(losingTeam, 1);
 
-                            // TODO: Add wins and losses to Member Profiles
-
-
-                            // TODO: Create Match object to add to History (Past Matches)
+                        // TODO: Add wins and losses to Member Profiles
 
 
-                            // Set IsChallengeable status of both teams back to true
-                            _teamManager.ChangeChallengeStatus(winningTeam, true);
-                            _teamManager.ChangeChallengeStatus(losingTeam, true);
-                            _leagueManager.SaveAndReloadLeagueRegistry();
+                        // TODO: Create Match object to add to History (Past Matches)
 
-                            // Remove the challenge
-                            _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
 
-                            // Backup the database to Git
-                            _backupManager.CopyAndBackupFilesToGit();
+                        // Set IsChallengeable status of both teams back to true
+                        _teamManager.ChangeChallengeStatus(winningTeam, true);
+                        _teamManager.ChangeChallengeStatus(losingTeam, true);
+                        _leagueManager.SaveAndReloadLeagueRegistry();
 
-                            // Return Success Embed with false, showing no rank change
-                            return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, false, league);
+                        // Remove the challenge
+                        _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+
+                        // Backup the database to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+
+                        // Return Success Embed with false, showing no rank change
+                        return _embedManager.ReportWinAdminSuccessEmbed(context, winningTeam, losingTeam, false, league);
                     }
-                    }
-                    return _embedManager.ReportWinErrorEmbed($"**{winningTeam.Name}** is not currently waiting on a challenge match.");
+                }
+                return _embedManager.ReportWinErrorEmbed($"**{winningTeam.Name}** is not currently waiting on a challenge match.");
             }
             return _embedManager.TeamNotFoundErrorEmbed(winningTeamName);
-        }       
+        }
         #endregion
 
         #region History Logic

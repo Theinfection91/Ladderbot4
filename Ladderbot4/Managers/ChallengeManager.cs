@@ -50,8 +50,18 @@ namespace Ladderbot4.Managers
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public bool IsChallengeRankOld(Team team, int rank)
+        public bool IsChallengeRankCorrect(Team team)
         {
+            foreach (Challenge challenge in _challengesHub.Challenges[team.League])
+            {
+                if (challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase) || challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (challenge.ChallengedRank == team.Rank || challenge.ChallengerRank == team.Rank)
+                    {
+                        return true;
+                    }
+                }
+            }
             return false;
         }
 
