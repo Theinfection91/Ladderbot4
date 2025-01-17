@@ -1004,10 +1004,25 @@ namespace Ladderbot4.Managers
                         // TODO: Compare team ranks with rank in current challenges and adjust accordingly
                         foreach (Team team in league.Teams)
                         {
-                            // TODO
                             Console.WriteLine($"Name: {team.Name} - bool: {_challengeManager.IsChallengeRankCorrect(team)}");
-                        }
 
+                            if (!_challengeManager.IsChallengeRankCorrect(team))
+                            {
+                                // Grab challenge
+                                Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
+
+                                // If team rank to correct is Challenger
+                                if (challengeToEdit.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    challengeToEdit.ChallengerRank = team.Rank;
+                                }
+                                // If team rank to correct is Challenged
+                                if (challengeToEdit.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    challengeToEdit.ChallengedRank = team.Rank;
+                                }
+                            }
+                        }
 
                         // Remove the challenge
                         _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
