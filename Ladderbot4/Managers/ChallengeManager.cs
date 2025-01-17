@@ -18,8 +18,11 @@ namespace Ladderbot4.Managers
 
         private ChallengesHub _challengesHub;
 
-        public ChallengeManager(ChallengesHubData challengesHubData, DiscordSocketClient client)
+        private LeagueManager _leagueManager;
+
+        public ChallengeManager(LeagueManager leagueManager, ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
+            _leagueManager = leagueManager;
             _client = client;
             _challengesHubData = challengesHubData;
             _challengesHub = _challengesHubData.Load();
@@ -48,6 +51,17 @@ namespace Ladderbot4.Managers
             return challenges.FirstOrDefault(challenge =>
                 challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public List<Team> GetTeamsInLeagueChallenges(string leagueName)
+        {
+            List<Team> teams = [];
+            foreach (Challenge challenge in _challengesHub.Challenges[leagueName])
+            {
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenger));
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenged));
+            }
+            return teams;
         }
 
         public bool IsChallengeRankCorrect(Team team)

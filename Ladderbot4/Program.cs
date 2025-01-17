@@ -160,7 +160,6 @@ namespace Ladderbot4
                 Console.WriteLine($"- {module.Name}");
             }
 
-
             // Setup guild ID if not set
             _settingsManager.SetGuildIdProcess();
 

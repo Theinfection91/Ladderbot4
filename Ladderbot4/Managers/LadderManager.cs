@@ -896,6 +896,30 @@ namespace Ladderbot4.Managers
 
                             // Remove the challenge
                             _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.LoadChallengesHub();
+
+                            // Compare team ranks with challenges ranks if any
+                            List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
+                            foreach (Team team in teams)
+                            {
+                                Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
+                                if (!_challengeManager.IsChallengeRankCorrect(team))
+                                {
+                                    Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
+                                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
+                                        challengeToEdit.ChallengerRank = team.Rank;
+                                    }
+                                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
+                                        challengeToEdit.ChallengedRank = team.Rank;
+                                    }
+                                }
+                            }
+                            // Save and reload ChallengeHub
+                            _challengeManager.SaveAndReloadChallengesHub();
 
                             // Backup to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -923,6 +947,30 @@ namespace Ladderbot4.Managers
 
                             // Remove the challenge
                             _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+                            _challengeManager.LoadChallengesHub();
+
+                            // Compare team ranks with challenges ranks if any
+                            List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
+                            foreach (Team team in teams)
+                            {
+                                Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
+                                if (!_challengeManager.IsChallengeRankCorrect(team))
+                                {
+                                    Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
+                                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
+                                        challengeToEdit.ChallengerRank = team.Rank;
+                                    }
+                                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
+                                        challengeToEdit.ChallengedRank = team.Rank;
+                                    }
+                                }
+                            }
+                            // Save and reload ChallengeHub
+                            _challengeManager.SaveAndReloadChallengesHub();
 
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -1001,31 +1049,32 @@ namespace Ladderbot4.Managers
                         _teamManager.ChangeChallengeStatus(losingTeam, true);
                         _leagueManager.SaveAndReloadLeagueRegistry();
 
-                        // TODO: Compare team ranks with rank in current challenges and adjust accordingly
-                        foreach (Team team in league.Teams)
-                        {
-                            Console.WriteLine($"Name: {team.Name} - bool: {_challengeManager.IsChallengeRankCorrect(team)}");
+                        // Remove the challenge
+                        _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+                        _challengeManager.LoadChallengesHub();
 
+                        // Compare team ranks with challenges ranks if any
+                        List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
+                        foreach (Team team in teams)
+                        {
+                            Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
                             if (!_challengeManager.IsChallengeRankCorrect(team))
                             {
-                                // Grab challenge
                                 Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
-
-                                // If team rank to correct is Challenger
-                                if (challengeToEdit.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                                if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
                                 {
+                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
                                     challengeToEdit.ChallengerRank = team.Rank;
                                 }
-                                // If team rank to correct is Challenged
-                                if (challengeToEdit.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                                else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
                                 {
+                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
                                     challengeToEdit.ChallengedRank = team.Rank;
                                 }
                             }
                         }
-
-                        // Remove the challenge
-                        _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+                        // Save and reload ChallengeHub
+                        _challengeManager.SaveAndReloadChallengesHub();
 
                         // Backup to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -1053,6 +1102,30 @@ namespace Ladderbot4.Managers
 
                         // Remove the challenge
                         _challengeManager.SudoRemoveChallenge(league.Name, challenge.Challenger);
+                        _challengeManager.LoadChallengesHub();
+
+                        // Compare team ranks with challenges ranks if any
+                        List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
+                        foreach (Team team in teams)
+                        {
+                            Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
+                            if (!_challengeManager.IsChallengeRankCorrect(team))
+                            {
+                                Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
+                                if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
+                                    challengeToEdit.ChallengerRank = team.Rank;
+                                }
+                                else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
+                                    challengeToEdit.ChallengedRank = team.Rank;
+                                }
+                            }
+                        }
+                        // Save and reload ChallengeHub
+                        _challengeManager.SaveAndReloadChallengesHub();
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
