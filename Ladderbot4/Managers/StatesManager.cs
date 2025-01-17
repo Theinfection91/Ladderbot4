@@ -128,8 +128,11 @@ namespace Ladderbot4.Managers
             {
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
+                ChallengesMessageId = 0,
                 StandingsChannelId = 0,
-                TeamsChannelId = 0
+                StandingsMessageId = 0,
+                TeamsChannelId = 0,
+                TeamsMessageId = 0
             };
         }
 
