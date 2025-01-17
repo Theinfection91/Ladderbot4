@@ -18,8 +18,11 @@ namespace Ladderbot4.Managers
 
         private ChallengesHub _challengesHub;
 
-        public ChallengeManager(ChallengesHubData challengesHubData, DiscordSocketClient client)
+        private LeagueManager _leagueManager;
+
+        public ChallengeManager(LeagueManager leagueManager, ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
+            _leagueManager = leagueManager;
             _client = client;
             _challengesHubData = challengesHubData;
             _challengesHub = _challengesHubData.Load();
@@ -41,6 +44,26 @@ namespace Ladderbot4.Managers
             LoadChallengesHub();
         }
 
+        public void ChallengeRankComparisonProcess(List<Team> teams)
+        {
+            foreach (Team team in teams)
+            {
+                if (!IsChallengeRankCorrect(team))
+                {
+                    Challenge? challengeToEdit = GetChallengeForTeam(team.League, team);
+                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengerRank = team.Rank;
+                    }
+                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengedRank = team.Rank;
+                    }
+                }
+            }
+            SaveAndReloadChallengesHub();
+        }
+
         public Challenge? GetChallengeForTeam(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);
@@ -48,6 +71,32 @@ namespace Ladderbot4.Managers
             return challenges.FirstOrDefault(challenge =>
                 challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
                 challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public List<Team> GetTeamsInLeagueChallenges(string leagueName)
+        {
+            List<Team> teams = [];
+            foreach (Challenge challenge in _challengesHub.Challenges[leagueName])
+            {
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenger));
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenged));
+            }
+            return teams;
+        }
+
+        public bool IsChallengeRankCorrect(Team team)
+        {
+            foreach (Challenge challenge in _challengesHub.Challenges[team.League])
+            {
+                if (challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase) || challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (challenge.ChallengedRank == team.Rank || challenge.ChallengerRank == team.Rank)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public bool IsTeamInChallenge(string leagueName, Team team)
