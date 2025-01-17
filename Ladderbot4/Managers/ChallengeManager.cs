@@ -44,6 +44,26 @@ namespace Ladderbot4.Managers
             LoadChallengesHub();
         }
 
+        public void ChallengeRankComparisonProcess(List<Team> teams)
+        {
+            foreach (Team team in teams)
+            {
+                if (!IsChallengeRankCorrect(team))
+                {
+                    Challenge? challengeToEdit = GetChallengeForTeam(team.League, team);
+                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengerRank = team.Rank;
+                    }
+                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengedRank = team.Rank;
+                    }
+                }
+            }
+            SaveAndReloadChallengesHub();
+        }
+
         public Challenge? GetChallengeForTeam(string leagueName, Team team)
         {
             var challenges = _challengesHub.GetChallenges(leagueName);

@@ -900,26 +900,7 @@ namespace Ladderbot4.Managers
 
                             // Compare team ranks with challenges ranks if any
                             List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
-                            foreach (Team team in teams)
-                            {
-                                Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
-                                if (!_challengeManager.IsChallengeRankCorrect(team))
-                                {
-                                    Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
-                                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
-                                        challengeToEdit.ChallengerRank = team.Rank;
-                                    }
-                                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
-                                        challengeToEdit.ChallengedRank = team.Rank;
-                                    }
-                                }
-                            }
-                            // Save and reload ChallengeHub
-                            _challengeManager.SaveAndReloadChallengesHub();
+                            _challengeManager.ChallengeRankComparisonProcess(teams);
 
                             // Backup to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -951,26 +932,7 @@ namespace Ladderbot4.Managers
 
                             // Compare team ranks with challenges ranks if any
                             List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
-                            foreach (Team team in teams)
-                            {
-                                Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
-                                if (!_challengeManager.IsChallengeRankCorrect(team))
-                                {
-                                    Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
-                                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
-                                        challengeToEdit.ChallengerRank = team.Rank;
-                                    }
-                                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
-                                        challengeToEdit.ChallengedRank = team.Rank;
-                                    }
-                                }
-                            }
-                            // Save and reload ChallengeHub
-                            _challengeManager.SaveAndReloadChallengesHub();
+                            _challengeManager.ChallengeRankComparisonProcess(teams);
 
                             // Backup the database to Git
                             _backupManager.CopyAndBackupFilesToGit();
@@ -1055,26 +1017,7 @@ namespace Ladderbot4.Managers
 
                         // Compare team ranks with challenges ranks if any
                         List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
-                        foreach (Team team in teams)
-                        {
-                            Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
-                            if (!_challengeManager.IsChallengeRankCorrect(team))
-                            {
-                                Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
-                                if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
-                                    challengeToEdit.ChallengerRank = team.Rank;
-                                }
-                                else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
-                                    challengeToEdit.ChallengedRank = team.Rank;
-                                }
-                            }
-                        }
-                        // Save and reload ChallengeHub
-                        _challengeManager.SaveAndReloadChallengesHub();
+                        _challengeManager.ChallengeRankComparisonProcess(teams);
 
                         // Backup to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -1106,26 +1049,7 @@ namespace Ladderbot4.Managers
 
                         // Compare team ranks with challenges ranks if any
                         List<Team> teams = _challengeManager.GetTeamsInLeagueChallenges(league.Name);
-                        foreach (Team team in teams)
-                        {
-                            Console.WriteLine($"{team.Name} bool: {_challengeManager.IsChallengeRankCorrect(team)}");
-                            if (!_challengeManager.IsChallengeRankCorrect(team))
-                            {
-                                Challenge? challengeToEdit = _challengeManager.GetChallengeForTeam(team.League, team);
-                                if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengerRank}... Correcting...");
-                                    challengeToEdit.ChallengerRank = team.Rank;
-                                }
-                                else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
-                                {
-                                    Console.WriteLine($"Team Name: {team.Name} - Rank in LeagueRegistry: {team.Rank} - Rank in ChallengesHub: {challengeToEdit.ChallengedRank}... Correcting...");
-                                    challengeToEdit.ChallengedRank = team.Rank;
-                                }
-                            }
-                        }
-                        // Save and reload ChallengeHub
-                        _challengeManager.SaveAndReloadChallengesHub();
+                        _challengeManager.ChallengeRankComparisonProcess(teams);
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
