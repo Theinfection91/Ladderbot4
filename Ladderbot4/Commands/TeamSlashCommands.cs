@@ -27,7 +27,7 @@ namespace Ladderbot4.Commands
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task RegisterXvXTeamAsync(
             [Summary("teamName", "Name of the team to be registered")] string teamName,
-            [Summary("leagueName", "The league to register the team to")] string leagueName,
+            [Summary("league_name", "The league to register the team to"), Autocomplete] string leagueName,
             [Summary("member1", "A member to add to the team.")] IUser member1,
             [Summary("member2", "A member to add to the team.")] IUser? member2 = null,
             [Summary("member3", "A member to add to the team.")] IUser? member3 = null,

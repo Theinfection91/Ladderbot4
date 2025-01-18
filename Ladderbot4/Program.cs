@@ -6,6 +6,7 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Commands;
+using Ladderbot4.Commands.AutocompleteHandlers;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,6 +73,10 @@ namespace Ladderbot4
                     services.AddSingleton<StatesManager>();
                     services.AddSingleton<SettingsManager>();
                     services.AddSingleton<TeamManager>();
+
+                    // Register Custom Autocomplete service
+                    services.AddSingleton<AutocompleteInteractionHandlers>();
+
                 })
                 .Build();
 
@@ -142,6 +147,10 @@ namespace Ladderbot4
             await _commands.AddModuleAsync<NonSlashCommands>(_services);
             Console.WriteLine($"{DateTime.Now} - Non-SlashCommand modules added to CommandService");
 
+            // Initialize Autocomplete Interaction Handler
+            var autocompleteHandler = _services.GetRequiredService<AutocompleteInteractionHandlers>();
+            await autocompleteHandler.InitializeAsync();
+
             Console.WriteLine($"{DateTime.Now} - Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
 
             // Keep the bot running
@@ -163,13 +172,8 @@ namespace Ladderbot4
 
         private async Task HandleInteractionAsync(SocketInteraction interaction)
         {
-            Console.WriteLine($"Interaction created: {interaction.Type}");
-
             var context = new SocketInteractionContext(_client, interaction);
             var result = await _interactionService.ExecuteCommandAsync(context, _services);
-
-            if (!result.IsSuccess)
-                Console.WriteLine($"Interaction Error: {result.ErrorReason}");
         }
 
         private async Task HandleCommandAsync(SocketMessage socketMessage)
