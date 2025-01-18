@@ -17,6 +17,44 @@ The first update to the **4.2.0 branch** introduces significant changes to suppo
 ### (Merge 1)
 The second update to the **4.2.0 branch** introduces the **Modal Confirmation System**, which enhances critical operations by requiring users to confirm sensitive actions twice, ensuring case-sensitive accuracy. This system is applied to key operations like starting, ending, deleting leagues, and removing teams. Additional improvements include a more streamlined approach to handling the ladder lifecycle, with enhancements like resets for team stats at the start of a ladder and new results embeds at the end. A reusable handler class (`ModalInteractionHandlers`) was also created for better maintainability and scalability of modal processes. This update sets the stage for more interactive components in future releases.
 
+### (Merge 2)
+The third update introduces **Dynamic Challenge Rank Updates**, a feature that ensures challenge ranks remain accurate even after other teams report wins, causing rank changes. It also includes new methods for challenge rank validation and correction, improving the integrity of challenge data.
+
+### (Merge 3)
+The fourth update addresses **Duplicate Automated Messages** and improves JSON file handling, resolving issues where states were not properly loading after being cloned from the repository. Automated message processes now properly save and retrieve message IDs, preventing duplicates and ensuring a smoother user experience.
+
+---
+
+## What's New in 4.2.0 (Merge 3) - (01/18/2025)
+
+### Bug Fixes and Enhancements
+
+#### **Duplicate Automated Messages**
+- Added message ID fields to the `State` model, enabling the bot to track and edit existing automated messages for standings, challenges, and teams.
+- Automated messages are no longer duplicated. The bot now:
+  - Saves the message ID upon sending a new message.
+  - Edits the old message on startup instead of creating duplicates.
+- This improvement applies to all automated message types (standings, challenges, and teams).
+
+#### **JSON File Handling Fixes**
+- Fixed an issue where database JSON files were not loading after being cloned from the repository. This ensures seamless operation even after repo updates.
+
+---
+
+## What's New in 4.2.0 (Merge 2) - (01/17/2025)
+
+### Dynamic Challenge Rank Updates
+
+#### **Challenge Rank Validation**
+- Created a new `IsChallengeRankCorrect` method in `ChallengeManager` to validate whether a challenge's rank matches the team's current rank in standings.
+- Added logic to:
+  - Automatically correct mismatched ranks during `ReportWin` operations.
+  - Ensure rank integrity for both user commands and admin overrides.
+
+#### **Refactored Rank Correction Process**
+- Moved challenge rank correction logic into `ChallengeManager` for better modularity and maintainability.
+- Added functionality to check and correct ranks for teams with ongoing challenges, dynamically resolving discrepancies caused by reported wins affecting standings.
+
 ---
 
 ## What's New in 4.2.0 (Merge 1) - (01/14/2025)
@@ -79,6 +117,7 @@ The second update to the **4.2.0 branch** introduces the **Modal Confirmation Sy
 - The `SettingsData` class has been renamed to `SettingsVaultData` internally.  
   - **User Impact**: No changes to the `config.json` file in the `Settings` folder. The transition is seamless for end-users.
 
+
 ---
 
 ## Next Steps
@@ -94,7 +133,7 @@ For detailed documentation on setup and configuration, refer to the [Ladderbot4 
 
 ### Core Functionalities:
 - **Dynamic League Management**:
-  - Manage multiple leagues across various division types (e.g., 1v1, 2v2, 3v3).
+  - Manage multiple leagues across various league formats (e.g., 1v1, 3v3, 5v5, 20v20).
   - Flexibly create and manage leagues of the same or different types.
 
 - **Team Management**:
