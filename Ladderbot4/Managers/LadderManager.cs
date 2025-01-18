@@ -29,12 +29,6 @@ namespace Ladderbot4.Managers
         private readonly StatesManager _statesManager;
         private readonly SettingsManager _settingsManager;
 
-        // Channel Tasks
-        private readonly Dictionary<ulong, ulong> _challengesMessageMap = new();
-        private readonly Dictionary<ulong, ulong> _standingsMessageMap = new();
-        private readonly Dictionary<ulong, ulong> _teamsMessageMap = new();
-
-
         public LadderManager(DiscordSocketClient client, AchievementManager achievementManager, EmbedManager embedManager, LeagueManager leagueManager, GitBackupManager gitBackupManager, HistoryManager historyManager, TeamManager teamManager, MemberManager memberManager, ChallengeManager challengeManager, SettingsManager settingsManager, StatesManager statesManager)
         {
             _client = client;
@@ -48,6 +42,11 @@ namespace Ladderbot4.Managers
             _challengeManager = challengeManager;
             _settingsManager = settingsManager;
             _statesManager = statesManager;
+
+            // Load Databases into memory
+            _challengeManager.LoadChallengesHub();
+            _leagueManager.LoadLeagueRegistry();
+            _statesManager.LoadStatesAtlas();
 
             // Begin Channel Update Tasks
             StartChallengesTask();
@@ -105,7 +104,7 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(15));
+                await Task.Delay(TimeSpan.FromSeconds(11));
                 await SendChallengesToChannelAsync();
             }
         }
@@ -143,34 +142,42 @@ namespace Ladderbot4.Managers
 
                 try
                 {
-                    // Check if a message already exists in the channel
-                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    ulong messageId = _statesManager.GetChallengesMessageId(league);
+                    if (messageId != 0)
                     {
-                        // Try to fetch the existing message
                         var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message with the new embed
-                            await existingMessage.ModifyAsync(msg => msg.Embed = challengesEmbed);
+                            await existingMessage.ModifyAsync(msg =>
+                            {
+                                msg.Embed = challengesEmbed;
+                                msg.Content = string.Empty; // Clear any text content
+                            });
                         }
                         else
                         {
-                            // Message was deleted, send a new one
+                            // Message was deleted; send a new one
                             var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-                            _standingsMessageMap[channelId] = newMessage.Id;
+                            _statesManager.SetChallengesMessageId(league, newMessage.Id);
+
+                            // Backup to Git
+                            _backupManager.CopyAndBackupFilesToGit();
                         }
                     }
                     else
                     {
-                        // No existing message, send a new one
+                        // No existing message; send a new one
                         var newMessage = await channel.SendMessageAsync(embed: challengesEmbed);
-                        _standingsMessageMap[channelId] = newMessage.Id;
+                        _statesManager.SetChallengesMessageId(league, newMessage.Id);
+
+                        // Backup to Git
+                        _backupManager.CopyAndBackupFilesToGit();
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error updating challenges in channel {channelId} for league {league.Name}: {ex.Message}");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Error updating challenges in channel {channelId} for league {league.Name}: {ex.Message}");
                 }
             }
         }
@@ -186,7 +193,7 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(15));
+                await Task.Delay(TimeSpan.FromSeconds(7));
                 await SendStandingsToChannelsAsync();
             }
         }
@@ -214,7 +221,6 @@ namespace Ladderbot4.Managers
 
                 // Get the standings embed for the league
                 Embed standingsEmbed = _embedManager.PostStandingsEmbed(league);
-
                 if (standingsEmbed == null)
                 {
                     Console.WriteLine($"{DateTime.Now} LadderManager - No standings to display for league: {league.Name} ({league.Format} League).");
@@ -223,33 +229,37 @@ namespace Ladderbot4.Managers
 
                 try
                 {
-                    // Check if a message already exists in the channel
-                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    ulong messageId = _statesManager.GetStandingsMessageId(league);
+                    if (messageId != 0)
                     {
-                        // Try to fetch the existing message
                         var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message with the new embed
                             await existingMessage.ModifyAsync(msg =>
                             {
                                 msg.Embed = standingsEmbed;
-                                msg.Content = string.Empty; // Clear any existing text content
+                                msg.Content = string.Empty; // Clear any text content
                             });
                         }
                         else
                         {
-                            // Message was deleted, send a new one
+                            // Message was deleted; send a new one
                             var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                            _standingsMessageMap[channelId] = newMessage.Id;
+                            _statesManager.SetStandingsMessageId(league, newMessage.Id);
+
+                            // Backup to Git
+                            _backupManager.CopyAndBackupFilesToGit();
                         }
                     }
                     else
                     {
-                        // No existing message, send a new one
+                        // No existing message; send a new one
                         var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                        _standingsMessageMap[channelId] = newMessage.Id;
+                        _statesManager.SetStandingsMessageId(league, newMessage.Id);
+
+                        // Backup to Git
+                        _backupManager.CopyAndBackupFilesToGit();
                     }
                 }
                 catch (Exception ex)
@@ -271,7 +281,7 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(15));
+                await Task.Delay(TimeSpan.FromSeconds(13));
                 await SendTeamsToChannelAsync();
             }
         }
@@ -308,38 +318,42 @@ namespace Ladderbot4.Managers
 
                 try
                 {
-                    // Check if a message already exists in the channel
-                    if (_teamsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    ulong messageId = _statesManager.GetTeamsMessageId(league);
+                    if (messageId != 0)
                     {
-                        // Try to fetch the existing message
                         var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message with the new embed
                             await existingMessage.ModifyAsync(msg =>
                             {
                                 msg.Embed = teamsEmbed;
-                                msg.Content = string.Empty; // Clear any existing text content
+                                msg.Content = string.Empty; // Clear any text content
                             });
                         }
                         else
                         {
-                            // Message was deleted, send a new one
+                            // Message was deleted; send a new one
                             var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-                            _teamsMessageMap[channelId] = newMessage.Id;
+                            _statesManager.SetTeamsMessageId(league, newMessage.Id);
+
+                            // Backup to Git
+                            _backupManager.CopyAndBackupFilesToGit();
                         }
                     }
                     else
                     {
-                        // No existing message, send a new one
+                        // No existing message; send a new one
                         var newMessage = await channel.SendMessageAsync(embed: teamsEmbed);
-                        _teamsMessageMap[channelId] = newMessage.Id;
+                        _statesManager.SetTeamsMessageId(league, newMessage.Id);
+
+                        // Backup to Git
+                        _backupManager.CopyAndBackupFilesToGit();
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{DateTime.Now} LadderManager - Error updating teams in channel {channelId} for {league.Name} ({league.Format} League): {ex.Message}");
+                    Console.WriteLine($"{DateTime.Now} LadderManager - Error updating teams in channel {channelId} for league {league.Name}: {ex.Message}");
                 }
             }
         }

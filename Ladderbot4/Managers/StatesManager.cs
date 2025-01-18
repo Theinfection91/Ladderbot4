@@ -59,15 +59,15 @@ namespace Ladderbot4.Managers
             return false;
         }     
 
-        public ulong GetChallengesChannelId(League leagueRef)
+        public ulong GetChallengesChannelId(League league)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
             return state?.ChallengesChannelId ?? 0;
         }
 
-        public void SetChallengesChannelId(League leagueRef, ulong channelId)
+        public void SetChallengesChannelId(League league, ulong channelId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
@@ -76,36 +76,84 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public ulong GetStandingsChannelId(League leagueRef)
+        public ulong GetChallengesMessageId(League league)
         {
-            State state = GetStateByLeague(leagueRef);
-            return state?.StandingsChannelId ?? 0;
+            State state = GetStateByLeague(league);
+            return state?.ChallengesMessageId ?? 0;
         }
 
-        public void SetStandingsChannelId(League leagueRef, ulong channelId)
+        public void SetChallengesMessageId(League league, ulong messageId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.ChallengesMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
+        public ulong GetStandingsChannelId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.StandingsChannelId ?? 0;
+        }        
+
+        public void SetStandingsChannelId(League league, ulong channelId)
+        {
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
                 state.StandingsChannelId = channelId;
                 SaveAndReloadStatesAtlas();
             }
+        }        
+
+        public ulong GetStandingsMessageId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.StandingsMessageId ?? 0;
         }
 
-        public ulong GetTeamsChannelId(League leagueRef)
+        public void SetStandingsMessageId(League league, ulong messageId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.StandingsMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
+        public ulong GetTeamsChannelId(League league)
+        {
+            State state = GetStateByLeague(league);
             return state?.TeamsChannelId ?? 0;
         }
 
-        public void SetTeamsChannelId(League leagueRef, ulong channelId)
+        public void SetTeamsChannelId(League league, ulong channelId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
                 state.TeamsChannelId = channelId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
+        public ulong GetTeamsMessageId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.TeamsMessageId ?? 0;
+        }
+
+        public void SetTeamsMessageId(League league, ulong messageId)
+        {
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.TeamsMessageId = messageId;
                 SaveAndReloadStatesAtlas();
             }
         }
@@ -128,8 +176,11 @@ namespace Ladderbot4.Managers
             {
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
+                ChallengesMessageId = 0,
                 StandingsChannelId = 0,
-                TeamsChannelId = 0
+                StandingsMessageId = 0,
+                TeamsChannelId = 0,
+                TeamsMessageId = 0
             };
         }
 
