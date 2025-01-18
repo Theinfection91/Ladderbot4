@@ -80,7 +80,7 @@ namespace Ladderbot4.Managers
         {
             State state = GetStateByLeague(leagueRef);
             return state?.StandingsChannelId ?? 0;
-        }
+        }        
 
         public void SetStandingsChannelId(League leagueRef, ulong channelId)
         {
@@ -91,6 +91,22 @@ namespace Ladderbot4.Managers
                 state.StandingsChannelId = channelId;
                 SaveAndReloadStatesAtlas();
             }
+        }
+
+        public void SetStandingsMessageId(League league, ulong messageId)
+        {
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.StandingsMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
+        public ulong GetStandingsMessageId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.StandingsMessageId ?? 0;
         }
 
         public ulong GetTeamsChannelId(League leagueRef)

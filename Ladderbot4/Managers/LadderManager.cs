@@ -214,7 +214,6 @@ namespace Ladderbot4.Managers
 
                 // Get the standings embed for the league
                 Embed standingsEmbed = _embedManager.PostStandingsEmbed(league);
-
                 if (standingsEmbed == null)
                 {
                     Console.WriteLine($"{DateTime.Now} LadderManager - No standings to display for league: {league.Name} ({league.Format} League).");
@@ -223,33 +222,31 @@ namespace Ladderbot4.Managers
 
                 try
                 {
-                    // Check if a message already exists in the channel
-                    if (_standingsMessageMap.TryGetValue(channelId, out ulong messageId))
+                    ulong messageId = _statesManager.GetStandingsMessageId(league);
+                    if (messageId != 0)
                     {
-                        // Try to fetch the existing message
                         var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
 
                         if (existingMessage != null)
                         {
-                            // Edit the existing message with the new embed
                             await existingMessage.ModifyAsync(msg =>
                             {
                                 msg.Embed = standingsEmbed;
-                                msg.Content = string.Empty; // Clear any existing text content
+                                msg.Content = string.Empty; // Clear any text content
                             });
                         }
                         else
                         {
-                            // Message was deleted, send a new one
+                            // Message was deleted; send a new one
                             var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                            _standingsMessageMap[channelId] = newMessage.Id;
+                            _statesManager.SetStandingsMessageId(league, newMessage.Id);
                         }
                     }
                     else
                     {
-                        // No existing message, send a new one
+                        // No existing message; send a new one
                         var newMessage = await channel.SendMessageAsync(embed: standingsEmbed);
-                        _standingsMessageMap[channelId] = newMessage.Id;
+                        _statesManager.SetStandingsMessageId(league, newMessage.Id);
                     }
                 }
                 catch (Exception ex)
