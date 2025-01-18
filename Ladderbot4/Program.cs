@@ -153,13 +153,6 @@ namespace Ladderbot4
             // Register SlashCommand modules
             await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
 
-            var modules = _interactionService.Modules;
-            Console.WriteLine($"{DateTime.Now} - Registered Modules:");
-            foreach (var module in modules)
-            {
-                Console.WriteLine($"- {module.Name}");
-            }
-
             // Setup guild ID if not set
             _settingsManager.SetGuildIdProcess();
 
