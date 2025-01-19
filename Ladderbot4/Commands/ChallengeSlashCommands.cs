@@ -41,7 +41,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
         public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of team that sent the challenge")] string challengerTeam)
+            [Summary("challenger_team", "Name of team that sent the challenge"), Autocomplete] string challengerTeam)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace Ladderbot4.Commands
             [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
+            [Summary("challenger_team", "Name of challenger team"), Autocomplete] string challengerTeam)
             {
                 try
                 {

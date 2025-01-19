@@ -83,7 +83,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
                 // Return all leagues, sorted alphabetically by name
                 return allLeagues
                     .OrderBy(league => league.Name)
-                    .Select(league => new AutocompleteResult(league.Name, league.Name))
+                    .Select(league => new AutocompleteResult($"{league.Name} - ({league.Format} League)", league.Name))
                     .ToList();
             }
 
@@ -95,7 +95,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
 
             // Return filtered and sorted leagues
             return filteredLeagues
-                .Select(league => new AutocompleteResult(league.Name, league.Name))
+                .Select(league => new AutocompleteResult($"{league.Name} - ({league.Format} League)", league.Name))
                 .ToList();
         }
 
@@ -110,7 +110,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
                 // Return all leagues, sorted alphabetically by name
                 return teams
                     .OrderBy(team => team.League)
-                    .Select(team => new AutocompleteResult(team.Name, team.Name))
+                    .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} {team.LeagueFormat} League)", team.Name))
                     .ToList();
             }
 
@@ -122,7 +122,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
 
             // Return filtered and sorted leagues
             return filteredTeams
-                .Select(team => new AutocompleteResult(team.Name, team.Name))
+                .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} {team.LeagueFormat} League)", team.Name))
                 .ToList();
         }
     }
