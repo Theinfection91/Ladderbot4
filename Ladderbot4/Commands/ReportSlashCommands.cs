@@ -20,7 +20,7 @@ namespace Ladderbot4.Commands
         }
 
         [SlashCommand("win", "User-level command to report who won in a match.")]
-        public async Task ReportWinAsync(string winningTeamName)
+        public async Task ReportWinAsync([Summary("winning_team_name", "Name of winning team in match"), Autocomplete] string winningTeamName)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Ladderbot4.Commands
 
             [SlashCommand("win", "Admin-level command to report who won in a match.")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
-            public async Task ReportWinAdminAsync(string winningTeamName)
+            public async Task ReportWinAdminAsync([Summary("winning_team_name", "Name of winning team in match"), Autocomplete] string winningTeamName)
             {
                 try
                 {

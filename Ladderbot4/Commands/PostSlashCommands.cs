@@ -21,7 +21,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
         public async Task PostChallengesAsync(
-            [Summary("leagueName", "The League in which to post challenge data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post challenge data from."), Autocomplete] string leagueName)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("standings", "Slash command for posting standings of given League.")]
         public async Task PostStandingsAsync(
-            [Summary("leagueName", "The League in which to post standings data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post standings data from."), Autocomplete] string leagueName)
         {
             try
             {
@@ -82,7 +82,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("teams", "Slash commands for posting teams of given division")]
         public async Task PostTeamsAsync(
-            [Summary("leagueName", "The League in which to post teams data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post teams data from."), Autocomplete] string leagueName)
         {
             try
             {

@@ -32,41 +32,45 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
         // Handle autocomplete interactions when invoked
         private async Task HandleAutoCompleteAsync(SocketAutocompleteInteraction interaction)
         {
-            Console.WriteLine($"{interaction.Data.CommandName} {interaction.Data.Options.FirstOrDefault()?.Name}");
-            if (interaction.Data.CommandName == "team" && interaction.Data.Options.FirstOrDefault()?.Name == "register")
-            {
-                var leagueNameOption = interaction.Data.Options.FirstOrDefault(o => o.Name == "league_name");
-                if (leagueNameOption != null)
-                {
-                    string input = leagueNameOption.Value?.ToString()?.Trim() ?? string.Empty;
+            // TODO: REMOVE DEBUG LATER
+            //Console.WriteLine($"{interaction.Data.CommandName} {interaction.Data.Options.FirstOrDefault()?.Name}");
 
-                    var suggestions = string.IsNullOrWhiteSpace(input)
-                        ? GetLeagueNamesMatchingInput("") // Get all leagues if input is empty
-                        : GetLeagueNamesMatchingInput(input);
-
-                    await interaction.RespondAsync(suggestions);
-                }
-            }
-            else if (interaction.Data.CommandName == "challenge" || interaction.Data.CommandName == "challenge" && interaction.Data.Options.FirstOrDefault()?.Name == "admin")
+            // Determine the command and handle autocomplete accordingly
+            if (interaction.Data.CommandName == "team" ||
+                interaction.Data.CommandName == "challenge" ||
+                interaction.Data.CommandName == "post" ||
+                interaction.Data.CommandName == "report" ||
+                interaction.Data.CommandName == "set")
             {
-                // Check which option is currently being autocompleted
+                // Get the currently focused option
                 var focusedOption = interaction.Data.Current;
 
                 if (focusedOption != null)
                 {
                     string input = focusedOption.Value?.ToString()?.Trim() ?? string.Empty;
 
-                    // Determine whether to fetch teams for challenger_team or challenged_team
+                    // Handle team-related autocomplete options
                     List<AutocompleteResult> suggestions = focusedOption.Name switch
                     {
                         "challenger_team" => string.IsNullOrWhiteSpace(input)
-                            ? GetTeamNamesMatchingInput("") // Get all teams if input is empty
+                            ? GetTeamNamesMatchingInput("")
                             : GetTeamNamesMatchingInput(input),
                         "challenged_team" => string.IsNullOrWhiteSpace(input)
-                            ? GetTeamNamesMatchingInput("") // Get all teams if input is empty
+                            ? GetTeamNamesMatchingInput("")
                             : GetTeamNamesMatchingInput(input),
-                        _ => new List<AutocompleteResult>() // Empty suggestions if no match
+                        "league_name" => string.IsNullOrWhiteSpace(input)
+                            ? GetLeagueNamesMatchingInput("")
+                            : GetLeagueNamesMatchingInput(input),
+                        "team_name" => string.IsNullOrWhiteSpace(input)
+                            ? GetTeamNamesMatchingInput("")
+                            : GetTeamNamesMatchingInput(input),
+                        "winning_team_name" => string.IsNullOrWhiteSpace(input)
+                            ? GetTeamNamesMatchingInput("")
+                            : GetTeamNamesMatchingInput(input),
+                        _ => new List<AutocompleteResult>()
                     };
+
+                    // Respond with the suggestions
                     await interaction.RespondAsync(suggestions);
                 }
             }
@@ -110,7 +114,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
                 // Return all leagues, sorted alphabetically by name
                 return teams
                     .OrderBy(team => team.League)
-                    .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} {team.LeagueFormat} League)", team.Name))
+                    .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} | {team.LeagueFormat} League)", team.Name))
                     .ToList();
             }
 
@@ -122,7 +126,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
 
             // Return filtered and sorted leagues
             return filteredTeams
-                .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} {team.LeagueFormat} League)", team.Name))
+                .Select(team => new AutocompleteResult($"{team.Name} - ({team.League} | {team.LeagueFormat} League)", team.Name))
                 .ToList();
         }
     }
