@@ -23,7 +23,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("rank", "Sets the specified rank to the given team")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetRankAsync(
-            [Summary("teamName", "The team that will have their rank changed")] string teamName,
+            [Summary("team_name", "The team that will have their rank changed"), Autocomplete] string teamName,
             [Summary("rank", "The new rank the team will be awarded.")] int rank)
         {
             try
@@ -45,7 +45,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("challenges_channel_id", "For Admins to set the dynamic challenges message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetChallengesChannelIdAsync(
-            [Summary("leagueName", "League name for challenges data.")] string leagueName,
+            [Summary("league_name", "League name for challenges data."), Autocomplete] string leagueName,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
             try
@@ -67,7 +67,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("standings_channel_id", "For Admins to set the dynamic standings message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetStandingsChannelIdAsync(
-            [Summary("leagueName", "League name for standings data.")] string leagueName,
+            [Summary("league_name", "League name for standings data."), Autocomplete] string leagueName,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
             try
@@ -89,7 +89,7 @@ namespace Ladderbot4.Commands
         [SlashCommand("teams_channel_id", "For Admins to set the dynamic teams message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetTeamsChannelIdAsync(
-            [Summary("leagueName", "League name for teams data.")] string leagueName,
+            [Summary("league_name", "League name for teams data."), Autocomplete] string leagueName,
             [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
         {
             try
