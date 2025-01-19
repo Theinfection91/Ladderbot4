@@ -10,7 +10,7 @@
 
 # Ladderbot 4.2.0 - What's New
 
-## Overview
+## Simple Overview
 ### (Merge 0)
 The first update to the **4.2.0 branch** introduces significant changes to support flexible league configurations and lays the groundwork for enhanced data handling. These changes include the decoupling of team sizes for leagues (XvX), a new `Data` class structure, and the replacement of several JSON files for improved organization and scalability. This marks the first step toward the fully realized 4.2.0 update.
 
@@ -23,9 +23,34 @@ The third update introduces **Dynamic Challenge Rank Updates**, a feature that e
 ### (Merge 3)
 The fourth update addresses **Duplicate Automated Messages** and improves JSON file handling, resolving issues where states were not properly loading after being cloned from the repository. Automated message processes now properly save and retrieve message IDs, preventing duplicates and ensuring a smoother user experience.
 
+### (Merge 4)
+
+The fifth update introduces a comprehensive custom autocomplete process for Ladderbot commands. The system dynamically pulls and filters relevant options, such as league names and team names, ensuring efficient and user-friendly command execution.
+
 ---
 
-## What's New in 4.2.0 (Merge 3) - (01/18/2025)
+## (Merge 4 - Detailed) - (01/19/2025)
+
+### League Name Autocomplete
+- `/team register` now supports a custom autocomplete system for the `league_name` parameter:
+  - Retrieves all league names dynamically.
+  - Displays league names sorted alphabetically, filtering results as the user types.
+  - Each league name is displayed with its format for better clarity (e.g., "1v1," "2v2").
+
+### Team Name Autocomplete
+- Commands now include autocomplete for team names with additional contextual details:
+  - **`/challenge` and `/challenge admin`**:
+    - Fetches team names dynamically for both `challenger_team` and `challenged_team` parameters.
+    - Displays team names with their associated leagues for better usability.
+  - **`/cancel`**:
+    - Added autocomplete for both user-level and admin-level commands, ensuring accurate team selection when canceling challenges.
+  - **Future Suggestions**:
+    - Filter challenge-related options to show only teams eligible for the action.
+    - Incorporate user-specific context to display relevant league/team options.
+
+---
+
+## (Merge 3 - Detailed) - (01/18/2025)
 
 ### Bug Fixes and Enhancements
 
@@ -41,7 +66,7 @@ The fourth update addresses **Duplicate Automated Messages** and improves JSON f
 
 ---
 
-## What's New in 4.2.0 (Merge 2) - (01/17/2025)
+## (Merge 2 - Detailed) - (01/17/2025)
 
 ### Dynamic Challenge Rank Updates
 
@@ -57,7 +82,7 @@ The fourth update addresses **Duplicate Automated Messages** and improves JSON f
 
 ---
 
-## What's New in 4.2.0 (Merge 1) - (01/14/2025)
+## (Merge 1 - Detailed) - (01/14/2025)
 
 ### Feature Enhancements
 
@@ -89,7 +114,7 @@ The fourth update addresses **Duplicate Automated Messages** and improves JSON f
 
 ---
 
-## What's New in 4.2.0 (Merge 0) - (01/13/2025)
+## (Merge 0 - Detailed) - (01/13/2025)
 
 ### Feature Enhancements
 
@@ -123,7 +148,6 @@ The fourth update addresses **Duplicate Automated Messages** and improves JSON f
 ## Next Steps
 This merge represents the foundation of the 4.2.0 update. Future updates will build upon these changes, introducing features such as:
 - **Member profile stats.**
-- **Autocomplete suggestions for league names.**
 - **Additional bug fixes and enhancements.**
 
 For detailed documentation on setup and configuration, refer to the [Ladderbot4 Documentation](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md).
