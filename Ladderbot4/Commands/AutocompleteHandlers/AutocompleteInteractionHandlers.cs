@@ -32,9 +32,6 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
         // Handle autocomplete interactions when invoked
         private async Task HandleAutoCompleteAsync(SocketAutocompleteInteraction interaction)
         {
-            // TODO: REMOVE DEBUG LATER
-            //Console.WriteLine($"{interaction.Data.CommandName} {interaction.Data.Options.FirstOrDefault()?.Name}");
-
             // Determine the command and handle autocomplete accordingly
             if (interaction.Data.CommandName == "team" ||
                 interaction.Data.CommandName == "challenge" ||

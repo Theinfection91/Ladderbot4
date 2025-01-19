@@ -145,7 +145,6 @@ namespace Ladderbot4
 
             // Load Non-Slash Commands
             await _commands.AddModuleAsync<NonSlashCommands>(_services);
-            Console.WriteLine($"{DateTime.Now} - Non-SlashCommand modules added to CommandService");
 
             // Initialize Autocomplete Interaction Handler
             var autocompleteHandler = _services.GetRequiredService<AutocompleteInteractionHandlers>();
