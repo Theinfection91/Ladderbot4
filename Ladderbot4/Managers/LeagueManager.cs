@@ -129,6 +129,19 @@ namespace Ladderbot4.Managers
             return _leagueRegistry.Leagues;
         }
 
+        public List<Team> GetAllTeams()
+        {
+            List<Team> teams = [];
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    teams.Add(team);
+                }
+            }
+            return teams;
+        }
+
         public League GetLeagueByName(string leagueName)
         {
             foreach (League league in _leagueRegistry.Leagues)
