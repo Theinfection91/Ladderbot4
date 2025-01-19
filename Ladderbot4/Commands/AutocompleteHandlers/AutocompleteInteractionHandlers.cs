@@ -41,12 +41,9 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
                     // Get the user input from the league_name parameter
                     string input = leagueNameOption.Value?.ToString()?.Trim() ?? string.Empty;
 
-                    Console.WriteLine($"Autocomplete Input: '{input}'"); // Debugging line
-
                     // Handle empty or null input
                     if (string.IsNullOrWhiteSpace(input))
                     {
-                        Console.WriteLine("Input is empty or whitespace, returning all leagues.");
                         await interaction.RespondAsync(GetLeagueNamesMatchingInput("")); // Pass empty string to get all leagues
                         return;
                     }
@@ -70,7 +67,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
             {
                 // Return all leagues, sorted alphabetically by name
                 return allLeagues
-                    .OrderBy(league => league.Name) // Sort alphabetically by league name
+                    .OrderBy(league => league.Name)
                     .Select(league => new AutocompleteResult(league.Name, league.Name))
                     .ToList();
             }
@@ -78,7 +75,7 @@ namespace Ladderbot4.Commands.AutocompleteHandlers
             // Filter leagues based on the input and sort them alphabetically
             var filteredLeagues = allLeagues
                 .Where(league => league.Name.Contains(input, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(league => league.Name) // Sort alphabetically by league name
+                .OrderBy(league => league.Name)
                 .ToList();
 
             // Return filtered and sorted leagues
