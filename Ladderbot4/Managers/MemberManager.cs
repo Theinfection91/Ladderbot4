@@ -12,7 +12,15 @@ namespace Ladderbot4.Managers
 {
     public class MemberManager
     {
-        public MemberManager() { }
+        private readonly MembersListData _membersListData;
+
+        private MembersList _membersList;
+
+        public MemberManager(MembersListData membersListData)
+        {
+            _membersListData = membersListData;
+            _membersList = _membersListData.Load();
+        }
 
         public Member CreateMemberObject(ulong discordId, string displayName)
         {

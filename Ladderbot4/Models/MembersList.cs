@@ -8,11 +8,11 @@ namespace Ladderbot4.Models
 {
     public class MembersList
     {
-        public List<Member> AllMembers { get; set; }
+        public List<MemberProfile> Members { get; set; }
 
         public MembersList()
         {
-            AllMembers = [];
+            Members = [];
         }
     }
 }
