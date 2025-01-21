@@ -687,7 +687,7 @@ namespace Ladderbot4.Managers
         public Embed AddMemberSuccessEmbed(Team team)
         {
             var embedBuilder = new EmbedBuilder()
-            .WithTitle("🎉 Add Member Success!")
+            .WithTitle("👤 Add Member Success!")
             .WithColor(Color.Green)
             .WithDescription($"Member(s) was successfully added to team.")
             .AddField("Team Name", $"**{team.Name}**", inline: true)

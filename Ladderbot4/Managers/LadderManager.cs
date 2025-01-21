@@ -1403,7 +1403,7 @@ namespace Ladderbot4.Managers
         #region Add Member Logic
         public Embed AddMemberToTeamProcess(string teamName, List<IUser> membersList)
         {
-            // Load
+            // Load 
             _leagueManager.LoadLeagueRegistry();
 
             if (!_leagueManager.IsTeamNameUnique(teamName))
@@ -1420,13 +1420,22 @@ namespace Ladderbot4.Managers
                 {
                     if (!_memberManager.IsMemberOnTeamInLeague(member, league.Teams))
                     {
-                        team.Members.Add(member);
-                        _leagueManager.SaveAndReloadLeagueRegistry();
-                        return _embedManager.AddMemberSuccessEmbed(team);
+                        // Check if team is full
+                        if (!team.IsTeamFull())
+                        {
+                            team.Members.Add(member);
+                            _leagueManager.SaveAndReloadLeagueRegistry();
+                            _backupManager.CopyAndBackupFilesToGit();
+                            return _embedManager.AddMemberSuccessEmbed(team);
+                        }
+                        else
+                        {
+                            return _embedManager.AddMemberErrorEmbed($"The given team is currently full and can not accept any more members. (Team: **{team.Name}** - League Format: **{team.LeagueFormat}** - Team Max Size: **{team.Size}** - Current Members: **{team.GetAllMemberNamesToStr()}**)");
+                        }
                     }
                     else
                     {
-                        return _embedManager.AddMemberErrorEmbed($"A member in the given list is already on a team in the given team's league. Players may only be on one team per league. Try again. (Name: {member.DisplayName} - Discord ID: {member.DiscordId})");
+                        return _embedManager.AddMemberErrorEmbed($"A member in the given list is already on a team in the given team's league. Players may only be on one team per league. Try again. (Name: **{member.DisplayName}** - Discord ID: **{member.DiscordId}**)");
                     }                    
                 }
             }

@@ -12,7 +12,7 @@ namespace Ladderbot4.Commands
     [Group("post", "Slash commands for posting standings/challenges/teams.")]
     public class PostSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
-        public readonly LadderManager _ladderManager;
+        private readonly LadderManager _ladderManager;
 
         public PostSlashCommands(LadderManager ladderManager)
         {
