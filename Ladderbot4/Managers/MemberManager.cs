@@ -206,6 +206,7 @@ namespace Ladderbot4.Managers
                 if (!IsMemberProfileRegistered(member.DiscordId))
                 {
                     AddNewMemberProfile(CreateMemberProfile(member.DiscordId, member.DisplayName));
+
                     Console.WriteLine($"{DateTime.Now} MemberManager - A Discord ID was found registered in a league but not registered to the MembersList. Creating new MemberProfile - Name: {member.DisplayName} - Discord ID: {member.DiscordId}");
                 }
             }

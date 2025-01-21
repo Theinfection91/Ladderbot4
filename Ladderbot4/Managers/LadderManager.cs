@@ -1400,6 +1400,40 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region Add Member Logic
+        public Embed AddMemberToTeamProcess(string teamName, List<IUser> membersList)
+        {
+            // Load
+            _leagueManager.LoadLeagueRegistry();
+
+            if (!_leagueManager.IsTeamNameUnique(teamName))
+            {
+                // Convert IUser list to Member
+                List<Member> members = _memberManager.ConvertMembersListToObjects(membersList);
+
+                // Grab team and league
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                League? league = _leagueManager.GetLeagueFromTeamName(team.Name);
+
+                // Check if member is already on team in league
+                foreach (Member member in members)
+                {
+                    if (!_memberManager.IsMemberOnTeamInLeague(member, league.Teams))
+                    {
+                        team.Members.Add(member);
+                        _leagueManager.SaveAndReloadLeagueRegistry();
+                        return _embedManager.AddMemberSuccessEmbed(team);
+                    }
+                    else
+                    {
+                        return _embedManager.AddMemberErrorEmbed($"A member in the given list is already on a team in the given team's league. Players may only be on one team per league. Try again. (Name: {member.DisplayName} - Discord ID: {member.DiscordId})");
+                    }                    
+                }
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        }
+        #endregion
+
         #region Git Commands Logic
         public string GitBranchBackupDataProcess(SocketInteractionContext context, string optionalName)
         {

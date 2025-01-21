@@ -683,6 +683,34 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region Add Member
+        public Embed AddMemberSuccessEmbed(Team team)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("🎉 Add Member Success!")
+            .WithColor(Color.Green)
+            .WithDescription($"Member(s) was successfully added to team.")
+            .AddField("Team Name", $"**{team.Name}**", inline: true)
+            .AddField("Members", team.GetAllMemberNamesToStr(), inline: false)
+            .WithFooter("Good luck to your team!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddMemberErrorEmbed(string message)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Add Member Error")
+                .WithColor(Color.Red)
+                .WithDescription(message)
+                .WithFooter("Add Member failed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+        #endregion
+
         #region League/Team Not Found
         public Embed TeamNotFoundErrorEmbed(string teamName)
         {
