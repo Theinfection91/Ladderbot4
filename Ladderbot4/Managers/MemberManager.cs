@@ -131,6 +131,7 @@ namespace Ladderbot4.Managers
             return false;
         }
 
+        // TODO - Fix this. Its allowing any member amount.
         public bool IsMemberCountCorrect(List<Member> members, int teamSize)
         {
             if (members.Count.Equals(teamSize)) return true;
@@ -192,6 +193,18 @@ namespace Ladderbot4.Managers
             }
 
             return membersList;
+        }
+
+        public void ValidateMembersListData(List<Member> members)
+        {
+            foreach (Member member in members)
+            {
+                if (!IsMemberProfileRegistered(member.DiscordId))
+                {
+                    AddNewMemberProfile(CreateMemberProfile(member.DiscordId, member.DisplayName));
+                    Console.WriteLine($"{DateTime.Now} MemberManager - A Discord ID was found registered in a league but not registered to the MembersList. Creating new MemberProfile - Name: {member.DisplayName} - Discord ID: {member.DiscordId}");
+                }
+            }
         }
 
         public void AddNewMemberProfile(MemberProfile memberProfile)
