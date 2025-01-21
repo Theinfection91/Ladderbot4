@@ -142,7 +142,7 @@ namespace Ladderbot4.Managers
             return teams;
         }
 
-        public League GetLeagueByName(string leagueName)
+        public League? GetLeagueByName(string leagueName)
         {
             foreach (League league in _leagueRegistry.Leagues)
             {
@@ -154,7 +154,7 @@ namespace Ladderbot4.Managers
             return null;
         }
 
-        public League GetLeagueFromTeamName(string teamName)
+        public League? GetLeagueFromTeamName(string teamName)
         {
             foreach (League league in _leagueRegistry.Leagues)
             {

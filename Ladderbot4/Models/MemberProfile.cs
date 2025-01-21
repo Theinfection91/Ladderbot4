@@ -31,7 +31,7 @@ namespace Ladderbot4.Models
         public override bool Equals(object? obj)
         {
             // Check if the object is a Member
-            if (obj is Member otherMember)
+            if (obj is MemberProfile otherMember)
             {
                 return this.DiscordId == otherMember.DiscordId;
             }

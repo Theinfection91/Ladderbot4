@@ -527,6 +527,9 @@ namespace Ladderbot4.Managers
                         // Add team to league
                         _leagueManager.AddTeamToLeague(team, league);
 
+                        // TODO: Check if members exist in MembersList database
+                        _memberManager.HandleMemberProfileRegisterProcess(team);
+
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
@@ -893,12 +896,13 @@ namespace Ladderbot4.Managers
                             // Reassign ranks for the entire League
                             ReassignRanksInLeague(league);
 
-                            // Add wins and losses correctly
+                            // Add wins and losses to Team stats
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
-                            // TODO - Add wins and losses to Member Profiles
-
+                            // TODO: Handle win, loss, and match count stats for MemberProfiles
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                             // TODO - Create Match object to add to History (Past Matches)
 
@@ -929,8 +933,9 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
-                            // TODO: Add wins and losses to Member Profiles
-
+                            // TODO: Handle win, loss, and match count stats for MemberProfiles
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                             // TODO: Create Match object to add to History (Past Matches)
 
@@ -1014,8 +1019,9 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToWins(winningTeam, 1);
                         _teamManager.AddToLosses(losingTeam, 1);
 
-                        // TODO - Add wins and losses to Member Profiles
-
+                        // TODO: Handle win, loss, and match count stats for MemberProfiles
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                         // TODO - Create Match object to add to History (Past Matches)
 
@@ -1046,8 +1052,9 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToWins(winningTeam, 1);
                         _teamManager.AddToLosses(losingTeam, 1);
 
-                        // TODO: Add wins and losses to Member Profiles
-
+                        // TODO: Handle win, loss, and match count stats for MemberProfiles
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                         // TODO: Create Match object to add to History (Past Matches)
 

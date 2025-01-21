@@ -14,7 +14,7 @@ namespace Ladderbot4.Data
 
         }
 
-        public void AddMember(MemberProfile member)
+        public void AddMemberProfile(MemberProfile member)
         {
             MembersList membersList = Load();
 
@@ -26,9 +26,10 @@ namespace Ladderbot4.Data
             }
         }
 
-        public void RemoveMember(MemberProfile member)
+        public void RemoveMemberProfile(MemberProfile member)
         {
-            // TODO - Don't really need for now as Members aren't meant to be removed from the list.
+            // TODO - Don't really need for now as MemberProfile's aren't meant to be removed from the list.
+            // Could probably use later on to remove old profiles on list after so much time, but that's advanced and not needed for now.
         }
     }
 }

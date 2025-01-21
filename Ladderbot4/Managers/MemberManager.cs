@@ -75,6 +75,13 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public void RegisterNewMemberProfile(ulong discordId, string displayName)
+        {
+            MemberProfile memberProfile = CreateMemberProfile(discordId, displayName);
+            AddNewMemberProfile(memberProfile);
+            SaveAndReloadMembersList();
+        }
+
         /// <summary>
         /// Handles the adding of 1 to TotalMatchCount, and either Wins or Losses for each MemberProfile's in a given team.
         /// </summary>
@@ -99,6 +106,29 @@ namespace Ladderbot4.Managers
                 }
             }
             SaveAndReloadMembersList();
+        }
+
+        public void HandleMemberProfileRegisterProcess(Team team)
+        {
+            foreach (Member member in team.Members)
+            {
+                if (!IsMemberProfileRegistered(member.DiscordId))
+                {
+                    RegisterNewMemberProfile(member.DiscordId, member.DisplayName);
+                }
+            }
+        }
+
+        public bool IsMemberProfileRegistered(ulong discordId)
+        {
+            foreach (MemberProfile memberProfile in _membersList.Members)
+            {
+                if (memberProfile.DiscordId.Equals(discordId))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool IsMemberCountCorrect(List<Member> members, int teamSize)
@@ -162,6 +192,17 @@ namespace Ladderbot4.Managers
             }
 
             return membersList;
+        }
+
+        public void AddNewMemberProfile(MemberProfile memberProfile)
+        {
+            _membersListData.AddMemberProfile(memberProfile);
+            LoadMembersList();
+        }
+
+        public MemberProfile CreateMemberProfile(ulong discordId, string displayName)
+        {
+            return new MemberProfile(discordId, displayName);
         }
 
         public Member CreateMemberObject(ulong discordId, string displayName)
