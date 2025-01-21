@@ -118,7 +118,7 @@ namespace Ladderbot4.Commands
             }
 
             #region Add Member Command
-            [SlashCommand("member", "Admin command to add members to given team")]
+            [SlashCommand("member", "Admin command to add members to given team (For 21v21+)")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task AddMemberAsync(
             [Summary("team_name", "Name of the team to add member(s) to."), Autocomplete] string teamName,
