@@ -539,7 +539,7 @@ namespace Ladderbot4.Managers
 
                         return _embedManager.RegisterTeamToLeagueSuccessEmbed(team, league);
                     }
-                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members will need to add remaining members using soon to be implemented commands in `/team add`.");
+                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members require 20 members in a command and will need to add remaining members using soon to be implemented commands in `/team add`.");
                 }
                 return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
             }

@@ -131,14 +131,18 @@ namespace Ladderbot4.Managers
             return false;
         }
 
-        // TODO - Fix this. Its allowing any member amount.
         public bool IsMemberCountCorrect(List<Member> members, int teamSize)
         {
-            if (members.Count.Equals(teamSize)) return true;
+            // Case 1: For team sizes of 20 or less, the member count must match the team size.
+            if (teamSize <= 20 && members.Count == teamSize)
+                return true;
 
-            else if (teamSize >= 21 && members.Count >= 20) return true;
-
-            else return false;
+            // Case 2: For team sizes 21 or greater, exactly 20 members must be provided.
+            if (teamSize >= 21 && members.Count == 20)
+                return true;
+                
+            // Any other case is invalid.
+            return false;
         }
 
         public bool IsMemberOnTeamInLeague(Member member, List<Team> leagueTeams)
