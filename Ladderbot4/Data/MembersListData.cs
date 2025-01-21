@@ -13,5 +13,22 @@ namespace Ladderbot4.Data
         {
 
         }
+
+        public void AddMember(MemberProfile member)
+        {
+            MembersList membersList = Load();
+
+            if (membersList != null)
+            {
+                membersList.Members.Add(member);
+
+                Save(membersList);
+            }
+        }
+
+        public void RemoveMember(MemberProfile member)
+        {
+            // TODO - Don't really need for now as Members aren't meant to be removed from the list.
+        }
     }
 }

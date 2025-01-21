@@ -22,36 +22,83 @@ namespace Ladderbot4.Managers
             _membersList = _membersListData.Load();
         }
 
-        public Member CreateMemberObject(ulong discordId, string displayName)
+        public void SaveMembersList()
         {
-            return new Member(discordId, displayName);
+            _membersListData.Save(_membersList);
         }
 
-        public List<Member> ConvertMembersListToObjects(List<IUser> members)
+        public void LoadMembersList()
         {
-            List<Member> membersList = new List<Member>();
+            _membersList = _membersListData.Load();
+        }
 
-            foreach (IUser member in members)
+        public void SaveAndReloadMembersList()
+        {
+            SaveMembersList();
+            LoadMembersList();
+        }
+        
+        public void AddToMemberProfileWins(MemberProfile member, int amount)
+        {
+            member.Wins += amount;
+        }
+
+        public void AddToMemberProfileLosses(MemberProfile member, int amount)
+        {
+            member.Losses += amount;
+        }
+
+        public void AddToMemberProfileChampionships(MemberProfile member, int amount)
+        {
+            member.LeagueChampionships += amount;
+        }
+
+        public void AddToMemberProfileMatchCount(MemberProfile member, int amount)
+        {
+            member.TotalMatchCount += amount;
+        }
+
+        public void AddToMemberProfileTeamCount(MemberProfile member, int amount)
+        {
+            member.TotalTeamCount += amount;
+        }
+
+        public MemberProfile? GetMemberProfileFromDiscordId(ulong discordId)
+        {
+            foreach (var member in _membersList.Members)
             {
-                string displayName;
-
-                // Check if the member can be cast to SocketGuildUser
-                if (member is SocketGuildUser guildUser)
+                if (member.DiscordId.Equals(discordId))
                 {
-                    // If the user has a nickname (DisplayName), use it
-                    displayName = !string.IsNullOrEmpty(guildUser.DisplayName) ? guildUser.DisplayName : guildUser.Username;
+                    return member;
                 }
-                else
-                {
-                    // If it's not a guild user, use the global Username
-                    displayName = member.Username;
-                }
-
-                // Create a new Member object with the Discord ID and display name
-                membersList.Add(new Member(member.Id, displayName));
             }
+            return null;
+        }
 
-            return membersList;
+        /// <summary>
+        /// Handles the adding of 1 to TotalMatchCount, and either Wins or Losses for each MemberProfile's in a given team.
+        /// </summary>
+        /// <param name="team">The team to iterate through and increment each members stats</param>
+        /// <param name="isWinner">Determines if wins or losses are added to stats</param>
+        public void HandleMemberProfileWinLossMatchProcess(Team team, bool isWinner)
+        {
+            foreach (Member member in team.Members)
+            {
+                MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                if (memberProfile != null)
+                {
+                    if (isWinner)
+                    {
+                        AddToMemberProfileWins(memberProfile, 1);                       
+                    }
+                    else
+                    {
+                        AddToMemberProfileLosses(memberProfile, 1);
+                    }
+                    AddToMemberProfileMatchCount(memberProfile, 1);
+                }
+            }
+            SaveAndReloadMembersList();
         }
 
         public bool IsMemberCountCorrect(List<Member> members, int teamSize)
@@ -88,6 +135,38 @@ namespace Ladderbot4.Managers
                 }
             }
             return false;
+        }       
+
+        public List<Member> ConvertMembersListToObjects(List<IUser> members)
+        {
+            List<Member> membersList = new List<Member>();
+
+            foreach (IUser member in members)
+            {
+                string displayName;
+
+                // Check if the member can be cast to SocketGuildUser
+                if (member is SocketGuildUser guildUser)
+                {
+                    // If the user has a nickname (DisplayName), use it
+                    displayName = !string.IsNullOrEmpty(guildUser.DisplayName) ? guildUser.DisplayName : guildUser.Username;
+                }
+                else
+                {
+                    // If it's not a guild user, use the global Username
+                    displayName = member.Username;
+                }
+
+                // Create a new Member object with the Discord ID and display name
+                membersList.Add(new Member(member.Id, displayName));
+            }
+
+            return membersList;
+        }
+
+        public Member CreateMemberObject(ulong discordId, string displayName)
+        {
+            return new Member(discordId, displayName);
         }
     }
 }
