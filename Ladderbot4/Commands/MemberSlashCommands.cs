@@ -24,15 +24,14 @@ namespace Ladderbot4.Commands
         {
             try
             {
-                await Context.Interaction.DeferAsync();
                 var result = _ladderManager.MemberMyStatsProcess(Context);
-                await Context.Interaction.FollowupAsync(embed: result);
+                await Context.Interaction.RespondAsync(embed: result, ephemeral: true);
             }
             catch (Exception ex)
             {
                 string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
                 var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
-                await Context.Interaction.FollowupAsync(embed: errorResult);
+                await Context.Interaction.RespondAsync(embed: errorResult, ephemeral: true);
             }
         }
     }
