@@ -27,6 +27,56 @@ The fourth update addresses **Duplicate Automated Messages** and improves JSON f
 
 The fifth update introduces a comprehensive custom autocomplete process for Ladderbot commands. The system dynamically pulls and filters relevant options, such as league names and team names, ensuring efficient and user-friendly command execution.
 
+### (Merge 5)
+The sixth update reimplements **Member Stats** and adds **Member Leaderboards**, introducing robust support for tracking individual member statistics and adding new commands for personalized data retrieval and leaderboards. Key features include `members_list.json` creation, real-time validation and updating of member profiles, and new methods for integrating stats into league operations.
+
+---
+
+## (Merge 5 - Detailed) - (01/22/2025)
+
+### Member Stats Rework
+- **New MembersListData Class**:
+  - Introduced `MembersListData` to manage individual member profiles and stats.
+  - Created methods to add members to teams, and update stats like wins, losses, matches, and league participation.
+  - Data is now stored in `members_list.json`, ensuring persistence and scalability.
+
+- **Validation and Synchronization**:
+  - Added a `ValidateMembersListData` method to synchronize data at startup:
+    - Checks all Discord IDs registered to leagues.
+    - Automatically creates a profile for any missing member.
+  - Ensures consistent data integrity across leagues and teams.
+
+### Command Enhancements
+- **New Member Commands**:
+  - **`/member mystats`**:
+    - Displays a personalized embed with the user's stats (e.g., wins, losses, total seasons).
+    - Stats are now updated dynamically during league operations.
+  - **`/member leaderboard`**:
+    - Displays the top 25 members based on performance metrics.
+    - Ephemeral message ensures user privacy during leaderboard retrieval.
+
+- **Team Member Validation**:
+  - Enhanced processes for adding members to teams:
+    - Validates if a member is already on a team in the league.
+    - Ensures team member limits are respected (e.g., for large teams of 21+ members).
+
+### League Integration
+- **Stat Tracking in League Operations**:
+  - **Ending Ladders**:
+    - League Championship stat increments for members of first-place teams.
+    - Total Seasons stat updates for all league participants.
+  - **Starting Ladders**:
+    - Introduced logic to ensure persistent teams across seasons still update member stats correctly.
+  - **Team Registration**:
+    - Automatically registers members to profiles during team creation.
+
+### Bug Fixes and Miscellaneous Updates
+- **Stat Calculation Adjustments**:
+  - Replaced "Total Teams" stat with "Total Seasons," reflecting the number of seasons completed by a member.
+  - Ensured accurate stat updates when teams persist across multiple seasons.
+- **Modal Confirmation Fixes**:
+  - Updated `/member mystats` command to use ephemeral responses for better UX.
+
 ---
 
 ## (Merge 4 - Detailed) - (01/19/2025)
