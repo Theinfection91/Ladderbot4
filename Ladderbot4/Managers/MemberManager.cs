@@ -58,7 +58,7 @@ namespace Ladderbot4.Managers
             member.TotalMatchCount += amount;
         }
 
-        public void AddToMemberProfileTeamCount(MemberProfile member, int amount)
+        public void AddToMemberProfileSeasonsCount(MemberProfile member, int amount)
         {
             member.TotalSeasons += amount;
         }
@@ -124,14 +124,20 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void HandleMemberProfileTeamCountProcess(Team team)
+        public void HandleMemberProfileSeasonCountProcess(League league)
         {
-            foreach (Member member in team.Members)
+            foreach (Team team in league.Teams)
             {
-                MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
-                if (memberProfile != null)
+                if (team != null)
                 {
-                    AddToMemberProfileTeamCount(memberProfile, 1);                    
+                    foreach (Member member in team.Members)
+                    {
+                        MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                        if (memberProfile != null)
+                        {
+                            AddToMemberProfileSeasonsCount(memberProfile, 1);
+                        }
+                    }
                 }
             }
             SaveAndReloadMembersList();

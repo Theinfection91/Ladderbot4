@@ -428,11 +428,14 @@ namespace Ladderbot4.Managers
                     // Remove league index from challenges entirely
                     _challengeManager.RemoveLeagueFromChallenges(league.Name);
 
-                    // Add league champion stat to members
+                    // Add league champion stat to first place member(s)
                     if (team != null)
                     {
                         _memberManager.HandleMemberProfileLeagueChampionProcess(team);
                     }
+
+                    // Add to total season count for each member in the league
+                    _memberManager.HandleMemberProfileSeasonCountProcess(league);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -542,9 +545,6 @@ namespace Ladderbot4.Managers
 
                         // Check if members exist in MembersList database
                         _memberManager.HandleMemberProfileRegisterProcess(team);
-
-                        // Add to members team count stat
-                        _memberManager.HandleMemberProfileTeamCountProcess(team);
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
