@@ -158,6 +158,18 @@ namespace Ladderbot4.Managers
             return members;
         }
 
+        public Team? GetFirstPlaceTeamInLeague(League league)
+        {
+            foreach (Team team in league.Teams)
+            {
+                if (team.Rank.Equals(1))
+                {
+                    return team;
+                }
+            }
+            return null;
+        }
+
         public League? GetLeagueByName(string leagueName)
         {
             foreach (League league in _leagueRegistry.Leagues)

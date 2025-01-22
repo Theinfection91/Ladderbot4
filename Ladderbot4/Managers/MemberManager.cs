@@ -119,6 +119,32 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public void HandleMemberProfileTeamCountProcess(Team team)
+        {
+            foreach (Member member in team.Members)
+            {
+                MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                if (memberProfile != null)
+                {
+                    AddToMemberProfileTeamCount(memberProfile, 1);                    
+                }
+            }
+            SaveAndReloadMembersList();
+        }
+
+        public void HandleMemberProfileLeagueChampionProcess(Team team)
+        {
+            foreach (Member member in team.Members)
+            {
+                MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                if (memberProfile != null)
+                {
+                    AddToMemberProfileChampionships(memberProfile, 1);
+                }
+            }
+            SaveAndReloadMembersList();
+        }
+
         public bool IsMemberProfileRegistered(ulong discordId)
         {
             foreach (MemberProfile memberProfile in _membersList.Members)
