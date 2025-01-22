@@ -19,7 +19,7 @@ namespace Ladderbot4.Models
 
         // Derived Stats
         public int TotalMatchCount { get; set; } = 0;
-        public int TotalTeamCount { get; set; } = 0;
+        public int TotalSeasons { get; set; } = 0;
         public double WinLossRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
         public MemberProfile(ulong discordId, string displayName)

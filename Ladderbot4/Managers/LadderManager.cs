@@ -1465,7 +1465,7 @@ namespace Ladderbot4.Managers
             return _embedManager.MemberMyStatsErrorEmbed($"The Discord ID (**{context.User.Id}**) is not registered in the Members List database. Members are dynamically added to the list when they join a team in any league.");
         }
 
-        public Embed MemberLeaderboardProcess(SocketInteractionContext context)
+        public Embed MemberLeaderboardProcess()
         {
             return _embedManager.MemberLeaderboardEmbed(_memberManager.GetAllMemberProfiles());
         }

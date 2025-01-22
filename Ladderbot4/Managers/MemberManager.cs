@@ -60,7 +60,7 @@ namespace Ladderbot4.Managers
 
         public void AddToMemberProfileTeamCount(MemberProfile member, int amount)
         {
-            member.TotalTeamCount += amount;
+            member.TotalSeasons += amount;
         }
 
         public MemberProfile? GetMemberProfileFromDiscordId(ulong discordId)

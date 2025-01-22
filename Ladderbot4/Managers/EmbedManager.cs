@@ -720,7 +720,7 @@ namespace Ladderbot4.Managers
                 .AddField("❌ Losses", memberProfile.Losses.ToString(), inline: true)
                 .AddField("🎖️ League Championships", memberProfile.LeagueChampionships.ToString(), inline: true)
                 .AddField("📊 Matches Played", memberProfile.TotalMatchCount.ToString(), inline: true)
-                .AddField("👥 Total Teams", memberProfile.TotalTeamCount.ToString(), inline: true)
+                .AddField("👥 Total Teams", memberProfile.TotalSeasons.ToString(), inline: true)
                 .AddField("📈 Win/Loss Ratio", $"{(memberProfile.WinLossRatio * 100):0.00}%", inline: true)
                 .WithFooter("Check back as your stats update as you play!")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -764,7 +764,7 @@ namespace Ladderbot4.Managers
             {
                 string stats = $"**Wins**: {member.Wins} | **Losses**: {member.Losses} | " +
                        $"**W/L Ratio**: {(member.WinLossRatio * 100):F2}%\n" +
-                       $"**Matches Played**: {member.TotalMatchCount} | **Total Teams**: {member.TotalTeamCount}\n" +
+                       $"**Matches Played**: {member.TotalMatchCount} | **Total Teams**: {member.TotalSeasons}\n" +
                        $"**League Championships**: {member.LeagueChampionships}";
 
                 embedBuilder.AddField(member.DisplayName, stats, inline: false);

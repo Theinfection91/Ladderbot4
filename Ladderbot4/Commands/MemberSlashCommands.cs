@@ -40,7 +40,7 @@ namespace Ladderbot4.Commands
         {
             try
             {
-                var result = _ladderManager.MemberLeaderboardProcess(Context);
+                var result = _ladderManager.MemberLeaderboardProcess();
                 await Context.Interaction.RespondAsync(embed: result, ephemeral: true);
             }
             catch (Exception ex)
