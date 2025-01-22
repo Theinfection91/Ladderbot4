@@ -1444,9 +1444,14 @@ namespace Ladderbot4.Managers
         #endregion
 
         #region Member Stats Logic
-        public Embed MemberMyStatsProcess(SocketInteractionContext conext)
+        public Embed MemberMyStatsProcess(SocketInteractionContext context)
         {
-            return _embedManager.CreateDebugEmbed("In-Progress");
+            if (_memberManager.IsMemberProfileRegistered(context.User.Id))
+            {
+                MemberProfile? memberProfile = _memberManager.GetMemberProfileFromDiscordId(context.User.Id);
+                return _embedManager.MemberMyStatsEmbed(memberProfile);
+            }
+            return _embedManager.MemberMyStatsErrorEmbed($"The Discord ID (**{context.User.Id}**) is not registered in the Members List database.");
         }
         #endregion
 

@@ -131,33 +131,52 @@ namespace Ladderbot4.Managers
         {
             try
             {
+                // Fetch the user by ID
                 var user = await _client.GetUserAsync(userId);
 
                 if (user == null)
                 {
-                    Console.WriteLine($"User with ID {userId} not found.");
+                    Console.WriteLine($"[Error] User with ID {userId} not found.");
                     return;
                 }
 
-                var dmChannel = await user.CreateDMChannelAsync();
+                // Check if the user is a bot
+                if (user.IsBot)
+                {
+                    return;
+                }
 
-                var embedBuilder = new EmbedBuilder()
-                    .WithTitle("⚔️ You've Been Challenged!")
-                    .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.Name}** ({league.Format} League).")
-                    .AddField("Challenger Team", challenge.Challenger, inline: true)
-                    .AddField("Your Team", challenge.Challenged, inline: true)
-                    .WithFooter("Prepare for your match!")
-                    .WithTimestamp(DateTimeOffset.Now);
+                try
+                {
+                    // Try to create a DM channel
+                    var dmChannel = await user.CreateDMChannelAsync();
 
-                await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
-                Console.WriteLine($"{DateTime.Now} ChallengeManager - Notification sent to user {user.Username} (ID: {userId}).");
+                    var embedBuilder = new EmbedBuilder()
+                        .WithTitle("⚔️ You've Been Challenged!")
+                        .WithColor(Color.Gold)
+                        .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.Name}** ({league.Format} League).")
+                        .AddField("Challenger Team", challenge.Challenger, inline: true)
+                        .AddField("Your Team", challenge.Challenged, inline: true)
+                        .WithFooter("Prepare for your match!")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+                    // Send the embed message
+                    await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
+                    Console.WriteLine($"[Info] Notification sent to {user.Username} (ID: {userId}).");
+                }
+                catch (Discord.Net.HttpException httpEx) when (httpEx.HttpCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    // Cannot send DMs to the user
+                    Console.WriteLine($"[Warning] Cannot send messages to user {userId}: DMs disabled or bot blocked.");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to send message to user {userId}: {ex.Message}");
+                // Handle unexpected exceptions
+                Console.WriteLine($"[Error] An error occurred while sending a notification to user {userId}: {ex.Message}");
             }
         }
+
 
         public void AddNewChallenge(string leagueName, Challenge challenge)
         {

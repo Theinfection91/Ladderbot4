@@ -711,6 +711,37 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region Member Stats
+        public Embed MemberMyStatsEmbed(MemberProfile memberProfile)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"📊 My Member Stats: {memberProfile.DisplayName}")
+                .WithColor(Color.Teal)
+                .AddField("🏅 Wins", memberProfile.Wins.ToString(), inline: true)
+                .AddField("❌ Losses", memberProfile.Losses.ToString(), inline: true)
+                .AddField("🎖️ League Championships", memberProfile.LeagueChampionships.ToString(), inline: true)
+                .AddField("📊 Total Matches", memberProfile.TotalMatchCount.ToString(), inline: true)
+                .AddField("👥 Total Teams", memberProfile.TotalTeamCount.ToString(), inline: true)
+                .AddField("📈 Win/Loss Ratio", $"{(memberProfile.WinLossRatio * 100):0.00}%", inline: true)
+                .WithFooter("Check back as your stats update as you play!")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed MemberMyStatsErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ My Member Stats Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+        #endregion
+
         #region League/Team Not Found
         public Embed TeamNotFoundErrorEmbed(string teamName)
         {
