@@ -34,5 +34,21 @@ namespace Ladderbot4.Commands
                 await Context.Interaction.RespondAsync(embed: errorResult, ephemeral: true);
             }
         }
+
+        [SlashCommand("leaderboard", "Display the stats of all members")]
+        public async Task LeaderboardAsync()
+        {
+            try
+            {
+                var result = _ladderManager.MemberLeaderboardProcess(Context);
+                await Context.Interaction.RespondAsync(embed: result, ephemeral: true);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.RespondAsync(embed: errorResult, ephemeral: true);
+            }
+        }
     }
 }

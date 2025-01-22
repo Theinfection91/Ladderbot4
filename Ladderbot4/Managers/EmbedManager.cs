@@ -82,7 +82,7 @@ namespace Ladderbot4.Managers
 
         public Embed EndLadderSuccessEmbed(League leagueRef)
         {
-            // Get the top 3 teams (we'll safely handle cases where fewer than 3 teams exist)
+            // Get the top 3 teams
             Team? firstPlace = leagueRef.Teams.Count > 0 ? leagueRef.Teams[0] : null;
             Team? secondPlace = leagueRef.Teams.Count > 1 ? leagueRef.Teams[1] : null;
             Team? thirdPlace = leagueRef.Teams.Count > 2 ? leagueRef.Teams[2] : null;
@@ -92,7 +92,6 @@ namespace Ladderbot4.Managers
             string secondPlaceMembers = secondPlace?.GetAllMemberNamesToStr() ?? "No members available";
             string thirdPlaceMembers = thirdPlace?.GetAllMemberNamesToStr() ?? "No members available";
 
-            // Start building the embed
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Ended")
                 .WithColor(Color.Gold)
@@ -720,7 +719,7 @@ namespace Ladderbot4.Managers
                 .AddField("🏅 Wins", memberProfile.Wins.ToString(), inline: true)
                 .AddField("❌ Losses", memberProfile.Losses.ToString(), inline: true)
                 .AddField("🎖️ League Championships", memberProfile.LeagueChampionships.ToString(), inline: true)
-                .AddField("📊 Total Matches", memberProfile.TotalMatchCount.ToString(), inline: true)
+                .AddField("📊 Matches Played", memberProfile.TotalMatchCount.ToString(), inline: true)
                 .AddField("👥 Total Teams", memberProfile.TotalTeamCount.ToString(), inline: true)
                 .AddField("📈 Win/Loss Ratio", $"{(memberProfile.WinLossRatio * 100):0.00}%", inline: true)
                 .WithFooter("Check back as your stats update as you play!")
@@ -737,6 +736,43 @@ namespace Ladderbot4.Managers
             .WithDescription(errorMessage)
             .WithFooter("Please try again.")
             .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed MemberLeaderboardEmbed(List<MemberProfile> memberProfiles)
+        {
+            var embedBuilder = new EmbedBuilder()
+        .WithTitle("📊 Member Leaderboard")
+        .WithColor(Color.Blue)
+        .WithFooter($"Total Members: {memberProfiles.Count}")
+        .WithTimestamp(DateTimeOffset.Now);
+
+            if (memberProfiles == null || !memberProfiles.Any())
+            {
+                embedBuilder.WithDescription("No members found to display on the leaderboard.");
+                return embedBuilder.Build();
+            }
+
+            // Sort members by Wins, then by WinLossRatio (descending order)
+            var sortedMembers = memberProfiles
+                .OrderByDescending(m => m.Wins)
+                .ThenByDescending(m => m.WinLossRatio)
+                .ToList();
+
+            foreach (var member in sortedMembers)
+            {
+                string stats = $"**Wins**: {member.Wins} | **Losses**: {member.Losses} | " +
+                       $"**W/L Ratio**: {(member.WinLossRatio * 100):F2}%\n" +
+                       $"**Matches Played**: {member.TotalMatchCount} | **Total Teams**: {member.TotalTeamCount}\n" +
+                       $"**League Championships**: {member.LeagueChampionships}";
+
+                embedBuilder.AddField(member.DisplayName, stats, inline: false);
+
+                // Limit the embed to 25 fields (Discord API restriction)
+                if (embedBuilder.Fields.Count >= 25)
+                    break;
+            }
 
             return embedBuilder.Build();
         }

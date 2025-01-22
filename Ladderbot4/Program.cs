@@ -141,7 +141,6 @@ namespace Ladderbot4
                 return Task.CompletedTask;
             };
 
-            Console.WriteLine($"{DateTime.Now} - Waiting for bot to be ready...");
             await readyTask.Task;
 
             // Load Non-Slash Commands

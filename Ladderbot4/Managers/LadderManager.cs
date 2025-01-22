@@ -1100,7 +1100,6 @@ namespace Ladderbot4.Managers
                 .Build();
             return embed;
         }
-
         #endregion
 
         #region Post Standings/Challenges/Teams Logic
@@ -1463,7 +1462,12 @@ namespace Ladderbot4.Managers
                 MemberProfile? memberProfile = _memberManager.GetMemberProfileFromDiscordId(context.User.Id);
                 return _embedManager.MemberMyStatsEmbed(memberProfile);
             }
-            return _embedManager.MemberMyStatsErrorEmbed($"The Discord ID (**{context.User.Id}**) is not registered in the Members List database.");
+            return _embedManager.MemberMyStatsErrorEmbed($"The Discord ID (**{context.User.Id}**) is not registered in the Members List database. Members are dynamically added to the list when they join a team in any league.");
+        }
+
+        public Embed MemberLeaderboardProcess(SocketInteractionContext context)
+        {
+            return _embedManager.MemberLeaderboardEmbed(_memberManager.GetAllMemberProfiles());
         }
         #endregion
 

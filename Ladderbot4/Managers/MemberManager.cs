@@ -75,6 +75,11 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public List<MemberProfile> GetAllMemberProfiles()
+        {
+            return _membersList.Members;
+        }
+
         public void RegisterNewMemberProfile(ulong discordId, string displayName)
         {
             MemberProfile memberProfile = CreateMemberProfile(discordId, displayName);
