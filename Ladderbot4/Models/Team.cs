@@ -56,5 +56,10 @@ namespace Ladderbot4.Models
 
             return sb.ToString();
         }
+
+        public bool IsTeamFull()
+        {
+            return Size == Members.Count;
+        }
     }
 }

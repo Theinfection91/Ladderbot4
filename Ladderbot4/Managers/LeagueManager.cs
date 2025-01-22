@@ -142,7 +142,35 @@ namespace Ladderbot4.Managers
             return teams;
         }
 
-        public League GetLeagueByName(string leagueName)
+        public List<Member> GetAllMembers()
+        {
+            List<Member> members = [];
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    foreach (Member member in team.Members)
+                    {
+                        members.Add(member);
+                    }
+                }
+            }
+            return members;
+        }
+
+        public Team? GetFirstPlaceTeamInLeague(League league)
+        {
+            foreach (Team team in league.Teams)
+            {
+                if (team.Rank.Equals(1))
+                {
+                    return team;
+                }
+            }
+            return null;
+        }
+
+        public League? GetLeagueByName(string leagueName)
         {
             foreach (League league in _leagueRegistry.Leagues)
             {
@@ -154,7 +182,7 @@ namespace Ladderbot4.Managers
             return null;
         }
 
-        public League GetLeagueFromTeamName(string teamName)
+        public League? GetLeagueFromTeamName(string teamName)
         {
             foreach (League league in _leagueRegistry.Leagues)
             {

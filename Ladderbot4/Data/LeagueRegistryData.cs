@@ -80,8 +80,6 @@ namespace Ladderbot4.Data
 
             // Save the League Registry
             Save(leagueRegistry);
-
-            Console.WriteLine($"DEBUG - LeagueRegistryData - Team '{team.Name}' removed from League '{league.Name}', and ranks updated.");
         }
     }
 }

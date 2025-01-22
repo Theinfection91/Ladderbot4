@@ -46,7 +46,11 @@ namespace Ladderbot4.Managers
             // Load Databases into memory
             _challengeManager.LoadChallengesHub();
             _leagueManager.LoadLeagueRegistry();
+            _memberManager.LoadMembersList();
             _statesManager.LoadStatesAtlas();
+
+            // Validate MembersListData
+            _memberManager.ValidateMembersListData(_leagueManager.GetAllMembers());
 
             // Begin Channel Update Tasks
             StartChallengesTask();
@@ -371,7 +375,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab state associated with league
                 State state = _statesManager.GetStateByLeague(league);
@@ -407,7 +411,10 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
+
+                // Grab first place team
+                Team? team = _leagueManager.GetFirstPlaceTeamInLeague(league);
 
                 // Grab state associated with league
                 State state = _statesManager.GetStateByLeague(league);
@@ -420,6 +427,15 @@ namespace Ladderbot4.Managers
 
                     // Remove league index from challenges entirely
                     _challengeManager.RemoveLeagueFromChallenges(league.Name);
+
+                    // Add league champion stat to first place member(s)
+                    if (team != null)
+                    {
+                        _memberManager.HandleMemberProfileLeagueChampionProcess(team);
+                    }
+
+                    // Add to total season count for each member in the league
+                    _memberManager.HandleMemberProfileSeasonCountProcess(league);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -469,7 +485,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object as reference for correct league info for embed
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Remove all challenges associated with league
                 _challengeManager.RemoveLeagueFromChallenges(league.Name);
@@ -500,7 +516,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab reference of League
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Check if given team name is unique across every league
                 if (_leagueManager.IsTeamNameUnique(teamName))
@@ -527,12 +543,15 @@ namespace Ladderbot4.Managers
                         // Add team to league
                         _leagueManager.AddTeamToLeague(team, league);
 
+                        // Check if members exist in MembersList database
+                        _memberManager.HandleMemberProfileRegisterProcess(team);
+
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
                         return _embedManager.RegisterTeamToLeagueSuccessEmbed(team, league);
                     }
-                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members will need to add remaining members using soon to be implemented commands in `/team add`.");
+                    return _embedManager.RegisterTeamErrorEmbed($"Incorrect amount of members given for league format: Format - {league.Format} | Member Count - {membersList.Count}.\n\nTeams that require 21 or more members need 20 members in the command and will need to add remaining members using `/team add member` command.");
                 }
                 return _embedManager.RegisterTeamErrorEmbed($"The given team name is already being used by another team: {teamName}.");
             }
@@ -551,7 +570,7 @@ namespace Ladderbot4.Managers
                 Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
 
                 // Grab League object
-                League league = _leagueManager.GetLeagueByName(team.League);
+                League? league = _leagueManager.GetLeagueByName(team.League);
 
                 // Remove all Challenges associated with Team
                 _challengeManager.SudoRemoveChallenge(league.Name, team.Name);
@@ -591,7 +610,7 @@ namespace Ladderbot4.Managers
                     Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
 
                     // Grab league
-                    League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
+                    League? league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
                     if (!_statesManager.IsLadderRunning(league))
@@ -672,7 +691,7 @@ namespace Ladderbot4.Managers
             {
                 // Grab team and league objects
                 Team? team = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
-                League league = _leagueManager.GetLeagueByName(team.League);
+                League? league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
                 if (!_statesManager.IsLadderRunning(league))
@@ -730,7 +749,7 @@ namespace Ladderbot4.Managers
                     Team? objectChallengedTeam = _leagueManager.GetTeamByNameFromLeagues(challengedTeam);
 
                     // Grab league
-                    League league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
+                    League? league = _leagueManager.GetLeagueByName(objectChallengerTeam.League);
 
                     // Check if ladder is running in League
                     if (!_statesManager.IsLadderRunning(league))
@@ -802,7 +821,7 @@ namespace Ladderbot4.Managers
             {
                 // Grab team and league objects
                 Team? team = _leagueManager.GetTeamByNameFromLeagues(challengerTeam);
-                League league = _leagueManager.GetLeagueByName(team.League);
+                League? league = _leagueManager.GetLeagueByName(team.League);
 
                 // Check if ladder is running in league
                 if (!_statesManager.IsLadderRunning(league))
@@ -850,7 +869,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsTeamNameUnique(winningTeamName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
+                League? league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
                 if (!_statesManager.IsLadderRunning(league))
@@ -893,15 +912,13 @@ namespace Ladderbot4.Managers
                             // Reassign ranks for the entire League
                             ReassignRanksInLeague(league);
 
-                            // Add wins and losses correctly
+                            // Add wins and losses to Team stats
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
-                            // TODO - Add wins and losses to Member Profiles
-
-
-                            // TODO - Create Match object to add to History (Past Matches)
-
+                            // Handle win, loss, and match count stats for MemberProfiles
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                             // Set IsChallengeable status of both teams back to true
                             _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -929,11 +946,9 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToWins(winningTeam, 1);
                             _teamManager.AddToLosses(losingTeam, 1);
 
-                            // TODO: Add wins and losses to Member Profiles
-
-
-                            // TODO: Create Match object to add to History (Past Matches)
-
+                            // Handle win, loss, and match count stats for MemberProfiles
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                             // Set IsChallengeable status of both teams back to true
                             _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -971,7 +986,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsTeamNameUnique(winningTeamName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
+                League? league = _leagueManager.GetLeagueFromTeamName(winningTeamName);
 
                 // Check if ladder is running
                 if (!_statesManager.IsLadderRunning(league))
@@ -1014,11 +1029,9 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToWins(winningTeam, 1);
                         _teamManager.AddToLosses(losingTeam, 1);
 
-                        // TODO - Add wins and losses to Member Profiles
-
-
-                        // TODO - Create Match object to add to History (Past Matches)
-
+                        // Handle win, loss, and match count stats for MemberProfiles
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                         // Set IsChallengeable status of both teams back to true
                         _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -1046,11 +1059,9 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToWins(winningTeam, 1);
                         _teamManager.AddToLosses(losingTeam, 1);
 
-                        // TODO: Add wins and losses to Member Profiles
-
-
-                        // TODO: Create Match object to add to History (Past Matches)
-
+                        // Handle win, loss, and match count stats for MemberProfiles
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
 
                         // Set IsChallengeable status of both teams back to true
                         _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -1089,7 +1100,6 @@ namespace Ladderbot4.Managers
                 .Build();
             return embed;
         }
-
         #endregion
 
         #region Post Standings/Challenges/Teams Logic
@@ -1101,7 +1111,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Grab list of challenges in league
                 List<Challenge> challenges = _challengeManager.GetChallengesForLeague(league);
@@ -1125,7 +1135,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 return _embedManager.PostStandingsEmbed(league);
             }
@@ -1141,7 +1151,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 return _embedManager.PostTeamsEmbed(league, league.Teams);
             }
@@ -1156,7 +1166,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsTeamNameUnique(teamName))
             {
                 // Get league object
-                League league = _leagueManager.GetLeagueFromTeamName(teamName);
+                League? league = _leagueManager.GetLeagueFromTeamName(teamName);
 
                 // Get team object
                 Team? teamToAdjust = _leagueManager.GetTeamByNameFromLeagues(teamName);
@@ -1230,7 +1240,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetChallengesChannelId(league, channel.Id);
@@ -1249,7 +1259,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetStandingsChannelId(league, channel.Id);
@@ -1268,7 +1278,7 @@ namespace Ladderbot4.Managers
             if (!_leagueManager.IsLeagueNameUnique(leagueName))
             {
                 // Grab league object
-                League league = _leagueManager.GetLeagueByName(leagueName);
+                League? league = _leagueManager.GetLeagueByName(leagueName);
 
                 // Set channel Id
                 _statesManager.SetTeamsChannelId(league, channel.Id);
@@ -1398,6 +1408,66 @@ namespace Ladderbot4.Managers
                 }
             }
             return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        }
+        #endregion
+
+        #region Add Member Logic
+        public Embed AddMemberToTeamProcess(string teamName, List<IUser> membersList)
+        {
+            // Load 
+            _leagueManager.LoadLeagueRegistry();
+
+            if (!_leagueManager.IsTeamNameUnique(teamName))
+            {
+                // Convert IUser list to Member
+                List<Member> members = _memberManager.ConvertMembersListToObjects(membersList);
+
+                // Grab team and league
+                Team? team = _leagueManager.GetTeamByNameFromLeagues(teamName);
+                League? league = _leagueManager.GetLeagueFromTeamName(team.Name);
+
+                // Check if member is already on team in league
+                foreach (Member member in members)
+                {
+                    if (!_memberManager.IsMemberOnTeamInLeague(member, league.Teams))
+                    {
+                        // Check if team is full
+                        if (!team.IsTeamFull())
+                        {
+                            team.Members.Add(member);
+                            _leagueManager.SaveAndReloadLeagueRegistry();
+                            _backupManager.CopyAndBackupFilesToGit();
+                            return _embedManager.AddMemberSuccessEmbed(team);
+                        }
+                        else
+                        {
+                            return _embedManager.AddMemberErrorEmbed($"The given team is currently full and can not accept any more members. (Team: **{team.Name}** - League Format: **{team.LeagueFormat}** - Team Max Size: **{team.Size}** - Current Members: **{team.GetAllMemberNamesToStr()}**)");
+                        }
+                    }
+                    else
+                    {
+                        return _embedManager.AddMemberErrorEmbed($"A member in the given list is already on a team in the given team's league. Players may only be on one team per league. Try again. (Name: **{member.DisplayName}** - Discord ID: **{member.DiscordId}**)");
+                    }                    
+                }
+            }
+            return _embedManager.TeamNotFoundErrorEmbed(teamName);
+        }
+        #endregion
+
+        #region Member Stats Logic
+        public Embed MemberMyStatsProcess(SocketInteractionContext context)
+        {
+            if (_memberManager.IsMemberProfileRegistered(context.User.Id))
+            {
+                MemberProfile? memberProfile = _memberManager.GetMemberProfileFromDiscordId(context.User.Id);
+                return _embedManager.MemberMyStatsEmbed(memberProfile);
+            }
+            return _embedManager.MemberMyStatsErrorEmbed($"The Discord ID (**{context.User.Id}**) is not registered in the Members List database. Members are dynamically added to the list when they join a team in any league.");
+        }
+
+        public Embed MemberLeaderboardProcess()
+        {
+            return _embedManager.MemberLeaderboardEmbed(_memberManager.GetAllMemberProfiles());
         }
         #endregion
 
