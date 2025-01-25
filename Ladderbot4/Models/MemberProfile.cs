@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ladderbot4.Enums;
 using Ladderbot4.Models.Achievements;
 
 namespace Ladderbot4.Models
@@ -11,6 +12,11 @@ namespace Ladderbot4.Models
     {
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
+
+        // TODO: Level and XP System
+        public MemberTitlesEnum Title {  get; set; } = MemberTitlesEnum.Novice;
+        public int Level { get; set; } = 1;
+        public int Experience { get; set; } = 0;
 
         // Basic Stats
         public int Wins { get; set; } = 0;
