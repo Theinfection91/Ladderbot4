@@ -15,13 +15,17 @@ namespace Ladderbot4.Models
         {
             ExperienceValues = new Dictionary<ExperienceValuesEnum, int>
             {
+                // Normal XP Amounts
                 { ExperienceValuesEnum.WinMatch, 20 },
                 { ExperienceValuesEnum.LoseMatch, 10 },
-                { ExperienceValuesEnum.ParticipateSeason, 10 },
-                { ExperienceValuesEnum.CompleteSeason, 20 },
+                { ExperienceValuesEnum.ParticipateSeason, 25 },
+                { ExperienceValuesEnum.CompleteSeason, 50 },
                 { ExperienceValuesEnum.FirstPlaceLadder, 75 },
                 { ExperienceValuesEnum.SecondPlaceLadder, 50 },
                 { ExperienceValuesEnum.ThirdPlaceLadder, 25 }
+
+                // TODO: Grudge XP Amounts (if implemented)
+
             };
         }
 

@@ -17,6 +17,7 @@ namespace Ladderbot4.Models
         public string Title {  get; set; } = MemberTitlesEnum.Novice.ToString();
         public int Level { get; set; } = 1;
         public int Experience { get; set; } = 0;
+        public int ExperienceToNextLevel => (GetNextLevelAmount(Level) - Experience);
 
         // Basic Stats
         public int Wins { get; set; } = 0;
@@ -46,7 +47,7 @@ namespace Ladderbot4.Models
 
         public override int GetHashCode()
         {
-            return DiscordId.GetHashCode(); // Use DiscordId for hash code
+            return DiscordId.GetHashCode();
         }
 
         public void AddExperience(int amount)
@@ -57,7 +58,7 @@ namespace Ladderbot4.Models
 
         public int GetNextLevelAmount(int currentLevel)
         {
-            return Level * 50;
+            return (int)(50 * Math.Pow(currentLevel, 1.2));
         }
 
         public void CheckLevelUp()
@@ -66,8 +67,32 @@ namespace Ladderbot4.Models
             if (Experience >= nextLevelAmount)
             {
                 Level++;
-                // TODO: Title check
+                Title = GetTitle(Level);
             }
-        }        
+        }
+
+        public string GetTitle(int level)
+        {
+            if (level >= 1 && level < 3)
+                return MemberTitlesEnum.Novice.ToString();
+            else if (level >= 3 && level < 5)
+                return MemberTitlesEnum.Apprentice.ToString();
+            else if (level >= 5 && level < 7)
+                return MemberTitlesEnum.Challenger.ToString();
+            else if (level >= 7 && level < 9)
+                return MemberTitlesEnum.Contender.ToString();
+            else if (level >= 9 && level < 11)
+                return MemberTitlesEnum.Elite.ToString();
+            else if (level >= 11 && level < 13)
+                return MemberTitlesEnum.Champion.ToString();
+            else if (level >= 13 && level < 15)
+                return MemberTitlesEnum.Master.ToString();
+            else if (level >= 15 && level < 20)
+                return MemberTitlesEnum.Master.ToString();
+            else if (level >= 20)
+                return MemberTitlesEnum.Legend.ToString();
+            else
+                return "Invalid level given";
+        }
     }
 }
