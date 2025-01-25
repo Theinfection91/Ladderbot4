@@ -716,12 +716,21 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle($"📊 My Member Stats: {memberProfile.DisplayName}")
                 .WithColor(Color.Teal)
+
+                // New fields for Title, Level, XP, and XP to next level (placed above the stats)
+                .AddField("🏆 Title", memberProfile.Title, inline: true)
+                .AddField("💼 Level", memberProfile.Level.ToString(), inline: true)
+                .AddField("💥 Total XP", $"{memberProfile.Experience} XP", inline: true)
+                .AddField("⏳ XP to Next Level", $"{memberProfile.ExperienceToNextLevel} XP", inline: true)
+
+                // Old stats fields
                 .AddField("🏅 Wins", memberProfile.Wins.ToString(), inline: true)
                 .AddField("❌ Losses", memberProfile.Losses.ToString(), inline: true)
                 .AddField("🎖️ League Championships", memberProfile.LeagueChampionships.ToString(), inline: true)
                 .AddField("📊 Matches Played", memberProfile.TotalMatchCount.ToString(), inline: true)
                 .AddField("🎗️ Seasons Completed", memberProfile.TotalSeasons.ToString(), inline: true)
                 .AddField("📈 Win/Loss Ratio", $"{(memberProfile.WinLossRatio * 100):0.00}%", inline: true)
+
                 .WithFooter("Check back as your stats update as you play!")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -743,10 +752,10 @@ namespace Ladderbot4.Managers
         public Embed MemberLeaderboardEmbed(List<MemberProfile> memberProfiles)
         {
             var embedBuilder = new EmbedBuilder()
-        .WithTitle("📊 Member Leaderboard")
-        .WithColor(Color.Blue)
-        .WithFooter($"Total Members: {memberProfiles.Count}")
-        .WithTimestamp(DateTimeOffset.Now);
+                .WithTitle("📊 Member Leaderboard")
+                .WithColor(Color.Blue)
+                .WithFooter($"Total Members: {memberProfiles.Count}")
+                .WithTimestamp(DateTimeOffset.Now);
 
             if (memberProfiles == null || !memberProfiles.Any())
             {
@@ -762,10 +771,11 @@ namespace Ladderbot4.Managers
 
             foreach (var member in sortedMembers)
             {
-                string stats = $"**Wins**: {member.Wins} | **Losses**: {member.Losses} | " +
-                       $"**W/L Ratio**: {(member.WinLossRatio * 100):F2}%\n" +
-                       $"**Matches Played**: {member.TotalMatchCount} | **Seasons Completed**: {member.TotalSeasons}\n" +
-                       $"**League Championships**: {member.LeagueChampionships}";
+                string stats = $"**Title**: {member.Title} | **Level**: {member.Level}\n" +
+                               $"**Wins**: {member.Wins} | **Losses**: {member.Losses} | " +
+                               $"**W/L Ratio**: {(member.WinLossRatio * 100):F2}%\n" +
+                               $"**Matches Played**: {member.TotalMatchCount} | **Seasons Completed**: {member.TotalSeasons}\n" +
+                               $"**League Championships**: {member.LeagueChampionships}";
 
                 embedBuilder.AddField(member.DisplayName, stats, inline: false);
 

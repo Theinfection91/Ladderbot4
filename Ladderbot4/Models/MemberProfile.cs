@@ -68,6 +68,9 @@ namespace Ladderbot4.Models
             {
                 Level++;
                 Title = GetTitle(Level);
+
+                // TODO: Inform user of level up and title
+
             }
         }
 
