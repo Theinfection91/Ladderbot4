@@ -9,6 +9,7 @@ using Ladderbot4.Commands;
 using Ladderbot4.Commands.AutocompleteHandlers;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
+using Ladderbot4.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
@@ -61,6 +62,9 @@ namespace Ladderbot4
                     services.AddSingleton<MembersListData>();
                     services.AddSingleton<SettingsVaultData>();
                     services.AddSingleton<StatesAtlasData>();
+
+                    // Register Level Guide for Member Experience Amounts
+                    services.AddSingleton<LevelGuide>();
 
                     // Register Managers
                     services.AddSingleton<AchievementManager>();

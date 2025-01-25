@@ -13,8 +13,8 @@ namespace Ladderbot4.Models
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
 
-        // TODO: Level and XP System
-        public MemberTitlesEnum Title {  get; set; } = MemberTitlesEnum.Novice;
+        // TODO: Title, Level and XP System
+        public string Title {  get; set; } = MemberTitlesEnum.Novice.ToString();
         public int Level { get; set; } = 1;
         public int Experience { get; set; } = 0;
 
@@ -48,5 +48,26 @@ namespace Ladderbot4.Models
         {
             return DiscordId.GetHashCode(); // Use DiscordId for hash code
         }
+
+        public void AddExperience(int amount)
+        {
+            Experience += amount;
+            CheckLevelUp();
+        }
+
+        public int GetNextLevelAmount(int currentLevel)
+        {
+            return Level * 50;
+        }
+
+        public void CheckLevelUp()
+        {
+            int nextLevelAmount = GetNextLevelAmount(Level);
+            if (Experience >= nextLevelAmount)
+            {
+                Level++;
+                // TODO: Title check
+            }
+        }        
     }
 }

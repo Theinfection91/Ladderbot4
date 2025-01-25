@@ -16,10 +16,14 @@ namespace Ladderbot4.Managers
 
         private MembersList _membersList;
 
-        public MemberManager(MembersListData membersListData)
+        // TODO: Load Level Guide
+        private LevelGuide _levelGuide;
+
+        public MemberManager(MembersListData membersListData, LevelGuide levelGuide)
         {
             _membersListData = membersListData;
             _membersList = _membersListData.Load();
+            _levelGuide = levelGuide;
         }
 
         public void SaveMembersList()
