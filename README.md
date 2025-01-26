@@ -30,6 +30,65 @@ The fifth update introduces a comprehensive custom autocomplete process for Ladd
 ### (Merge 5)
 The sixth update reimplements **Member Stats** and adds **Member Leaderboards**, introducing robust support for tracking individual member statistics and adding new commands for personalized data retrieval and leaderboards. Key features include `members_list.json` creation, real-time validation and updating of member profiles, and new methods for integrating stats into league operations.
 
+### (Merge 6)
+The seventh update to the **4.2.0 branch** introduces a **Level, XP, and Title System**, adding an engaging progression mechanic for members participating in league activities. Members now earn XP for various actions, including joining teams, participating in matches, and completing ladders. XP contributes to leveling up, unlocking unique titles that showcase achievements and milestones.
+
+---
+
+## (Merge 6 - Detailed) - (01/25/2025)
+
+### Level, XP, and Title System
+
+#### **Earning XP**
+Members now gain XP for participating in league activities, encouraging consistent engagement and rewarding performance. The following activities contribute XP:
+
+- **Joining or Retaining Teams**:
+  - Small XP boost for registering as part of a new team or staying on a team when a ladder restarts.
+- **Participating in Matches**:
+  - **Win**: Moderate XP reward for the winning team.
+  - **Loss**: Small XP reward for the losing team to encourage participation.
+- **Winning a Ladder**:
+  - Large XP reward for members of the championship team.
+- ** Second or Third Place**:
+- Moderate and Small XP reward for second and third place teams
+- **Ladder Completion**:
+  - Base XP awarded to all participants at the end of the ladder to celebrate their involvement.
+
+#### **Titles and Progression**
+Each member level unlocks a unique title, offering a sense of accomplishment. Titles are thematically designed and reflect progression milestones. Initial title levels include:
+
+- **Level 1**: Novice  
+- **Level 3**: Apprentice  
+- **Level 5**: Challenger  
+- **Level 7**: Contender  
+- **Level 9**: Elite  
+- **Level 12**: Champion  
+- **Level 15**: Master  
+- **Level 20**: Legend  
+
+#### **Key Changes**
+- **New Member Profile Fields**:
+  - Added `Level`, `Experience`, and `Title` fields to member profiles.
+- **Level Scaling**:
+  - XP required to level up scales dynamically with a formula:  
+    `50 * level^1.2`, ensuring a steady progression curve.
+- **LevelGuide Class**:
+  - Introduced a `LevelGuide` class to manage XP values for specific actions and title unlocks.
+
+#### **Integration into League Operations**
+- **XP Distribution Events**:
+  - **Team Registration**: Awards XP when members join or retain teams during ladder restarts.
+  - **Match Results**: Awards XP to winners and losers when a match is reported.
+  - **Ladder Completion**: Awards XP to all participants, with bonus XP for first, second, and third-place teams.
+- **Embeds Updated**:
+  - Added XP, level, and title information to embeds for improved visibility and engagement.
+
+#### **Future Enhancements**
+- **Milestone Rewards**:
+  - Potential to add milestone XP bonuses for major achievements, such as 100 matches played.
+- **Dynamic Titles**:
+  - Expansion of title themes and additional levels to support long-term progression.
+
 ---
 
 ## (Merge 5 - Detailed) - (01/22/2025)
@@ -197,7 +256,6 @@ The sixth update reimplements **Member Stats** and adds **Member Leaderboards**,
 
 ## Next Steps
 This merge represents the foundation of the 4.2.0 update. Future updates will build upon these changes, introducing features such as:
-- **Member profile stats.**
 - **Additional bug fixes and enhancements.**
 
 For detailed documentation on setup and configuration, refer to the [Ladderbot4 Documentation](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md).
