@@ -14,6 +14,9 @@
     <Title>Ladderbot4</Title>
     <IncludeSymbols>False</IncludeSymbols>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<PackageId>Ladderbot4</PackageId>
+	<OutputPath>bin\$(Configuration)</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
