@@ -392,7 +392,7 @@ namespace Ladderbot4.Managers
                     // Set ladder running to true
                     _statesManager.SetLadderRunning(league, true);
 
-                    // TODO: Give team members currently registered in league Participation XP for season initiated
+                    // Give team members currently registered in league Participation XP for season initiated
                     foreach (Team team in league.Teams)
                     {
                         foreach (Member member in team.Members)
@@ -425,7 +425,7 @@ namespace Ladderbot4.Managers
                 // Grab league
                 League? league = _leagueManager.GetLeagueByName(leagueName);
 
-                // TODO: Grab top three teams
+                // Grab top three teams
                 (Team?, Team?, Team?) topTeams = _leagueManager.GetTopThreeTeams(league);
 
                 // Grab state associated with league
@@ -449,7 +449,7 @@ namespace Ladderbot4.Managers
                     // Add to total season count for each member in the league
                     _memberManager.HandleSeasonCompleteProcess(league);
 
-                    // TODO: Add experience to Top 3 teams
+                    // Add experience to Top 3 teams
                     _memberManager.HandleTopThreeExperienceProcess(topTeams.Item1, topTeams.Item2, topTeams.Item3);
 
                     // Backup database to Git
@@ -561,7 +561,7 @@ namespace Ladderbot4.Managers
                         // Check if members exist in MembersList database
                         _memberManager.HandleMemberProfileRegisterProcess(team);
 
-                        // TODO: Handle Participation XP correctly. If ladder is running new team needs XP, if not running then team members will be awarded Participation XP when the ladder is started
+                        // Handle Participation XP correctly. If ladder is running new team needs XP, if not running then team members will be awarded Participation XP when the ladder is started
                         if (_statesManager.IsLadderRunning(league))
                         {
                             foreach (Member member in membersList)

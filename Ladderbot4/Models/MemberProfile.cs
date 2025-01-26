@@ -13,7 +13,7 @@ namespace Ladderbot4.Models
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
 
-        // TODO: Title, Level and XP System
+        // Title, Level and XP System
         public string Title {  get; set; } = MemberTitlesEnum.Novice.ToString();
         public int Level { get; set; } = 1;
         public int Experience { get; set; } = 0;
