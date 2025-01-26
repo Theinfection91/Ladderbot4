@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
 using Ladderbot4.Data;
+using Ladderbot4.Enums;
 using Ladderbot4.Models;
 using System;
 using System.Collections.Generic;
@@ -16,10 +17,13 @@ namespace Ladderbot4.Managers
 
         private MembersList _membersList;
 
-        public MemberManager(MembersListData membersListData)
+        private LevelGuide _levelGuide;
+
+        public MemberManager(MembersListData membersListData, LevelGuide levelGuide)
         {
             _membersListData = membersListData;
             _membersList = _membersListData.Load();
+            _levelGuide = levelGuide;
         }
 
         public void SaveMembersList()
@@ -92,7 +96,7 @@ namespace Ladderbot4.Managers
         /// </summary>
         /// <param name="team">The team to iterate through and increment each members stats</param>
         /// <param name="isWinner">Determines if wins or losses are added to stats</param>
-        public void HandleMemberProfileWinLossMatchProcess(Team team, bool isWinner)
+        public void HandleWinLossMatchProcess(Team team, bool isWinner)
         {
             foreach (Member member in team.Members)
             {
@@ -101,11 +105,19 @@ namespace Ladderbot4.Managers
                 {
                     if (isWinner)
                     {
-                        AddToMemberProfileWins(memberProfile, 1);                       
+                        // Add to Wins stat
+                        AddToMemberProfileWins(memberProfile, 1);
+
+                        // Add XP for winning match
+                        memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.WinMatch));
                     }
                     else
                     {
+                        // Add to Losses stat
                         AddToMemberProfileLosses(memberProfile, 1);
+
+                        // Add XP for losing match
+                        memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.LoseMatch));
                     }
                     AddToMemberProfileMatchCount(memberProfile, 1);
                 }
@@ -124,7 +136,16 @@ namespace Ladderbot4.Managers
             }
         }
 
-        public void HandleMemberProfileSeasonCountProcess(League league)
+        public void HandleSeasonParticipateProcess(Member member)
+        {
+            MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+            if (memberProfile != null)
+            {
+                memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.ParticipateSeason));
+            }
+        }
+
+        public void HandleSeasonCompleteProcess(League league)
         {
             foreach (Team team in league.Teams)
             {
@@ -135,6 +156,7 @@ namespace Ladderbot4.Managers
                         MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
                         if (memberProfile != null)
                         {
+                            memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.CompleteSeason));
                             AddToMemberProfileSeasonsCount(memberProfile, 1);
                         }
                     }
@@ -143,7 +165,7 @@ namespace Ladderbot4.Managers
             SaveAndReloadMembersList();
         }
 
-        public void HandleMemberProfileLeagueChampionProcess(Team team)
+        public void HandleLeagueChampionStatProcess(Team team)
         {
             foreach (Member member in team.Members)
             {
@@ -151,6 +173,44 @@ namespace Ladderbot4.Managers
                 if (memberProfile != null)
                 {
                     AddToMemberProfileChampionships(memberProfile, 1);
+                }
+            }
+            SaveAndReloadMembersList();
+        }
+
+        public void HandleTopThreeExperienceProcess(Team firstPlace = null, Team secondPlace = null, Team thirdPlace = null)
+        {
+            if (firstPlace != null)
+            {
+                foreach (Member member in firstPlace.Members)
+                {
+                    MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                    if (memberProfile != null)
+                    {
+                        memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.FirstPlaceLadder));
+                    }
+                }
+            }
+            if (secondPlace != null)
+            {
+                foreach (Member member in secondPlace.Members)
+                {
+                    MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                    if (memberProfile != null)
+                    {
+                        memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.SecondPlaceLadder));
+                    }
+                }
+            }
+            if (thirdPlace != null)
+            {
+                foreach (Member member in thirdPlace.Members)
+                {
+                    MemberProfile? memberProfile = GetMemberProfileFromDiscordId(member.DiscordId);
+                    if (memberProfile != null)
+                    {
+                        memberProfile.AddExperience(_levelGuide.GetExperienceForAction(ExperienceValuesEnum.ThirdPlaceLadder));
+                    }
                 }
             }
             SaveAndReloadMembersList();

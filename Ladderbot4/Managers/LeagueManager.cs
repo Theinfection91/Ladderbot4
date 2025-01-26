@@ -170,6 +170,25 @@ namespace Ladderbot4.Managers
             return null;
         }
 
+        public (Team?, Team?, Team?) GetTopThreeTeams(League league)
+        {
+            // Sort the teams by rank and take the top 3
+            var topTeams = league.Teams
+                                 .OrderBy(t => t.Rank)
+                                 .Take(3)
+                                 .ToList();
+
+            // Create a tuple with up to 3 teams
+            return topTeams.Count switch
+            {
+                0 => (null, null, null),
+                1 => (topTeams[0], null, null),
+                2 => (topTeams[0], topTeams[1], null),
+                3 => (topTeams[0], topTeams[1], topTeams[2]),
+                _ => (null, null, null)
+            };
+        }
+
         public League? GetLeagueByName(string leagueName)
         {
             foreach (League league in _leagueRegistry.Leagues)

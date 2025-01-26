@@ -392,6 +392,18 @@ namespace Ladderbot4.Managers
                     // Set ladder running to true
                     _statesManager.SetLadderRunning(league, true);
 
+                    // Give team members currently registered in league Participation XP for season initiated
+                    foreach (Team team in league.Teams)
+                    {
+                        foreach (Member member in team.Members)
+                        {
+                            _memberManager.HandleSeasonParticipateProcess(member);
+                        }
+                    }
+
+                    // Save Members List
+                    _memberManager.SaveAndReloadMembersList();
+
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
 
@@ -413,8 +425,8 @@ namespace Ladderbot4.Managers
                 // Grab league
                 League? league = _leagueManager.GetLeagueByName(leagueName);
 
-                // Grab first place team
-                Team? team = _leagueManager.GetFirstPlaceTeamInLeague(league);
+                // Grab top three teams
+                (Team?, Team?, Team?) topTeams = _leagueManager.GetTopThreeTeams(league);
 
                 // Grab state associated with league
                 State state = _statesManager.GetStateByLeague(league);
@@ -429,13 +441,16 @@ namespace Ladderbot4.Managers
                     _challengeManager.RemoveLeagueFromChallenges(league.Name);
 
                     // Add league champion stat to first place member(s)
-                    if (team != null)
+                    if (topTeams.Item1 != null)
                     {
-                        _memberManager.HandleMemberProfileLeagueChampionProcess(team);
+                        _memberManager.HandleLeagueChampionStatProcess(topTeams.Item1);
                     }
 
                     // Add to total season count for each member in the league
-                    _memberManager.HandleMemberProfileSeasonCountProcess(league);
+                    _memberManager.HandleSeasonCompleteProcess(league);
+
+                    // Add experience to Top 3 teams
+                    _memberManager.HandleTopThreeExperienceProcess(topTeams.Item1, topTeams.Item2, topTeams.Item3);
 
                     // Backup database to Git
                     _backupManager.CopyAndBackupFilesToGit();
@@ -545,6 +560,16 @@ namespace Ladderbot4.Managers
 
                         // Check if members exist in MembersList database
                         _memberManager.HandleMemberProfileRegisterProcess(team);
+
+                        // Handle Participation XP correctly. If ladder is running new team needs XP, if not running then team members will be awarded Participation XP when the ladder is started
+                        if (_statesManager.IsLadderRunning(league))
+                        {
+                            foreach (Member member in membersList)
+                            {
+                                _memberManager.HandleSeasonParticipateProcess(member);
+                            }
+                            _memberManager.SaveAndReloadMembersList();
+                        }
 
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
@@ -917,8 +942,8 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToLosses(losingTeam, 1);
 
                             // Handle win, loss, and match count stats for MemberProfiles
-                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
-                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
+                            _memberManager.HandleWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleWinLossMatchProcess(losingTeam, false);
 
                             // Set IsChallengeable status of both teams back to true
                             _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -947,8 +972,8 @@ namespace Ladderbot4.Managers
                             _teamManager.AddToLosses(losingTeam, 1);
 
                             // Handle win, loss, and match count stats for MemberProfiles
-                            _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
-                            _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
+                            _memberManager.HandleWinLossMatchProcess(winningTeam, true);
+                            _memberManager.HandleWinLossMatchProcess(losingTeam, false);
 
                             // Set IsChallengeable status of both teams back to true
                             _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -1030,8 +1055,8 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToLosses(losingTeam, 1);
 
                         // Handle win, loss, and match count stats for MemberProfiles
-                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
-                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
+                        _memberManager.HandleWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleWinLossMatchProcess(losingTeam, false);
 
                         // Set IsChallengeable status of both teams back to true
                         _teamManager.ChangeChallengeStatus(winningTeam, true);
@@ -1060,8 +1085,8 @@ namespace Ladderbot4.Managers
                         _teamManager.AddToLosses(losingTeam, 1);
 
                         // Handle win, loss, and match count stats for MemberProfiles
-                        _memberManager.HandleMemberProfileWinLossMatchProcess(winningTeam, true);
-                        _memberManager.HandleMemberProfileWinLossMatchProcess(losingTeam, false);
+                        _memberManager.HandleWinLossMatchProcess(winningTeam, true);
+                        _memberManager.HandleWinLossMatchProcess(losingTeam, false);
 
                         // Set IsChallengeable status of both teams back to true
                         _teamManager.ChangeChallengeStatus(winningTeam, true);
