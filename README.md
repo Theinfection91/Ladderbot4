@@ -33,6 +33,17 @@ The sixth update reimplements **Member Stats** and adds **Member Leaderboards**,
 ### (Merge 6)
 The seventh update to the **4.2.0 branch** introduces a **Level, XP, and Title System**, adding an engaging progression mechanic for members participating in league activities. Members now earn XP for various actions, including joining teams, participating in matches, and completing ladders. XP contributes to leveling up, unlocking unique titles that showcase achievements and milestones.
 
+### (Merge 7)
+The eighth update to the **4.2.0 branch** is a simple bug fix to correct an issue where if two teams are under a challenge and one is removed, the other teams challenge status would still say 'Challenged'. This is now corrected.
+
+---
+
+## (Merge 7 - Detailed) - (03/15/2025)
+
+### Team Removal Challenge Status Bugfix
+
+Not much detail here, just a simple bug fix.
+
 ---
 
 ## (Merge 6 - Detailed) - (01/25/2025)
