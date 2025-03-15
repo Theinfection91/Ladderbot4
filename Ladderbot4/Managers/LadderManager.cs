@@ -597,8 +597,24 @@ namespace Ladderbot4.Managers
                 // Grab League object
                 League? league = _leagueManager.GetLeagueByName(team.League);
 
+                // Reset Challenge Status On Team Remove Process
+                if (_challengeManager.IsTeamInChallenge(league.Name, team))
+                {
+                    Challenge? challenge = _challengeManager.GetChallengeForTeam(league.Name, team);
+
+                    // Grab each team in challenge
+                    Team challengerTeam = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenger);
+                    Team challengedTeam = _leagueManager.GetTeamByNameFromLeagues(challenge.Challenged);
+
+                    // Reset each teams status for good measure
+                    _teamManager.ChangeChallengeStatus(challengerTeam, true);
+                    _teamManager.ChangeChallengeStatus(challengedTeam, true);
+                    _leagueManager.SaveAndReloadLeagueRegistry();
+                }
+
                 // Remove all Challenges associated with Team
                 _challengeManager.SudoRemoveChallenge(league.Name, team.Name);
+                _challengeManager.LoadChallengesHub();
 
                 // Remove team
                 _leagueManager.RemoveTeamFromLeague(team, league);

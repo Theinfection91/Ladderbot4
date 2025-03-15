@@ -216,7 +216,7 @@ namespace Ladderbot4.Managers
             return null;
         }
 
-        public Team? GetTeamByNameFromLeagues(string teamName)
+        public Team GetTeamByNameFromLeagues(string teamName)
         {
             foreach (League league in _leagueRegistry.Leagues)
             {
