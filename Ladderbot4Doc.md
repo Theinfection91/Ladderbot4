@@ -6,8 +6,7 @@ Welcome to the **Ladderbot4 Documentation**! This guide is designed to help user
 Ladderbot4 offers powerful tools for managing competitive ladders, including:
 - Dynamic team management and ranking systems.
 - Automated challenge and match result reporting.
-- Comprehensive statistics tracking for teams and individual members.
-- Achievements, historical match data, and much more!
+- Comprehensive statistics tracking for teams and individual members (WIP).
 
 ## Getting Started
 This documentation will guide you through the following essential setup steps:
@@ -284,20 +283,20 @@ The `/league` commands allow administrators to manage leagues within Ladderbot. 
 ### Create League Command (`/league create`)
 
 **Description:**  
-Creates a new league with the specified name and division type. Only administrators can use this command.
+Creates a new league with the specified name and the size each team will be. Only administrators can use this command.
 
 **Usage:**
 ```plaintext
-/league create leagueName:<string> divisionType:<1v1|2v2|3v3>
+/league create leagueName:<string> teamSize:<int>
 ```
 
 **Parameters:**  
 - `leagueName` (string): The name of the league to create. Must be unique.  
-- `divisionType` (1v1, 2v2, 3v3): The type of division for the league. Must be one of the valid division types.
+- `teamSize` (int): The members needed to create a full team. (1 creates a 1v1, 5 would create a 5v5, 42 would create 42v42)
 
 **Process:**  
 1. Checks if the league name is unique.  
-2. Verifies the division type is valid (`1v1`, `2v2`, or `3v3`).  
+2. Converts the team size to a league format tag
 3. Creates a new league object and adds it to the database.  
 4. Saves and reloads the leagues database.  
 5. Creates a new state object for the league and adds it to the states database.  
@@ -309,8 +308,6 @@ Creates a new league with the specified name and division type. Only administrat
   "🏆 League Created: TestLeague (2v2)"
 
 **Error Response Examples:**  
-- Invalid division type:
-  "❌ Invalid Division Type given: 4v4. Choose between 1v1, 2v2, or 3v3."
 
 - Duplicate league name:
   "❌ The given League Name (TestLeague) is already taken. Choose another name for the new League."
@@ -320,13 +317,10 @@ Creates a new league with the specified name and division type. Only administrat
 ### Delete League Command (`/league delete`)
 
 **Description:**  
-Deletes a league with the specified name. This command is irreversible and should be used with caution. Only administrators can use this command.
+Load a Modal confirmation window and deletes a league with the specified name. This command is irreversible and should be used with caution. Only administrators can use this command.
 
 **Usage:**  
-/league delete leagueName:<string>
-
-**Parameters:**  
-- `leagueName` (string): The name of the league to delete. Must match an existing league.
+/league delete
 
 **Process:**  
 1. Loads the latest league database.  
@@ -364,22 +358,23 @@ Registers a new team to a specified league. Only administrators can use this com
 
 **Usage:**
 ```plaintext
-/team register teamName:<string> leagueName:<string> member1:<user> [member2:<user>] [member3:<user>]
+/team register teamName:<string> leagueName:<string> member1:<user> [member2:<user>] [member3:<user>] [etc.]
 ```
 
 **Parameters:**  
 - `teamName` (string): The name of the team to be registered. Must be unique.  
 - `leagueName` (string): The name of the league to register the team to.  
-- `member1` (user): The primary member of the team (required).  
-- `member2` (user): The second member of the team (optional for 1v1).  
-- `member3` (user): The third member of the team (optional for 1v1 and 2v2).
+- `member1` (user): The first member of the team.  
+- `member2` (user): The second member of the team.  
+- `member3` (user): The third member of the team.
+- Can handle adding 20 members total. Any team with 21 or more will use soon to be implemented `/team add member` command.
 
 **Process:**  
 1. Loads the latest leagues database.  
 2. Checks if the league exists.  
 3. Verifies the team name is unique within the league.  
 4. Converts the users into `Member` objects.  
-5. Ensures the correct number of members for the league's division type (e.g., 1 for 1v1, 2 for 2v2).  
+5. Ensures the correct number of members for the league's team size format (e.g., 1 for 1v1, 2 for 2v2).  
 6. Checks if any member is already on another team in the same league.  
 7. Creates a new `Team` object and assigns it to the league.  
 8. Updates the leagues database and backs it up to Git.  
@@ -404,15 +399,12 @@ Registers a new team to a specified league. Only administrators can use this com
 ### Remove Team Command (`/team remove`)
 
 **Description:**  
-Removes an existing team from all leagues. Only administrators can use this command.
+Loads a modal confirmation window. Removes an existing team from the leagues database. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/team remove teamName:<string>
+/team remove
 ```
-
-**Parameters:**  
-- `teamName` (string): The name of the team to be removed.
 
 **Process:**  
 1. Loads the latest leagues database.  
@@ -575,11 +567,11 @@ These commands allow administrators to start or end the ladder for a specified l
 ### Start Ladder Command (`/ladder start`)
 
 **Description:**  
-Starts the ladder for a specified league if it is not already running. Only administrators can use this command.
+Loads a modal confirmation window. Starts the ladder for a specified league if it is not already running. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/ladder start leagueName:<string>
+/ladder start
 ```
 
 **Parameters:**  
@@ -607,15 +599,12 @@ Starts the ladder for a specified league if it is not already running. Only admi
 ### End Ladder Command (`/ladder end`)
 
 **Description:**  
-Ends the ladder for a specified league if it is currently running. Only administrators can use this command.
+Loads a modal confirmation window. Ends the ladder for a specified league if it is currently running. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/ladder end leagueName:<string>
+/ladder end
 ```
-
-**Parameters:**  
-- `leagueName` (string): The name of the league to end the ladder in.
 
 **Process:**  
 1. Checks if the league exists.  
@@ -915,15 +904,12 @@ Posts challenge data for a given league.
 ### Post Leagues Command (`/post leagues`)
 
 **Description:**  
-Posts data for all leagues or by specific division type.
+Posts data for all leagues.
 
 **Usage:** 
 ```plaintext
-/post leagues optionalDivisionType:<string>
+/post leagues
 ```
-
-**Parameters:**  
-- `optionalDivisionType` (string): Posts all leagues by specific division type. Leave blank to default to all and post every league in the database.
 
 **Process:**  
 1. Checks given division type, if none given 'all' is default.
@@ -1064,6 +1050,35 @@ Sets the dynamic challenges message channel for a given league.
 **Error Response Example:**  
 - League not found:  
   "❌ The league **LeagueName** could not be found."
+- Invalid channel:  
+  "❌ The channel **ChannelName** could not be set."
+
+---
+
+### Set Leagues Channel Command (`/set leagues_channel_id`)
+
+**Description:**  
+Sets the dynamic leagues message channel for all leagues.
+
+**Usage:**  
+```plaintext
+/set leagues_channel_id channel:<IMessageChannel>
+```
+
+**Parameters:**  
+- `channel` (IMessageChannel): The channel to set for the standings messages.
+
+**Process:**  
+1. Check if the user has administrator permissions.
+2. Parse the channel.
+3. Call the `SetLeaguesChannelIdProcess` method to update the channel for standings.
+4. Return the result in an embed.
+
+**Success Response Example:**  
+- Channel set successfully:  
+  "✅ The Leagues channel for has been successfully set to **ChannelName**."
+
+**Error Response Example:**  
 - Invalid channel:  
   "❌ The channel **ChannelName** could not be set."
 
@@ -1229,5 +1244,35 @@ Removes a given user's ID from the list of Super Admins in the configuration fil
   "❌ **UserName** is not a Super Admin."
 - Invalid user:  
   "❌ The user **UserName** could not be found."
+
+---
+
+### My Member Stats (`/member mystats`)
+
+**Description:**  
+In an ephermal message, displays the users stats who invoked it.
+
+**Usage:** 
+```plaintext
+/member mystats
+```
+
+**Process:**  
+1. Grabs user's discord Id.
+2. Checks the database if it exists
+3. Works some magic.
+4. Return the result in an embed.
+
+---
+
+### Member Leaderboard (`/member leaderboard`)
+
+**Description:**  
+In an ephermal message, displays the top 25 members stats.
+
+**Usage:** 
+```plaintext
+/member mystats
+```
 
 ---

@@ -10,207 +10,216 @@ namespace Ladderbot4.Managers
 {
     public class StatesManager
     {
-        private readonly LadderData _ladderData;
+        private readonly StatesAtlasData _statesAtlasData;
+        private StatesAtlas _statesAtlas;
 
-        private StatesByDivision _statesByDivision;
-
-        public StatesManager(LadderData ladderData)
+        public StatesManager(StatesAtlasData statesAtlasData)
         {
-            _ladderData = ladderData;
-            _statesByDivision = _ladderData.LoadAllStates();
+            _statesAtlasData = statesAtlasData;
+            _statesAtlas = _statesAtlasData.Load();
         }
 
-        public void LoadStatesDatabase()
+        public void SaveStatesAtlas()
         {
-            _statesByDivision = _ladderData.LoadAllStates();
+            _statesAtlasData.Save(_statesAtlas);
         }
 
-        public void SaveStatesDatabase()
+        public void LoadStatesAtlas()
         {
-            _ladderData.SaveAllStates(_statesByDivision);
+            _statesAtlas = _statesAtlasData.Load();
         }
 
-        public void SaveAndReloadStatesDatabase()
+        public void SaveAndReloadStatesAtlas()
         {
-            SaveStatesDatabase();
-            LoadStatesDatabase();
+            SaveStatesAtlas();
+            LoadStatesAtlas();
         }
 
-        public State GetStateByLeague(League leagueRef)
+        public State GetStateByLeague(League league)
         {
-            IEnumerable<State> states;
-
-            switch (leagueRef.Division)
+            foreach (State state in _statesAtlas.States)
             {
-                case "1v1":
-                    states = _statesByDivision.States1v1;
-                    break;
-
-                case "2v2":
-                    states = _statesByDivision.States2v2;
-                    break;
-
-                case "3v3":
-                    states = _statesByDivision.States3v3;
-                    break;
-
-                default:
-                    return null;
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state;
+                }
             }
-
-            return states?.FirstOrDefault(state =>
-                state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase));
+            return null;
         }
 
-        public bool IsLadderRunning(League leagueRef)
+        public bool IsLadderRunning(League league)
         {
-            switch (leagueRef.Division)
+            foreach (State state in _statesAtlas.States)
             {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (state.LeagueName.Equals(leagueRef.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return state.IsLadderRunning;
-                        }
-                    }
-                    return false;
-
-                default:
-                    return false;
+                if (state.LeagueName.Equals(league.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    return state.IsLadderRunning;
+                }
             }
-        }
+            return false;
+        }     
 
-        public ulong GetChallengesChannelId(League leagueRef)
+        public ulong GetChallengesChannelId(League league)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
             return state?.ChallengesChannelId ?? 0;
         }
 
-        public void SetChallengesChannelId(League leagueRef, ulong channelId)
+        public void SetChallengesChannelId(League league, ulong channelId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
                 state.ChallengesChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
             }
         }
 
-        public ulong GetStandingsChannelId(League leagueRef)
+        public ulong GetChallengesMessageId(League league)
         {
-            State state = GetStateByLeague(leagueRef);
-            return state?.StandingsChannelId ?? 0;
+            State state = GetStateByLeague(league);
+            return state?.ChallengesMessageId ?? 0;
         }
 
-        public void SetStandingsChannelId(League leagueRef, ulong channelId)
+        public void SetChallengesMessageId(League league, ulong messageId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.ChallengesMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+            }
+        }
+
+        public ulong GetLeaguesChannelId()
+        {
+            return _statesAtlas.LeaguesChannelId;
+        }
+
+        public void SetLeaguesChannelId(ulong channelId)
+        {
+            if (channelId != 0)
+                _statesAtlas.LeaguesChannelId = channelId;
+                SaveAndReloadStatesAtlas();
+        }
+
+        public ulong GetLeaguesMessageId()
+        {
+            return _statesAtlas.LeaguesMessageId;
+        }
+
+        public void SetLeaguesMessageId(ulong messageId)
+        {
+            if (messageId != 0)
+                _statesAtlas.LeaguesMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+        }
+
+        public ulong GetStandingsChannelId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.StandingsChannelId ?? 0;
+        }        
+
+        public void SetStandingsChannelId(League league, ulong channelId)
+        {
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
                 state.StandingsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
+            }
+        }        
+
+        public ulong GetStandingsMessageId(League league)
+        {
+            State state = GetStateByLeague(league);
+            return state?.StandingsMessageId ?? 0;
+        }
+
+        public void SetStandingsMessageId(League league, ulong messageId)
+        {
+            State state = GetStateByLeague(league);
+            if (state != null)
+            {
+                state.StandingsMessageId = messageId;
+                SaveAndReloadStatesAtlas();
             }
         }
 
-        public ulong GetTeamsChannelId(League leagueRef)
+        public ulong GetTeamsChannelId(League league)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
             return state?.TeamsChannelId ?? 0;
         }
 
-        public void SetTeamsChannelId(League leagueRef, ulong channelId)
+        public void SetTeamsChannelId(League league, ulong channelId)
         {
-            State state = GetStateByLeague(leagueRef);
+            State state = GetStateByLeague(league);
 
             if (state != null)
             {
                 state.TeamsChannelId = channelId;
-                SaveAndReloadStatesDatabase();
+                SaveAndReloadStatesAtlas();
             }
         }
 
-        public void SetLadderRunning(League leagueRef, bool trueOrFalse)
+        public ulong GetTeamsMessageId(League league)
         {
-            switch (leagueRef.Division)
+            State state = GetStateByLeague(league);
+            return state?.TeamsMessageId ?? 0;
+        }
+
+        public void SetTeamsMessageId(League league, ulong messageId)
+        {
+            State state = GetStateByLeague(league);
+            if (state != null)
             {
-                case "1v1":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "2v2":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
-
-                case "3v3":
-                    foreach (State state in _statesByDivision.States1v1)
-                    {
-                        if (leagueRef.LeagueName.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            state.IsLadderRunning = trueOrFalse;
-                        }
-                    }
-                    break;
+                state.TeamsMessageId = messageId;
+                SaveAndReloadStatesAtlas();
             }
         }
 
-        public State CreateNewState(string leagueName, string leagueDivision)
+        public void SetLadderRunning(League league, bool trueOrFalse)
         {
-            return new State(leagueName, leagueDivision)
+            foreach (State state in _statesAtlas.States)
+            {
+                if (league.Name.Equals(state.LeagueName, StringComparison.OrdinalIgnoreCase))
+                {
+                    state.IsLadderRunning = trueOrFalse;
+                    SaveAndReloadStatesAtlas();
+                }
+            }
+        }
+
+        public State CreateNewState(string leagueName, string leagueFormat)
+        {
+            return new State(leagueName, leagueFormat)
             {
                 IsLadderRunning = false,
                 ChallengesChannelId = 0,
+                ChallengesMessageId = 0,
                 StandingsChannelId = 0,
-                TeamsChannelId = 0
+                StandingsMessageId = 0,
+                TeamsChannelId = 0,
+                TeamsMessageId = 0
             };
         }
 
         public void AddNewState(State state)
         {
-            _ladderData.AddState(state);
+            _statesAtlasData.AddState(state);
 
-            LoadStatesDatabase();
+            LoadStatesAtlas();
         }
 
-        public void RemoveLeagueState(string leagueName, string division)
+        public void RemoveState(State state)
         {
-            _ladderData.RemoveState(leagueName, division);
+            _statesAtlasData.RemoveState(state);
 
-            LoadStatesDatabase();
+            LoadStatesAtlas();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ladderbot4.Enums;
 using Ladderbot4.Models.Achievements;
 
 namespace Ladderbot4.Models
@@ -12,32 +13,21 @@ namespace Ladderbot4.Models
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
 
-        // TODO - Stats and Achievements
-        // 1v1
-        public int Wins1v1 { get; set; } = 0;
-        public int Losses1v1 { get; set; } = 0;
-        public int TeamCount1v1 { get; set; } = 0;
+        // Title, Level and XP System
+        public string Title {  get; set; } = MemberTitlesEnum.Novice.ToString();
+        public int Level { get; set; } = 1;
+        public int Experience { get; set; } = 0;
+        public int ExperienceToNextLevel => (GetNextLevelAmount(Level) - Experience);
 
-        // 2v2
-        public int Wins2v2 { get; set; } = 0;
-        public int Losses2v2 { get; set; } = 0;
-        public int TeamCount2v2 { get; set; } = 0;
-
-        // 3v3
-        public int Wins3v3 { get; set; } = 0;
-        public int Losses3v3 { get; set; } = 0;
-        public int TeamCount3v3 { get; set; } = 0;
+        // Basic Stats
+        public int Wins { get; set; } = 0;
+        public int Losses { get; set; } = 0;
+        public int LeagueChampionships { get; set; } = 0;
 
         // Derived Stats
         public int TotalMatchCount { get; set; } = 0;
-        public int TotalTeamCount { get; set; } = 0;
-        public double WinRatio1v1 => (Wins1v1 + Losses1v1) == 0 ? 0 : (double)Wins1v1 / (Wins1v1 + Losses1v1);
-        public double WinRatio2v2 => (Wins2v2 + Losses2v2) == 0 ? 0 : (double)Wins2v2 / (Wins2v2 + Losses2v2);
-        public double WinRatio3v3 => (Wins3v3 + Losses3v3) == 0 ? 0 : (double)Wins3v3 / (Wins3v3 + Losses3v3);
-
-        // Achievements
-        public List<Achievement> UnlockedAchievements { get; set; } = [];
-        public int TotalAchievementPoints { get; set; } = 0;
+        public int TotalSeasons { get; set; } = 0;
+        public double WinLossRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
         public MemberProfile(ulong discordId, string displayName)
         {
@@ -48,7 +38,7 @@ namespace Ladderbot4.Models
         public override bool Equals(object? obj)
         {
             // Check if the object is a Member
-            if (obj is Member otherMember)
+            if (obj is MemberProfile otherMember)
             {
                 return this.DiscordId == otherMember.DiscordId;
             }
@@ -57,27 +47,55 @@ namespace Ladderbot4.Models
 
         public override int GetHashCode()
         {
-            return DiscordId.GetHashCode(); // Use DiscordId for hash code
+            return DiscordId.GetHashCode();
         }
 
-        public void UpdateMatchCount()
+        public void AddExperience(int amount)
         {
-            TotalMatchCount = Wins1v1 + Losses1v1 + Wins2v2 + Losses2v2 + Wins3v3 + Losses3v3;
+            Experience += amount;
+            CheckLevelUp();
         }
 
-        public void UpdateTotalTeamCount()
+        public int GetNextLevelAmount(int currentLevel)
         {
-            TotalTeamCount = TeamCount1v1 + TeamCount2v2 + TeamCount3v3;
+            return (int)(50 * Math.Pow(currentLevel, 1.2));
         }
 
-        public void UpdateTotalAchievementPoints()
+        public void CheckLevelUp()
         {
-            int points = 0;
-            for (int i = 0; i < UnlockedAchievements.Count; i++)
+            int nextLevelAmount = GetNextLevelAmount(Level);
+            if (Experience >= nextLevelAmount)
             {
-                points += UnlockedAchievements[i].AchievementPointsValue;
+                Level++;
+                Title = GetTitle(Level);
+
+                // TODO: Inform user of level up and title
+
             }
-            TotalAchievementPoints = points;
+        }
+
+        public string GetTitle(int level)
+        {
+            if (level >= 1 && level < 3)
+                return MemberTitlesEnum.Novice.ToString();
+            else if (level >= 3 && level < 5)
+                return MemberTitlesEnum.Apprentice.ToString();
+            else if (level >= 5 && level < 7)
+                return MemberTitlesEnum.Challenger.ToString();
+            else if (level >= 7 && level < 9)
+                return MemberTitlesEnum.Contender.ToString();
+            else if (level >= 9 && level < 11)
+                return MemberTitlesEnum.Elite.ToString();
+            else if (level >= 11 && level < 13)
+                return MemberTitlesEnum.Champion.ToString();
+            else if (level >= 13 && level < 15)
+                return MemberTitlesEnum.Master.ToString();
+            else if (level >= 15 && level < 20)
+                return MemberTitlesEnum.Master.ToString();
+            else if (level >= 20)
+                return MemberTitlesEnum.Legend.ToString();
+            else
+                return "Invalid level given";
         }
     }
 }

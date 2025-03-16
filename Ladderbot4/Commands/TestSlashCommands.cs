@@ -19,14 +19,14 @@
 //            _ladderManager = ladderManager;
 //        }
 
-//        [SlashCommand("teams", "Fast team testing")]
+//        [SlashCommand("teams", "Create 10 teams in 'Test1337' league")]
 //        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
 //        public async Task TestTeamsAsync()
 //        {
 //            await Context.Interaction.DeferAsync(); // Defer the interaction for async processing
 
 //            // Military alphabet for team names
-//            string[] teamNames = { "Alpha", "Bravo", "Charlie", "Delta", "Echo" };
+//            string[] teamNames = { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet" };
 //            string leagueName = "Test1337";
 
 //            // Embed builder for a single consolidated response

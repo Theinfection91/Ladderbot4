@@ -12,32 +12,7 @@ namespace Ladderbot4.Managers
 {
     public class TeamManager
     {
-        // Migrating to new LeagueData
-        private readonly LeagueData _leagueData;
-
-        private LeaguesByDivision _leaguesByDivision;
-
-        public TeamManager(LeagueData leagueData)
-        {
-            _leagueData = leagueData;
-            _leaguesByDivision = _leagueData.LoadAllLeagues();
-        }
-
-        public void SaveLeagues()
-        {
-            _leagueData.SaveLeagues(_leaguesByDivision);
-        }
-
-        public void LoadLeaguesDatabase()
-        {
-            _leaguesByDivision = _leagueData.LoadAllLeagues();
-        }
-
-        public void SaveAndReloadLeaguesDatabase()
-        {
-            SaveLeagues();
-            LoadLeaguesDatabase();
-        }
+        public TeamManager() { }
 
         public int GetTeamCountInLeague(League league)
         {
@@ -70,11 +45,6 @@ namespace Ladderbot4.Managers
             team.LoseStreak = 0;
         }
 
-        public void AdminAddToWins(Team team, int numberOfWins)
-        {
-            team.Wins += numberOfWins;
-        }
-
         public void SubtractFromWins(Team team, int numberOfWins)
         {
             team.Wins -= numberOfWins;
@@ -87,19 +57,17 @@ namespace Ladderbot4.Managers
             team.WinStreak = 0;
         }
 
-        public void AdminAddToLosses(Team team, int numberOfLosses)
-        {
-            team.Losses += numberOfLosses;
-        }
-
         public void SubtractFromLosses(Team team, int numberOfLosses)
         {
            team.Losses -= numberOfLosses;
         }
 
-        public Team CreateTeamObject(string teamName, string leagueName, string division, int rank, List<Member> members, int wins = 0, int losses = 0)
+        public Team CreateTeamObject(string teamName, string leagueName, int teamSize, string leagueFormat, int rank, List<Member> members, int wins = 0, int losses = 0)
         {
-            return new Team(teamName, leagueName, division, rank, wins, losses, members);
+            return new Team(teamName, leagueName, leagueFormat, rank, wins, losses, members)
+            {
+                Size = teamSize
+            };
         }
     }
 }

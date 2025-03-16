@@ -9,15 +9,15 @@ namespace Ladderbot4.Models
     public class Team
     {
         // Basic Info
-        public string TeamName { get; set; }
+        public string Name { get; set; }
         public string League { get; set; }
-        public string Division { get; set; }
+        public int Size { get; set; }
+        public string LeagueFormat { get; set; }
         public int Rank { get; set; }
         public int Wins { get; set; }
         public int Losses { get; set; }
         public List<Member> Members { get; set; }
 
-        // Stats and Achievements
         // Streaks
         public int WinStreak { get; set; }
         public int LoseStreak { get; set; }
@@ -28,11 +28,11 @@ namespace Ladderbot4.Models
         // W/L Ratio
         public double WinRatio => (Wins + Losses) == 0 ? 0 : (double)Wins / (Wins + Losses);
 
-        public Team(string teamName, string league, string division, int rank, int wins, int losses, List<Member> members)
+        public Team(string teamName, string league, string leagueFormat, int rank, int wins, int losses, List<Member> members)
         {
-            TeamName = teamName;
+            Name = teamName;
             League = league;
-            Division = division;
+            LeagueFormat = leagueFormat;
             Rank = rank;
             Wins = wins;
             Losses = losses;
@@ -42,13 +42,24 @@ namespace Ladderbot4.Models
 
         public string GetAllMemberNamesToStr()
         {
-            return Members.Count switch
+            StringBuilder sb = new();
+            foreach (Member m in Members)
             {
-                1 => $"{Members[0].DisplayName}",
-                2 => $"{Members[0].DisplayName}, {Members[1].DisplayName}",
-                3 => $"{Members[0].DisplayName}, {Members[1].DisplayName}, {Members[2].DisplayName}",
-                _ => $"Incorrect member count. Count: {Members.Count}",
-            };
+                sb.Append($"{m.DisplayName}, ");
+            }
+
+            // Remove the last comma and space
+            if (sb.Length > 2)
+            {
+                sb.Length -= 2;
+            }
+
+            return sb.ToString();
+        }
+
+        public bool IsTeamFull()
+        {
+            return Size == Members.Count;
         }
     }
 }

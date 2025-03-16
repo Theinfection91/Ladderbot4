@@ -13,48 +13,107 @@ namespace Ladderbot4.Managers
     public class ChallengeManager
     {
         private readonly DiscordSocketClient _client;
-        private readonly ChallengeData _challengeData;
 
-        public ChallengeManager(ChallengeData challengeData, DiscordSocketClient client)
+        private readonly ChallengesHubData _challengesHubData;
+
+        private ChallengesHub _challengesHub;
+
+        private LeagueManager _leagueManager;
+
+        public ChallengeManager(LeagueManager leagueManager, ChallengesHubData challengesHubData, DiscordSocketClient client)
         {
+            _leagueManager = leagueManager;
             _client = client;
-            _challengeData = challengeData;
+            _challengesHubData = challengesHubData;
+            _challengesHub = _challengesHubData.Load();
         }
 
-        public void LoadChallengesDatabase()
+        public void SaveChallengesHub()
         {
-            _challengeData.LoadAllChallenges();
+            _challengesHubData.Save(_challengesHub);
         }
 
-        public void SaveChallengesDatabase()
+        public void LoadChallengesHub()
         {
-            _challengeData.SaveChallenges(_challengeData.LoadAllChallenges());
+            _challengesHub = _challengesHubData.Load();
         }
 
-        public Challenge? GetChallengeForTeam(string division, string leagueName, Team team)
+        public void SaveAndReloadChallengesHub()
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
+            SaveChallengesHub();
+            LoadChallengesHub();
+        }
+
+        public void ChallengeRankComparisonProcess(List<Team> teams)
+        {
+            foreach (Team team in teams)
+            {
+                if (!IsChallengeRankCorrect(team))
+                {
+                    Challenge? challengeToEdit = GetChallengeForTeam(team.League, team);
+                    if (team.Name.Equals(challengeToEdit.Challenger, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengerRank = team.Rank;
+                    }
+                    else if (team.Name.Equals(challengeToEdit.Challenged, StringComparison.OrdinalIgnoreCase))
+                    {
+                        challengeToEdit.ChallengedRank = team.Rank;
+                    }
+                }
+            }
+            SaveAndReloadChallengesHub();
+        }
+
+        public Challenge? GetChallengeForTeam(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
 
             return challenges.FirstOrDefault(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
-        public bool IsTeamInChallenge(string division, string leagueName, Team team)
+        public List<Team> GetTeamsInLeagueChallenges(string leagueName)
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase) ||
-                challenge.Challenged.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+            List<Team> teams = [];
+            foreach (Challenge challenge in _challengesHub.Challenges[leagueName])
+            {
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenger));
+                teams.Add(_leagueManager.GetTeamByNameFromLeagues(challenge.Challenged));
+            }
+            return teams;
         }
 
-        public bool IsTeamChallenger(string division, string leagueName, Team team)
+        public bool IsChallengeRankCorrect(Team team)
         {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
+            foreach (Challenge challenge in _challengesHub.Challenges[team.League])
+            {
+                if (challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase) || challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (challenge.ChallengedRank == team.Rank || challenge.ChallengerRank == team.Rank)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsTeamInChallenge(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
 
             return challenges.Any(challenge =>
-                challenge.Challenger.Equals(team.TeamName, StringComparison.OrdinalIgnoreCase));
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase) ||
+                challenge.Challenged.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public bool IsTeamChallenger(string leagueName, Team team)
+        {
+            var challenges = _challengesHub.GetChallenges(leagueName);
+
+            return challenges.Any(challenge =>
+                challenge.Challenger.Equals(team.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         public bool IsTeamChallengeable(Team challengerTeam, Team challengedTeam)
@@ -65,103 +124,82 @@ namespace Ladderbot4.Managers
 
         public List<Challenge> GetChallengesForLeague(League league)
         {
-            return _challengeData.GetChallenges(league.Division, league.LeagueName);
-        }
-
-        public string GetChallengesData(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-            StringBuilder sb = new();
-
-            sb.AppendLine($"```\n");
-            foreach (var challenge in challenges)
-            {
-                sb.AppendLine($"Challenger Team: {challenge.Challenger} - Challenged Team: {challenge.Challenged} - Created: {challenge.CreatedOn}\n");
-            }
-            sb.AppendLine("\n```");
-
-            return sb.ToString();
-        }
-
-        public Embed GetChallengesEmbed(string division, string leagueName)
-        {
-            var challenges = _challengeData.GetChallenges(division, leagueName);
-
-            var embedBuilder = new EmbedBuilder()
-                .WithTitle($"⚔️ Active Challenges for {leagueName} in {division} Division")
-                .WithColor(Color.Orange)
-                .WithDescription($"Current active challenges in **{leagueName} ({division} Division)**:");
-
-            if (challenges.Count > 0)
-            {
-                foreach (var challenge in challenges)
-                {
-                    embedBuilder.AddField(
-                        $"Challenger: {challenge.Challenger}",
-                        $"*Challenged:* *{challenge.Challenged}*\n> Created On: {challenge.CreatedOn:MM/dd/yyyy HH:mm}",
-                        inline: false
-                    );
-                }
-            }
-            else
-            {
-                embedBuilder.WithDescription($"There are no active challenges in **{leagueName} ({division} Division)** at this time.");
-            }
-
-            embedBuilder.WithFooter("Last Updated").WithTimestamp(DateTimeOffset.Now);
-            return embedBuilder.Build();
+            return _challengesHub.GetChallenges(league.Name);
         }
 
         public async void SendChallengeNotification(ulong userId, Challenge challenge, League league)
         {
             try
             {
+                // Fetch the user by ID
                 var user = await _client.GetUserAsync(userId);
 
                 if (user == null)
                 {
-                    Console.WriteLine($"User with ID {userId} not found.");
+                    Console.WriteLine($"[Error] User with ID {userId} not found.");
                     return;
                 }
 
-                var dmChannel = await user.CreateDMChannelAsync();
+                // Check if the user is a bot
+                if (user.IsBot)
+                {
+                    return;
+                }
 
-                var embedBuilder = new EmbedBuilder()
-                    .WithTitle("⚔️ You've Been Challenged!")
-                    .WithColor(Color.Gold)
-                    .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.LeagueName}** ({league.Division} League).")
-                    .AddField("Challenger Team", challenge.Challenger, inline: true)
-                    .AddField("Your Team", challenge.Challenged, inline: true)
-                    .WithFooter("Prepare for your match!")
-                    .WithTimestamp(DateTimeOffset.Now);
+                try
+                {
+                    // Try to create a DM channel
+                    var dmChannel = await user.CreateDMChannelAsync();
 
-                await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
-                Console.WriteLine($"{DateTime.Now} ChallengeManager - Notification sent to user {user.Username} (ID: {userId}).");
+                    var embedBuilder = new EmbedBuilder()
+                        .WithTitle("⚔️ You've Been Challenged!")
+                        .WithColor(Color.Gold)
+                        .WithDescription($"Your team, **{challenge.Challenged}(#{challenge.ChallengedRank})**, has been challenged by **{challenge.Challenger}(#{challenge.ChallengerRank})** in **{league.Name}** ({league.Format} League).")
+                        .AddField("Challenger Team", challenge.Challenger, inline: true)
+                        .AddField("Your Team", challenge.Challenged, inline: true)
+                        .WithFooter("Prepare for your match!")
+                        .WithTimestamp(DateTimeOffset.Now);
+
+                    // Send the embed message
+                    await dmChannel.SendMessageAsync(embed: embedBuilder.Build());
+                    Console.WriteLine($"[Info] Notification sent to {user.Username} (ID: {userId}).");
+                }
+                catch (Discord.Net.HttpException httpEx) when (httpEx.HttpCode == System.Net.HttpStatusCode.Forbidden)
+                {
+                    // Cannot send DMs to the user
+                    Console.WriteLine($"[Warning] Cannot send messages to user {userId}: DMs disabled or bot blocked.");
+                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to send message to user {userId}: {ex.Message}");
+                // Handle unexpected exceptions
+                Console.WriteLine($"[Error] An error occurred while sending a notification to user {userId}: {ex.Message}");
             }
         }
 
-        public void AddNewChallenge(string division, string leagueName, Challenge challenge)
+
+        public void AddNewChallenge(string leagueName, Challenge challenge)
         {
-            _challengeData.AddChallenge(division, leagueName, challenge);
+            _challengesHubData.AddChallenge(leagueName, challenge);
+            LoadChallengesHub();
         }
 
-        public void RemoveChallenge(string division, string leagueName, Predicate<Challenge> match)
+        public void RemoveChallenge(string leagueName, Predicate<Challenge> challenge)
         {
-            _challengeData.RemoveChallenge(division, leagueName, match);
+            _challengesHubData.RemoveChallenge(leagueName, challenge);
+            LoadChallengesHub();
         }
 
-        public void SudoRemoveChallenge(string division, string leagueName, string teamName)
+        public void SudoRemoveChallenge(string leagueName, string teamName)
         {
-            _challengeData.SudoRemoveChallenge(division, leagueName, teamName);
+            _challengesHubData.SudoRemoveChallenge(leagueName, teamName);
         }
 
-        public void RemoveLeagueFromChallenges(string division, string leagueName)
+        public void RemoveLeagueFromChallenges(string leagueName)
         {
-            _challengeData.RemoveLeagueFromChallenges(division, leagueName);
+            _challengesHubData.RemoveLeagueFromChallenges(leagueName);
+
+            LoadChallengesHub();
         }
     }
 }

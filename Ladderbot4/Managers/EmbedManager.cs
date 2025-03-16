@@ -16,6 +16,21 @@ namespace Ladderbot4.Managers
 
         }
 
+        #region Debug/Test Embed
+        public Embed CreateDebugEmbed(string message)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Debug Embed")
+                .WithColor(Color.DarkTeal)
+                .AddField("Debug Message", message, inline: false);
+
+            embedBuilder.WithFooter("*").WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        #endregion
+
         #region Try-Catch Error
         public Embed CreateErrorEmbed(Exception ex, string commandName)
         {
@@ -44,8 +59,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Started!")
                 .WithColor(Color.Green)
-                .WithDescription($"The ladder for **{leagueRef.LeagueName}** ({leagueRef.Division} League) has been successfully started.")
-                .AddField("Division Type", leagueRef.Division, inline: true)
+                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has been successfully started.")
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("Good luck to all teams!")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -57,8 +72,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Ladder Already Running")
                 .WithColor(Color.Red)
-                .WithDescription($"The ladder for **{leagueRef.LeagueName}** ({leagueRef.Division} League) is already running.")
-                .AddField("Division Type", leagueRef.Division, inline: true)
+                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) is already running.")
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -67,26 +82,88 @@ namespace Ladderbot4.Managers
 
         public Embed EndLadderSuccessEmbed(League leagueRef)
         {
+            // Get the top 3 teams
+            Team? firstPlace = leagueRef.Teams.Count > 0 ? leagueRef.Teams[0] : null;
+            Team? secondPlace = leagueRef.Teams.Count > 1 ? leagueRef.Teams[1] : null;
+            Team? thirdPlace = leagueRef.Teams.Count > 2 ? leagueRef.Teams[2] : null;
+
+            // Prepare the members for each team if they exist
+            string firstPlaceMembers = firstPlace?.GetAllMemberNamesToStr() ?? "No members available";
+            string secondPlaceMembers = secondPlace?.GetAllMemberNamesToStr() ?? "No members available";
+            string thirdPlaceMembers = thirdPlace?.GetAllMemberNamesToStr() ?? "No members available";
+
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🏁 Ladder Ended")
-                .WithColor(Color.Green)
-                .WithDescription($"The ladder for **{leagueRef.LeagueName}** ({leagueRef.Division} League) has successfully ended.")
-                .AddField("Division Type", leagueRef.Division, inline: true)
-                .WithFooter("Thank you for participating!")
-                .WithTimestamp(DateTimeOffset.Now);
+                .WithColor(Color.Gold)
+                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) has officially ended.");
+
+            // 1st Place (Winner) - Always included if there is at least one team
+            if (firstPlace != null)
+            {
+                embedBuilder.AddField("🏆 1st Place - Winner", $"{firstPlace.Name}\n" +
+                                                                   $"**Wins**: {firstPlace.Wins} | **Losses**: {firstPlace.Losses}\n" +
+                                                                   $"**W/L%**: {firstPlace.WinRatio:P1}\n" +
+                                                                   $"**Members**: {firstPlaceMembers}", inline: false);
+            }
+
+            // 2nd Place (Runner-up) - Only included if there is at least two teams
+            if (secondPlace != null)
+            {
+                embedBuilder.AddField("🥈 2nd Place - Runner-up", $"{secondPlace.Name}\n" +
+                                                                    $"**Wins**: {secondPlace.Wins} | **Losses**: {secondPlace.Losses}\n" +
+                                                                    $"**W/L%**: {secondPlace.WinRatio:P1}\n" +
+                                                                    $"**Members**: {secondPlaceMembers}", inline: false);
+            }
+
+            // 3rd Place - Only included if there is at least three teams
+            if (thirdPlace != null)
+            {
+                embedBuilder.AddField("🥉 3rd Place", $"{thirdPlace.Name}\n" +
+                                                     $"**Wins**: {thirdPlace.Wins} | **Losses**: {thirdPlace.Losses}\n" +
+                                                     $"**W/L%**: {thirdPlace.WinRatio:P1}\n" +
+                                                     $"**Members**: {thirdPlaceMembers}", inline: false);
+            }
+
+            // Show all remaining teams in the league
+            var remainingTeams = leagueRef.Teams.Skip(3).ToList(); // Skip top 3 teams
+            if (remainingTeams.Any())
+            {
+                // Create a simple string that lists the remaining teams with basic stats
+                string remainingTeamsStr = string.Join("\n", remainingTeams.Select(t =>
+                    $"{t.Name} - Wins: {t.Wins} | Losses: {t.Losses} | W/L%: {t.WinRatio:P1}"));
+
+                embedBuilder.AddField("Remaining Team(s)", remainingTeamsStr, inline: false);
+            }
+
+            // Footer and timestamp
+            embedBuilder.WithFooter($"Thanks for participating in the {leagueRef.Name} Ladder!")
+                        .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
+
 
         public Embed EndLadderNotRunningEmbed(League leagueRef)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Ladder Not Running")
                 .WithColor(Color.Red)
-                .WithDescription($"The ladder for **{leagueRef.LeagueName}** ({leagueRef.Division} League) is not currently running.")
-                .AddField("Division Type", leagueRef.Division, inline: true)
+                .WithDescription($"The ladder for **{leagueRef.Name}** ({leagueRef.Format} League) is not currently running.")
+                .AddField("Format", leagueRef.Format, inline: true)
                 .WithFooter("No changes were made.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed LadderModalErrorEmbed(string errorMessage, string category)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ {category} Ladder Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
@@ -110,9 +187,9 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
             .WithTitle("🏅 League Created Successfully!")
             .WithColor(Color.Green)
-            .WithDescription($"A new {league.Division} League has been created!")
-            .AddField("League Name", $"**{league.LeagueName}**", inline: true)
-            .AddField("Division", $"**{league.Division}**", inline: true)
+            .WithDescription($"A new {league.Format} League has been created!")
+            .AddField("League Name", $"**{league.Name}**", inline: true)
+            .AddField("Format", $"**{league.Format}**", inline: true)
             .WithFooter("Let's add some teams and get started!")
             .WithTimestamp(DateTimeOffset.Now);
 
@@ -136,10 +213,22 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
             .WithTitle("✅ League Deleted Successfully!")
             .WithColor(Color.Green)
-            .WithDescription($"A {league.Division} League was deleted!")
-            .AddField("League Name", $"**{league.LeagueName}**", inline: true)
-            .AddField("Division", $"**{league.Division}**", inline: true)
+            .WithDescription($"A {league.Format} League was deleted!")
+            .AddField("League Name", $"**{league.Name}**", inline: true)
+            .AddField("Format", $"**{league.Format}**", inline: true)
             .WithFooter("Create a new league or continue an existing one!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed LeagueModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Delete League Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
             .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
@@ -164,8 +253,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
             .WithTitle("🎉 Team Registered Successfully!")
             .WithColor(Color.Green)
-            .WithDescription($"A new team has been registered to **{league.LeagueName}** ({league.Division} League)")
-            .AddField("Team Name", $"**{newTeam.TeamName}**", inline: true)
+            .WithDescription($"A new team has been registered to **{league.Name}** ({league.Format} League)")
+            .AddField("Team Name", $"**{newTeam.Name}**", inline: true)
             .AddField("Rank", $"**#{newTeam.Rank}**", inline: true)
             .AddField("Members", newTeam.GetAllMemberNamesToStr(), inline: false)
             .WithFooter("Good luck to your team!")
@@ -191,11 +280,23 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Team Removed Successfully")
                 .WithColor(Color.Green)
-                .WithDescription($"The team **{team.TeamName}** has been successfully removed from **{league.LeagueName}** ({league.Division} League).")
-                .AddField("Division", league.Division, inline: true)
+                .WithDescription($"The team **{team.Name}** has been successfully removed from **{league.Name}** ({league.Format} League).")
+                .AddField("Format", league.Format, inline: true)
                 .AddField("Removed Members", team.GetAllMemberNamesToStr(), inline: false)
                 .WithFooter("Team removal is complete.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed TeamModalErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle($"⚠️ Remove Team Confirmation Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
@@ -219,9 +320,9 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚔️ Challenge Initiated!")
                 .WithColor(Color.Green)
-                .WithDescription($"A new challenge has been initiated in **{challengerTeam.League}** ({challengerTeam.Division} League)")
-                .AddField("Challenger Team", $"{challengerTeam.TeamName} (Rank #{challengerTeam.Rank})", inline: true)
-                .AddField("Challenged Team", $"{challengedTeam.TeamName} (Rank #{challengedTeam.Rank})", inline: true)
+                .WithDescription($"A new challenge has been initiated in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League)")
+                .AddField("Challenger Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)
+                .AddField("Challenged Team", $"{challengedTeam.Name} (Rank #{challengedTeam.Rank})", inline: true)
                 .WithFooter("Best of luck to both teams!")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -243,10 +344,10 @@ namespace Ladderbot4.Managers
         public Embed CancelChallengeSuccessEmbed(Team challengerTeam)
         {
             var embedBuilder = new EmbedBuilder()
-                .WithTitle("✅ Challenge Canceled")
+                .WithTitle("🚫 Challenge Canceled")
                 .WithColor(Color.Green)
-                .WithDescription($"The challenge sent by **{challengerTeam.TeamName}** in **{challengerTeam.League}** ({challengerTeam.Division} League) has been successfully canceled.")
-                .AddField("Team", $"{challengerTeam.TeamName} (Rank #{challengerTeam.Rank})", inline: true)
+                .WithDescription($"The challenge sent by **{challengerTeam.Name}** in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League) has been successfully canceled by a team member.")
+                .AddField("Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)
                 .AddField("League", challengerTeam.League, inline: true)
                 .WithFooter("Challenge canceled successfully.")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -259,23 +360,23 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚔️ Admin-Initiated Challenge!")
                 .WithColor(Color.Green)
-                .WithDescription($"An admin, **{context.User.GlobalName ?? context.User.Username}**, has initiated a challenge in **{challengerTeam.League}** ({challengerTeam.Division} League).")
-                .AddField("Challenger Team", $"{challengerTeam.TeamName} (Rank #{challengerTeam.Rank})", inline: true)
-                .AddField("Challenged Team", $"{challengedTeam.TeamName} (Rank #{challengedTeam.Rank})", inline: true)
+                .WithDescription($"An admin, **{context.User.GlobalName ?? context.User.Username}**, has initiated a challenge in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League).")
+                .AddField("Challenger Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)
+                .AddField("Challenged Team", $"{challengedTeam.Name} (Rank #{challengedTeam.Rank})", inline: true)
                 .WithFooter("Challenge initiated by an Admin")
                 .WithTimestamp(DateTimeOffset.Now);
 
             return embedBuilder.Build();
         }
 
-        public Embed AdminCancelChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam)
+        public Embed AdminCancelChallengeSuccessEmbed(SocketInteractionContext context, Team challengerTeam, Team challengedTeam)
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("🚫 Challenge Canceled by Admin")
                 .WithColor(Color.Green)
-                .WithDescription($"The challenge sent by **{challengerTeam.TeamName}** in **{challengerTeam.League}** ({challengerTeam.Division} League) has been successfully canceled by an admin.")
+                .WithDescription($"The challenge sent by **{challengerTeam.Name}** in **{challengerTeam.League}** ({challengerTeam.LeagueFormat} League) against **{challengedTeam.Name}** has been successfully canceled by an admin.")
                 .AddField("Admin", context.User.GlobalName ?? context.User.Username, inline: true)
-                .AddField("Team", $"{challengerTeam.TeamName} (Rank #{challengerTeam.Rank})", inline: true)
+                .AddField("Team", $"{challengerTeam.Name} (Rank #{challengerTeam.Rank})", inline: true)
                 .AddField("League", challengerTeam.League, inline: true)
                 .WithFooter("Challenge canceled successfully by Admin")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -303,10 +404,10 @@ namespace Ladderbot4.Managers
                 .WithTitle("🏆 Match Result Reported!")
                 .WithColor(Color.Green)
                 .WithDescription(rankChange
-                    ? $"Team **{winningTeam.TeamName}** has won the challenge they initiated against **{losingTeam.TeamName}** in **{league.LeagueName}** ({league.Division} League) and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.TeamName}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly."
-                    : $"Team **{winningTeam.TeamName}** has defeated **{losingTeam.TeamName}** in **{league.LeagueName}** ({league.Division} League) and defended their rank. No rank changes occurred.")
-                .AddField("Winning Team", $"{winningTeam.TeamName} (Rank #{winningTeam.Rank})", inline: true)
-                .AddField("Losing Team", $"{losingTeam.TeamName} (Rank #{losingTeam.Rank})", inline: true)
+                    ? $"Team **{winningTeam.Name}** has won the challenge they initiated against **{losingTeam.Name}** in **{league.Name}** ({league.Format} League) and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.Name}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly."
+                    : $"Team **{winningTeam.Name}** has defeated **{losingTeam.Name}** in **{league.Name}** ({league.Format} League) and defended their rank. No rank changes occurred.")
+                .AddField("Winning Team", $"{winningTeam.Name} (Rank #{winningTeam.Rank})", inline: true)
+                .AddField("Losing Team", $"{losingTeam.Name} (Rank #{losingTeam.Rank})", inline: true)
                 .WithFooter("Match successfully reported")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -319,10 +420,10 @@ namespace Ladderbot4.Managers
                 .WithTitle("🏆 Match Result Reported By Admin!")
                 .WithColor(Color.Green)
                 .WithDescription(rankChange
-                    ? $"Team **{winningTeam.TeamName}** has won the challenge they initiated against **{losingTeam.TeamName}** in **{league.LeagueName}** ({league.Division} League) and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.TeamName}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly. This report was created by an Admin (**{context.User.GlobalName ?? context.User.Username}**) "
-                    : $"Team **{winningTeam.TeamName}** has defeated **{losingTeam.TeamName}** in **{league.LeagueName}** ({league.Division} League) and defended their rank. No rank changes occurred.")
-                .AddField("Winning Team", $"{winningTeam.TeamName} (Rank #{winningTeam.Rank})", inline: true)
-                .AddField("Losing Team", $"{losingTeam.TeamName} (Rank #{losingTeam.Rank})", inline: true)
+                    ? $"Team **{winningTeam.Name}** has won the challenge they initiated against **{losingTeam.Name}** in **{league.Name}** ({league.Format} League) and taken their rank of **#{winningTeam.Rank}**! Team **{losingTeam.Name}** drops down to **#{losingTeam.Rank}**. All other ranks have been adjusted accordingly. This report was created by an Admin (**{context.User.GlobalName ?? context.User.Username}**) "
+                    : $"Team **{winningTeam.Name}** has defeated **{losingTeam.Name}** in **{league.Name}** ({league.Format} League) and defended their rank. No rank changes occurred.")
+                .AddField("Winning Team", $"{winningTeam.Name} (Rank #{winningTeam.Rank})", inline: true)
+                .AddField("Losing Team", $"{losingTeam.Name} (Rank #{losingTeam.Rank})", inline: true)
                 .WithFooter("Match successfully reported by Admin")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -336,7 +437,7 @@ namespace Ladderbot4.Managers
         {
             // Create the embed
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"🏆 Standings - **{league.LeagueName}** ({league.Division} League)")
+                .WithTitle($"🏆 Standings - **{league.Name}** ({league.Format} League)")
                 .WithColor(Color.Gold)
                 .WithDescription("Current standings for league:");
 
@@ -348,7 +449,7 @@ namespace Ladderbot4.Managers
                     string status = team.IsChallengeable ? "Free" : "Challenged";
                     string winRatio = $"{team.WinRatio:P1}"; // Formats as percentage with 1 decimal place
                     embedBuilder.AddField(
-                        $"#{team.Rank} {team.TeamName}",
+                        $"#{team.Rank} {team.Name}",
                         $"**Wins:** {team.Wins} | **Losses:** {team.Losses}\n" +
                         $"**Win Streak:** {team.WinStreak} | **Loss Streak:** {team.LoseStreak}\n" +
                         $"**Win Ratio:** {winRatio} | **Challenge Status:** {status}",
@@ -358,7 +459,7 @@ namespace Ladderbot4.Managers
             }
             else
             {
-                embedBuilder.WithDescription($"🔎 No teams are currently registered in **{league.LeagueName}** ({league.Division} League).");
+                embedBuilder.WithDescription($"🔎 No teams are currently registered in **{league.Name}** ({league.Format} League).");
             }
 
             // Add a footer with timestamp
@@ -368,18 +469,13 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed PostLeaguesEmbed(List<League> leagues, string divisionType)
+        public Embed PostLeaguesEmbed(List<League> leagues)
         {
-            if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                divisionType = "All";
-            }
-
             // Create the embed
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"📋 Active Leagues - {divisionType}")
+                .WithTitle($"📋 Active Leagues")
                 .WithColor(Color.Purple)
-                .WithDescription($"Overview of {divisionType.ToLower()} leagues:")
+                .WithDescription($"Overview of all leagues:")
                 .WithFooter("Last Updated")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -393,10 +489,10 @@ namespace Ladderbot4.Managers
                         // Format the teams by rank
                         var teamList = string.Join("\n", league.Teams
                             .OrderBy(t => t.Rank)
-                            .Select(t => $"#{t.Rank} {t.TeamName}"));
+                            .Select(t => $"#{t.Rank} {t.Name}"));
 
                         embedBuilder.AddField(
-                            $"🏆 **{league.LeagueName}** ({league.Division} League)",
+                            $"🏆 **{league.Name}** ({league.Format} League)",
                             $"**Teams by Rank:**\n{teamList}",
                             inline: false // Stacked vertically for better readability
                         );
@@ -404,7 +500,7 @@ namespace Ladderbot4.Managers
                     else
                     {
                         embedBuilder.AddField(
-                            $"🏆 **{league.LeagueName}** ({league.Division} League)",
+                            $"🏆 **{league.Name}** ({league.Format} League)",
                             "🔎 No teams are currently registered.",
                             inline: false
                         );
@@ -422,7 +518,7 @@ namespace Ladderbot4.Managers
         public Embed PostChallengesEmbed(League league, List<Challenge> challenges)
         {
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"⚔️ Active Challenges - **{league.LeagueName}** ({league.Division} League)")
+                .WithTitle($"⚔️ Active Challenges - **{league.Name}** ({league.Format} League)")
                 .WithColor(Color.Orange)
                 .WithDescription($"Current challenges for league:");
 
@@ -439,7 +535,7 @@ namespace Ladderbot4.Managers
             }
             else
             {
-                embedBuilder.WithDescription($"🔎 No active challenges in **{league.LeagueName}** ({league.Division} League) at this time.");
+                embedBuilder.WithDescription($"🔎 No active challenges in **{league.Name}** ({league.Format} League) at this time.");
             }
 
             embedBuilder.WithFooter("Last Updated").WithTimestamp(DateTimeOffset.Now);
@@ -450,7 +546,7 @@ namespace Ladderbot4.Managers
         {
             // Create the embed builder
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"🛡️ Teams - **{league.LeagueName}** ({league.Division} League)")
+                .WithTitle($"🛡️ Teams - **{league.Name}** ({league.Format} League)")
                 .WithColor(Color.Blue)
                 .WithFooter("Last Updated")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -466,7 +562,7 @@ namespace Ladderbot4.Managers
                     string challengeStatus = team.IsChallengeable ? "Free" : "Challenged";
 
                     embedBuilder.AddField(
-                        $"{team.TeamName} (#{team.Rank})",
+                        $"{team.Name} (#{team.Rank})",
                         $"**Members:** {team.GetAllMemberNamesToStr()}\n" +
                         $"**Challenge Status:** {challengeStatus}",
                         inline: false // Stacked vertically for readability
@@ -475,7 +571,7 @@ namespace Ladderbot4.Managers
             }
             else
             {
-                embedBuilder.WithDescription($"🔎 No teams in **{league.LeagueName}** ({league.Division} League) at this time.");
+                embedBuilder.WithDescription($"🔎 No teams in **{league.Name}** ({league.Format} League) at this time.");
             }
 
             // Build and return the embed
@@ -514,7 +610,7 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Set Rank Success")
                 .WithColor(Color.Green)
-                .WithDescription($"Team {team.TeamName} has been moved to rank {team.Rank} in **{league.LeagueName}** ({league.Division} League). All ranks have been adjusted accordingly.")
+                .WithDescription($"Team {team.Name} has been moved to rank {team.Rank} in **{league.Name}** ({league.Format} League). All ranks have been adjusted accordingly.")
                 .WithFooter("Team rank successfully changed.")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -529,8 +625,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Wins Added Successfully!")
                 .WithColor(Color.Green)
-                .WithDescription($"**{numberOfWins}** win(s) have been added to **{team.TeamName}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
-                .AddField("Team", team.TeamName, inline: true)
+                .WithDescription($"**{numberOfWins}** win(s) have been added to **{team.Name}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.Name, inline: true)
                 .AddField("New Win Count", team.Wins.ToString(), inline: true)
                 .WithFooter("Win count updated successfully.")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -543,8 +639,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Wins Subtracted Successfully!")
                 .WithColor(Color.Green)
-                .WithDescription($"**{numberOfWins}** win(s) have been subtracted from **{team.TeamName}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
-                .AddField("Team", team.TeamName, inline: true)
+                .WithDescription($"**{numberOfWins}** win(s) have been subtracted from **{team.Name}**'s win count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.Name, inline: true)
                 .AddField("New Win Count", team.Wins.ToString(), inline: true)
                 .WithFooter("Win count updated successfully.")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -557,8 +653,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Losses Added Successfully!")
                 .WithColor(Color.Green)
-                .WithDescription($"**{numberOfLosses}** loss(es) have been added to **{team.TeamName}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
-                .AddField("Team", team.TeamName, inline: true)
+                .WithDescription($"**{numberOfLosses}** loss(es) have been added to **{team.Name}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.Name, inline: true)
                 .AddField("New Loss Count", team.Losses.ToString(), inline: true)
                 .WithFooter("Loss count updated successfully.")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -571,11 +667,117 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Losses Subtracted Successfully!")
                 .WithColor(Color.Green)
-                .WithDescription($"**{numberOfLosses}** loss(es) have been subtracted from **{team.TeamName}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
-                .AddField("Team", team.TeamName, inline: true)
+                .WithDescription($"**{numberOfLosses}** loss(es) have been subtracted from **{team.Name}**'s loss count by Admin **{context.User.GlobalName ?? context.User.Username}**.")
+                .AddField("Team", team.Name, inline: true)
                 .AddField("New Loss Count", team.Losses.ToString(), inline: true)
                 .WithFooter("Loss count updated successfully.")
                 .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+        #endregion
+
+        #region Add Member
+        public Embed AddMemberSuccessEmbed(Team team)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("👤 Add Member Success!")
+            .WithColor(Color.Green)
+            .WithDescription($"Member(s) was successfully added to team.")
+            .AddField("Team Name", $"**{team.Name}**", inline: true)
+            .AddField("Members", team.GetAllMemberNamesToStr(), inline: false)
+            .WithFooter("Good luck to your team!")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed AddMemberErrorEmbed(string message)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("⚠️ Add Member Error")
+                .WithColor(Color.Red)
+                .WithDescription(message)
+                .WithFooter("Add Member failed.")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+        #endregion
+
+        #region Member Stats
+        public Embed MemberMyStatsEmbed(MemberProfile memberProfile)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle($"📊 My Member Stats: {memberProfile.DisplayName}")
+                .WithColor(Color.Teal)
+
+                // New fields for Title, Level, XP, and XP to next level (placed above the stats)
+                .AddField("🏆 Title", memberProfile.Title, inline: true)
+                .AddField("💼 Level", memberProfile.Level.ToString(), inline: true)
+                .AddField("💥 Total XP", $"{memberProfile.Experience} XP", inline: true)
+                .AddField("⏳ XP to Next Level", $"{memberProfile.ExperienceToNextLevel} XP", inline: true)
+
+                // Old stats fields
+                .AddField("🏅 Wins", memberProfile.Wins.ToString(), inline: true)
+                .AddField("❌ Losses", memberProfile.Losses.ToString(), inline: true)
+                .AddField("🎖️ League Championships", memberProfile.LeagueChampionships.ToString(), inline: true)
+                .AddField("📊 Matches Played", memberProfile.TotalMatchCount.ToString(), inline: true)
+                .AddField("🎗️ Seasons Completed", memberProfile.TotalSeasons.ToString(), inline: true)
+                .AddField("📈 Win/Loss Ratio", $"{(memberProfile.WinLossRatio * 100):0.00}%", inline: true)
+
+                .WithFooter("Check back as your stats update as you play!")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed MemberMyStatsErrorEmbed(string errorMessage)
+        {
+            var embedBuilder = new EmbedBuilder()
+            .WithTitle("⚠️ My Member Stats Error")
+            .WithColor(Color.Red)
+            .WithDescription(errorMessage)
+            .WithFooter("Please try again.")
+            .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed MemberLeaderboardEmbed(List<MemberProfile> memberProfiles)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("📊 Member Leaderboard")
+                .WithColor(Color.Blue)
+                .WithFooter($"Total Members: {memberProfiles.Count}")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            if (memberProfiles == null || !memberProfiles.Any())
+            {
+                embedBuilder.WithDescription("No members found to display on the leaderboard.");
+                return embedBuilder.Build();
+            }
+
+            // Sort members by Wins, then by WinLossRatio (descending order)
+            var sortedMembers = memberProfiles
+                .OrderByDescending(m => m.Wins)
+                .ThenByDescending(m => m.WinLossRatio)
+                .ToList();
+
+            foreach (var member in sortedMembers)
+            {
+                string stats = $"**Title**: {member.Title} | **Level**: {member.Level}\n" +
+                               $"**Wins**: {member.Wins} | **Losses**: {member.Losses} | " +
+                               $"**W/L Ratio**: {(member.WinLossRatio * 100):F2}%\n" +
+                               $"**Matches Played**: {member.TotalMatchCount} | **Seasons Completed**: {member.TotalSeasons}\n" +
+                               $"**League Championships**: {member.LeagueChampionships}";
+
+                embedBuilder.AddField(member.DisplayName, stats, inline: false);
+
+                // Limit the embed to 25 fields (Discord API restriction)
+                if (embedBuilder.Fields.Count >= 25)
+                    break;
+            }
 
             return embedBuilder.Build();
         }
@@ -599,7 +801,7 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ League Not Found")
                 .WithColor(Color.Red)
-                .WithDescription($"The League **{leagueName}** was not found in the database. Please try again.")
+                .WithDescription($"**{leagueName}** was not found in the League database. Please try again.")
                 .WithFooter("League name verification failed.")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -613,8 +815,8 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Invalid Operation")
                 .WithColor(Color.Red)
-                .WithDescription($"Attempting to subtract **{attemptedChange}** {statType.ToLower()}(s) from **{team.TeamName}**'s current {statType.ToLower()} count of **{(statType == "Wins" ? team.Wins : team.Losses)}** would result in a negative number. Operation aborted.")
-                .AddField("Team", team.TeamName, inline: true)
+                .WithDescription($"Attempting to subtract **{attemptedChange}** {statType.ToLower()}(s) from **{team.Name}**'s current {statType.ToLower()} count of **{(statType == "Wins" ? team.Wins : team.Losses)}** would result in a negative number. Operation aborted.")
+                .AddField("Team", team.Name, inline: true)
                 .AddField("Current Count", (statType == "Wins" ? team.Wins : team.Losses).ToString(), inline: true)
                 .WithFooter($"{statType} update failed due to invalid count.")
                 .WithTimestamp(DateTimeOffset.Now);
@@ -727,10 +929,24 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("✅ Channel Set Successfully")
                 .WithColor(Color.Green)
-                .WithDescription($"The {type} channel for **{league.LeagueName}** ({league.Division} League) has been successfully set.")
+                .WithDescription($"The {type} channel for **{league.Name}** ({league.Format} League) has been successfully set.")
                 .AddField("Channel Name", channel.Name, inline: true)
                 .AddField("Channel ID", channel.Id.ToString(), inline: true)
-                .AddField("League", league.LeagueName, inline: true)
+                .AddField("League", league.Name, inline: true)
+                .WithFooter("Channel configuration updated")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetChannelIdSuccessEmbed(IMessageChannel channel, string type)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Channel Set Successfully")
+                .WithColor(Color.Green)
+                .WithDescription($"The {type} channel ID has been successfully set.")
+                .AddField("Channel Name", channel.Name, inline: true)
+                .AddField("Channel ID", channel.Id.ToString(), inline: true)
                 .WithFooter("Channel configuration updated")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -742,10 +958,10 @@ namespace Ladderbot4.Managers
             var embedBuilder = new EmbedBuilder()
                 .WithTitle("⚠️ Channel Set Error")
                 .WithColor(Color.Red)
-                .WithDescription($"Failed to set the {type} channel for **{league.LeagueName}** ({league.Division} League).")
+                .WithDescription($"Failed to set the {type} channel for **{league.Name}** ({league.Format} League).")
                 .AddField("Error", errorMessage, inline: false)
                 .AddField("Attempted Channel ID", channel.Id.ToString(), inline: true)
-                .AddField("League", league.LeagueName, inline: true)
+                .AddField("League", league.Name, inline: true)
                 .WithFooter("Channel configuration failed")
                 .WithTimestamp(DateTimeOffset.Now);
 

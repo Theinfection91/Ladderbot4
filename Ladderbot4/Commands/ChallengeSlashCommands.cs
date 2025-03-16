@@ -21,14 +21,14 @@ namespace Ladderbot4.Commands
         }
 
         [SlashCommand("send", "Attempts to send a challenge from invoker's team they are on to another team.")]
-        public async Task ChallengeAsync(
-            [Summary("challengerTeam", "Name of team sending challenge")] string challengerTeam,
-            [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
+        public async Task SendChallengeAsync(
+            [Summary("challenger_team", "Name of team sending challenge"), Autocomplete] string challengerTeam,
+            [Summary("challenged_team", "Name of team receiving challenge"), Autocomplete] string challengedTeam)
         {
             try
             {
                 await Context.Interaction.DeferAsync();
-                var result = _ladderManager.ChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                var result = _ladderManager.SendChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                 await Context.Interaction.FollowupAsync(embed: result);
             }
             catch (Exception ex)
@@ -41,7 +41,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("cancel", "Attempts to cancel a challenge from invoker's team they are on to another team.")]
         public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of team that sent challenge")] string challengerTeam)
+            [Summary("challenger_team", "Name of team that sent the challenge"), Autocomplete] string challengerTeam)
         {
             try
             {
@@ -70,13 +70,13 @@ namespace Ladderbot4.Commands
             [SlashCommand("send", "Attempts to send a challenge from one team to another team as Admin.")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task ChallengeAsync(
-            [Summary("challengerTeam", "Name of challenger team")] string challengerTeam,
-            [Summary("challengedTeam", "Name of team receiving challenge")] string challengedTeam)
+            [Summary("challenger_team", "Name of challenger team"), Autocomplete] string challengerTeam,
+            [Summary("challenged_team", "Name of team receiving challenge"), Autocomplete] string challengedTeam)
             {
                 try
                 {
                     await Context.Interaction.DeferAsync();
-                    var result = _ladderManager.AdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
+                    var result = _ladderManager.SendAdminChallengeProcess(Context, challengerTeam.Trim().ToLower(), challengedTeam.Trim().ToLower());
                     await Context.Interaction.FollowupAsync(embed: result);
                 }
                 catch (Exception ex)
@@ -90,7 +90,7 @@ namespace Ladderbot4.Commands
             [SlashCommand("cancel", "Attempts to cancel a challenge from a challenger team as Admin.")]
             [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
             public async Task CancelChallengeAsync(
-            [Summary("challengerTeam", "Name of challenger team")] string challengerTeam)
+            [Summary("challenger_team", "Name of challenger team"), Autocomplete] string challengerTeam)
             {
                 try
                 {

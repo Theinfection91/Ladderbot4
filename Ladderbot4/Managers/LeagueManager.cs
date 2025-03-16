@@ -11,47 +11,59 @@ namespace Ladderbot4.Managers
 {
     public class LeagueManager
     {
-        private readonly LeagueData _leagueData;
+        private readonly LeagueRegistryData _leagueRegistryData;
 
-        private LeaguesByDivision _leaguesByDivision;
+        private LeagueRegistry _leagueRegistry;
 
-        public LeagueManager(LeagueData leagueData)
+        public LeagueManager(LeagueRegistryData leagueRegistryData)
         {
-            _leagueData = leagueData;
-            _leaguesByDivision = _leagueData.LoadAllLeagues();
+            _leagueRegistryData = leagueRegistryData;
+            _leagueRegistry = _leagueRegistryData.Load();
         }
 
-        public void SaveLeagues()
+        public void SaveLeagueRegistry()
         {
-            _leagueData.SaveLeagues(_leaguesByDivision);
+            _leagueRegistryData.Save(_leagueRegistry);
         }
 
-        public void LoadLeaguesDatabase()
+        public void LoadLeagueRegistry()
         {
-            _leaguesByDivision = _leagueData.LoadAllLeagues();
+            _leagueRegistry = _leagueRegistryData.Load();
         }
 
-        public void SaveAndReloadLeaguesDatabase()
+        public void SaveAndReloadLeagueRegistry()
         {
-            SaveLeagues();
-            LoadLeaguesDatabase();
-        }
-        public IEnumerable<League> GetAllLeagues()
-        {
-            // Combine leagues from all divisions into a single list
-            return _leaguesByDivision.Leagues1v1
-                .Concat(_leaguesByDivision.Leagues2v2)
-                .Concat(_leaguesByDivision.Leagues3v3);
+            SaveLeagueRegistry();
+            LoadLeagueRegistry();
         }
 
         public bool IsLeagueNameUnique(string leagueName)
         {
-            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            foreach (League league in _leagueRegistry.Leagues)
             {
-                foreach (League league in division)
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                 {
-                    // Compare team names (case-insensitive)
-                    if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
+                    return false; // Name is not unique
+                }
+            }
+            return true;
+        }
+
+        public bool IsLeagueNameUnique(string leagueName, bool caseSensitive)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                if (caseSensitive)
+                {
+                    if (league.Name.Equals(leagueName))
+                    {
+                        return false; // Name is not unique
+                    }
+                }
+                else
+                {
+                    // Case-insensitive comparison
+                    if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                     {
                         return false; // Name is not unique
                     }
@@ -62,21 +74,41 @@ namespace Ladderbot4.Managers
 
         public bool IsTeamNameUnique(string teamName)
         {
-            foreach (var division in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            foreach (League league in _leagueRegistry.Leagues)
             {
-                foreach (League league in division)
+                foreach (Team team in league.Teams)
                 {
-                    foreach (Team team in league.Teams)
+                    if (team.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Compare team names (case-insensitive)
-                        if (team.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        public bool IsTeamNameUnique(string teamName, bool caseSensitivity)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                foreach (Team team in league.Teams)
+                {
+                    if (caseSensitivity)
+                    {
+                        if (team.Name.Equals(teamName))
                         {
-                            return false; // Name is not unique
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if (team.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false;
                         }
                     }
                 }
             }
-
             return true;
         }
 
@@ -92,165 +124,148 @@ namespace Ladderbot4.Managers
             return false;
         }
 
-        public bool IsValidDivisionType(string divisionType)
+        public List<League> GetAllLeagues()
         {
-            foreach (string division in new[] { "1v1", "2v2", "3v3" })
+            return _leagueRegistry.Leagues;
+        }
+
+        public List<Team> GetAllTeams()
+        {
+            List<Team> teams = [];
+            foreach (League league in _leagueRegistry.Leagues)
             {
-                if (divisionType.ToLower().Equals(division))
+                foreach (Team team in league.Teams)
                 {
-                    return true;
+                    teams.Add(team);
                 }
             }
-            return false;
+            return teams;
         }
 
-        public List<League> GetLeaguesByDivisionType(string divisionType)
+        public List<Member> GetAllMembers()
         {
-            // Grab every league in the program's memory
-            IEnumerable<League> allLeagues = GetAllLeagues();
-
-            // Init list to add to
-            List<League> divisionLeagues = [];
-
-            // Iterate and find each League with specified division type and add to list.
-            foreach (League league in allLeagues)
+            List<Member> members = [];
+            foreach (League league in _leagueRegistry.Leagues)
             {
-                if (league.Division.Equals(divisionType, StringComparison.OrdinalIgnoreCase))
+                foreach (Team team in league.Teams)
                 {
-                    divisionLeagues.Add(league);
+                    foreach (Member member in team.Members)
+                    {
+                        members.Add(member);
+                    }
                 }
             }
-            // Return the list
-            return divisionLeagues;
+            return members;
         }
 
-        public List<League> GetAllLeaguesAsList()
+        public Team? GetFirstPlaceTeamInLeague(League league)
         {
-            // Grab every league in the program's memory
-            IEnumerable<League> allLeagues = GetAllLeagues();
-
-            List<League> leaguesAsList = [];
-
-            foreach (League league in allLeagues)
+            foreach (Team team in league.Teams)
             {
-                leaguesAsList.Add(league);
+                if (team.Rank.Equals(1))
+                {
+                    return team;
+                }
             }
-            return leaguesAsList;
-        }
-
-        public League GetLeagueByName(string leagueName)
-        {
-            foreach (var league in _leaguesByDivision.Leagues1v1)
-            {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
-                    return league;
-            }
-
-            foreach (var league in _leaguesByDivision.Leagues2v2)
-            {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
-                    return league;
-            }
-
-            foreach (var league in _leaguesByDivision.Leagues3v3)
-            {
-                if (league.LeagueName.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
-                    return league;
-            }
-
             return null;
         }
 
-        public League GetLeagueFromTeamName(string teamName)
+        public (Team?, Team?, Team?) GetTopThreeTeams(League league)
         {
-            League correctLeague;
-            foreach (League league in _leaguesByDivision.Leagues1v1)
+            // Sort the teams by rank and take the top 3
+            var topTeams = league.Teams
+                                 .OrderBy(t => t.Rank)
+                                 .Take(3)
+                                 .ToList();
+
+            // Create a tuple with up to 3 teams
+            return topTeams.Count switch
             {
-                foreach (Team team in league.Teams)
+                0 => (null, null, null),
+                1 => (topTeams[0], null, null),
+                2 => (topTeams[0], topTeams[1], null),
+                3 => (topTeams[0], topTeams[1], topTeams[2]),
+                _ => (null, null, null)
+            };
+        }
+
+        public League? GetLeagueByName(string leagueName)
+        {
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                if (league.Name.Equals(leagueName, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        correctLeague = league;
-                        return league;
-                    }
+                    return league;
                 }
             }
-
-            foreach (League league in _leaguesByDivision.Leagues2v2)
-            {
-                foreach (Team team in league.Teams)
-                {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        correctLeague = league;
-                        return league;
-                    }
-                }
-            }
-
-            foreach (League league in _leaguesByDivision.Leagues3v3)
-            {
-                foreach (Team team in league.Teams)
-                {
-                    if (team.TeamName.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        correctLeague = league;
-                        return league;
-                    }
-                }
-            }
-
             return null;
         }
 
-        public Team? GetTeamByNameFromLeagues(string teamName)
+        public League? GetLeagueFromTeamName(string teamName)
         {
-            // Search all leagues by division
-            foreach (var leagueList in new[] { _leaguesByDivision.Leagues1v1, _leaguesByDivision.Leagues2v2, _leaguesByDivision.Leagues3v3 })
+            foreach (League league in _leagueRegistry.Leagues)
             {
-                foreach (var league in leagueList)
+                foreach (Team team in league.Teams)
                 {
-                    // Find the team by name
-                    var team = league.Teams.FirstOrDefault(t => t.TeamName.Equals(teamName, StringComparison.OrdinalIgnoreCase));
-                    if (team != null)
-                        return team; // Return the exact reference
+                    if (team.Name.Equals(teamName.Trim(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        return league;
+                    }
                 }
             }
-            return null; // Return null if no match found
+            return null;
         }
 
-        public void AddNewTeamToLeague(Team newTeam, League league)
+        public Team GetTeamByNameFromLeagues(string teamName)
         {
-            _leagueData.AddTeamToLeague(newTeam, league);
+            foreach (League league in _leagueRegistry.Leagues)
+            {
+                Team? team = league.Teams.FirstOrDefault(t => t.Name.Equals(teamName, StringComparison.OrdinalIgnoreCase));
+                if (team != null)
+                    return team;
+            }
+            return null;
+        }
 
-            LoadLeaguesDatabase();
+        public string ConvertTeamSizeToDivisionTag(int teamSize)
+        {
+            return $"{teamSize.ToString()}v{teamSize.ToString()}";
+        }
+
+        public void AddTeamToLeague(Team team, League league)
+        {
+            _leagueRegistryData.AddTeamToLeague(team, league);
+
+            LoadLeagueRegistry();
         }
 
         public void RemoveTeamFromLeague(Team team, League league)
         {
-            _leagueData.RemoveTeamFromLeague(team, league);
+            _leagueRegistryData.RemoveTeamFromLeague(team, league);
 
-            // Load newest save
-            LoadLeaguesDatabase();
+            LoadLeagueRegistry();
         }
 
-        public League CreateLeagueObject(string leagueName, string leagueDivision)
+        public League CreateLeagueObject(string leagueName, string leagueDivision, int teamSize)
         {
-            return new League(leagueName, leagueDivision);
+            return new League(leagueName, leagueDivision)
+            {
+                TeamSize = teamSize
+            };
         }
 
         public void AddNewLeague(League league)
         {
-            _leagueData.AddLeague(league);
+            _leagueRegistryData.AddLeague(league);
 
-            LoadLeaguesDatabase();
+            LoadLeagueRegistry();
         }
 
-        public void RemoveLeague(string leagueName, string division)
+        public void DeleteLeague(string leagueName)
         {
-            _leagueData.RemoveLeague(leagueName, division);
+            _leagueRegistryData.RemoveLeague(leagueName);
 
-            LoadLeaguesDatabase();
+            LoadLeagueRegistry();
         }
     }
 }

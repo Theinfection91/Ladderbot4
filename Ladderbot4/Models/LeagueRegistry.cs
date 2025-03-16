@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Ladderbot4.Models
 {
-    public class MembersList
+    public class LeagueRegistry
     {
-        public List<MemberProfile> Members { get; set; }
+        public List<League> Leagues { get; set; }
 
-        public MembersList()
+        public LeagueRegistry()
         {
-            Members = [];
+            Leagues = [];
         }
     }
 }

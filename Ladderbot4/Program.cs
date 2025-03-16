@@ -6,8 +6,10 @@ using Discord.Commands;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Ladderbot4.Commands;
+using Ladderbot4.Commands.AutocompleteHandlers;
 using Ladderbot4.Data;
 using Ladderbot4.Managers;
+using Ladderbot4.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualBasic;
@@ -23,7 +25,7 @@ namespace Ladderbot4
         private InteractionService _interactionService;
 
         private static SettingsManager _settingsManager;
-        private static SettingsData _settingsData;
+        private static SettingsVaultData _settingsVaultData;
 
         public static async Task Main(string[] args)
         {
@@ -54,13 +56,17 @@ namespace Ladderbot4
                     services.AddSingleton<CommandService>();
                     services.AddSingleton<InteractionService>();
 
-                    services.AddSingleton<ChallengeData>();                   
-                    services.AddSingleton<HistoryData>();
-                    services.AddSingleton<LadderData>();
-                    services.AddSingleton<LeagueData>();
-                    services.AddSingleton<MemberData>();
-                    services.AddSingleton<SettingsData>();
+                    // Register NEW 4.2.0 'Data' services
+                    services.AddSingleton<ChallengesHubData>();
+                    services.AddSingleton<LeagueRegistryData>();
+                    services.AddSingleton<MembersListData>();
+                    services.AddSingleton<SettingsVaultData>();
+                    services.AddSingleton<StatesAtlasData>();
 
+                    // Register Level Guide for Member Experience Amounts
+                    services.AddSingleton<LevelGuide>();
+
+                    // Register Managers
                     services.AddSingleton<AchievementManager>();
                     services.AddSingleton<ChallengeManager>();
                     services.AddSingleton<EmbedManager>();
@@ -72,13 +78,17 @@ namespace Ladderbot4
                     services.AddSingleton<StatesManager>();
                     services.AddSingleton<SettingsManager>();
                     services.AddSingleton<TeamManager>();
+
+                    // Register Custom Autocomplete service
+                    services.AddSingleton<AutocompleteInteractionHandlers>();
+
                 })
                 .Build();
 
             // Retrieve required services
             _services = host.Services;
             _settingsManager = _services.GetRequiredService<SettingsManager>();
-            _settingsData = _services.GetRequiredService<SettingsData>();
+            _settingsVaultData = _services.GetRequiredService<SettingsVaultData>();
 
             // Ensure settings are loaded
             _settingsManager.SetBotTokenProcess();
@@ -135,12 +145,14 @@ namespace Ladderbot4
                 return Task.CompletedTask;
             };
 
-            Console.WriteLine($"{DateTime.Now} - Waiting for bot to be ready...");
             await readyTask.Task;
 
             // Load Non-Slash Commands
             await _commands.AddModuleAsync<NonSlashCommands>(_services);
-            Console.WriteLine($"{DateTime.Now} - Non-SlashCommand modules added to CommandService");
+
+            // Initialize Autocomplete Interaction Handler
+            var autocompleteHandler = _services.GetRequiredService<AutocompleteInteractionHandlers>();
+            await autocompleteHandler.InitializeAsync();
 
             Console.WriteLine($"{DateTime.Now} - Bot logged in as: {_client.CurrentUser?.Username ?? "null"}");
 
@@ -164,7 +176,7 @@ namespace Ladderbot4
         private async Task HandleInteractionAsync(SocketInteraction interaction)
         {
             var context = new SocketInteractionContext(_client, interaction);
-            await _interactionService.ExecuteCommandAsync(context, _services);
+            var result = await _interactionService.ExecuteCommandAsync(context, _services);
         }
 
         private async Task HandleCommandAsync(SocketMessage socketMessage)

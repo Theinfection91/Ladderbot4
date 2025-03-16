@@ -12,7 +12,7 @@ namespace Ladderbot4.Commands
     [Group("post", "Slash commands for posting standings/challenges/teams.")]
     public class PostSlashCommands : InteractionModuleBase<SocketInteractionContext>
     {
-        public readonly LadderManager _ladderManager;
+        private readonly LadderManager _ladderManager;
 
         public PostSlashCommands(LadderManager ladderManager)
         {
@@ -21,7 +21,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("challenges", "Slash command for posting challenges of given division.")]
         public async Task PostChallengesAsync(
-            [Summary("leagueName", "The League in which to post challenge data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post challenge data from."), Autocomplete] string leagueName)
         {
             try
             {
@@ -40,14 +40,13 @@ namespace Ladderbot4.Commands
         }
 
         [SlashCommand("leagues", "Slash command for posting all leagues or all of given division type")]
-        public async Task PostLeaguesAsync(
-            [Summary("divisionType", "If given a division type, will post all of that type.")] string divisionType = "all")
+        public async Task PostLeaguesAsync()
         {
             try
             {
                 await Context.Interaction.DeferAsync();
 
-                var result = _ladderManager.PostLeaguesProcess(Context, divisionType.Trim().ToLower());
+                var result = _ladderManager.PostLeaguesProcess(Context);
 
                 await Context.Interaction.FollowupAsync(embed: result);
             }
@@ -62,7 +61,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("standings", "Slash command for posting standings of given League.")]
         public async Task PostStandingsAsync(
-            [Summary("leagueName", "The League in which to post standings data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post standings data from."), Autocomplete] string leagueName)
         {
             try
             {
@@ -82,7 +81,7 @@ namespace Ladderbot4.Commands
 
         [SlashCommand("teams", "Slash commands for posting teams of given division")]
         public async Task PostTeamsAsync(
-            [Summary("leagueName", "The League in which to post teams data from.")] string leagueName)
+            [Summary("league_name", "The League in which to post teams data from."), Autocomplete] string leagueName)
         {
             try
             {
