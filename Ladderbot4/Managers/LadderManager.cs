@@ -54,6 +54,7 @@ namespace Ladderbot4.Managers
 
             // Begin Channel Update Tasks
             StartChallengesTask();
+            StartLeaguesTask();
             StartStandingsTask();
             StartingTeamsTask();
 
@@ -197,14 +198,73 @@ namespace Ladderbot4.Managers
         {
             while (true)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(13));
                 await SendLeaguesToChannelsAsync();
             }
         }
 
         private async Task SendLeaguesToChannelsAsync()
         {
+            ulong channelId = _statesManager.GetLeaguesChannelId();
 
+            if (channelId == 0)
+            {
+                return;
+            }
+
+            // Get the channel from the client
+            IMessageChannel? channel = _client.GetChannel(channelId) as IMessageChannel;
+
+            if (channel == null)
+            {
+                Console.WriteLine($"{DateTime.Now} LadderManager - Channel not found for ID {channelId}.");
+                return;
+            }
+
+            // Get the leagues embed
+            Embed leaguesEmbed = _embedManager.PostLeaguesEmbed(_leagueManager.GetAllLeagues());
+            if (leaguesEmbed == null)
+            {
+                Console.WriteLine($"{DateTime.Now} LadderManager - Leagues embed returned null.");
+                return;
+            }
+
+            try
+            {
+                ulong messageId = _statesManager.GetLeaguesMessageId();
+                if (messageId != 0)
+                {
+                    var existingMessage = await channel.GetMessageAsync(messageId) as IUserMessage;
+                    if (existingMessage != null)
+                    {
+                        await existingMessage.ModifyAsync(msg =>
+                        {
+                            msg.Embed = leaguesEmbed;
+                            msg.Content = string.Empty; // Clear any text content
+                        });
+                    }
+                    else
+                    {
+                        // Message was deleted; send a new one
+                        var newMessage = await channel.SendMessageAsync(embed: leaguesEmbed);
+                        _statesManager.SetLeaguesMessageId(newMessage.Id);
+                        // Backup to Git
+                        _backupManager.CopyAndBackupFilesToGit();
+                    }
+                }
+                else
+                {
+                    // No existing message; send a new one
+                    var newMessage = await channel.SendMessageAsync(embed: leaguesEmbed);
+                    _statesManager.SetLeaguesMessageId(newMessage.Id);
+                    // Backup to Git
+                    _backupManager.CopyAndBackupFilesToGit();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{DateTime.Now} LadderManager - Error updating leagues in channel {channelId}: {ex.Message}");
+            }
         }
 
         #endregion
@@ -1304,7 +1364,7 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
-        #region Set Standings/Challenges/Teams Channel Logic
+        #region Set Standings/Challenges/Teams/Leagues Channel Logic
         public Embed SetChallengesChannelIdProcess(string leagueName, IMessageChannel channel)
         {
             // Check if league exists
@@ -1360,6 +1420,17 @@ namespace Ladderbot4.Managers
                 return _embedManager.SetChannelIdSuccessEmbed(league, channel, "Teams");
             }
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
+        }
+
+        public Embed SetLeaguesChannelIdProcess(IMessageChannel channel)
+        {
+            // Set channel Id
+            _statesManager.SetLeaguesChannelId(channel.Id);
+
+            // Backup the database to Git
+            _backupManager.CopyAndBackupFilesToGit();
+
+            return _embedManager.SetChannelIdSuccessEmbed(channel, "Leagues");
         }
         #endregion
 
