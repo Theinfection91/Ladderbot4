@@ -187,6 +187,28 @@ namespace Ladderbot4.Managers
         }
         #endregion
 
+        #region --Leagues
+        public void StartLeaguesTask()
+        {
+            Task.Run(() => RunLeaguesUpdateTaskAsync());
+        }
+
+        private async Task RunLeaguesUpdateTaskAsync()
+        {
+            while (true)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                await SendLeaguesToChannelsAsync();
+            }
+        }
+
+        private async Task SendLeaguesToChannelsAsync()
+        {
+
+        }
+
+        #endregion
+
         #region --Standings
         public void StartStandingsTask()
         {
