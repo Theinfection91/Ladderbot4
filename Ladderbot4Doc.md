@@ -1246,3 +1246,33 @@ Removes a given user's ID from the list of Super Admins in the configuration fil
   "❌ The user **UserName** could not be found."
 
 ---
+
+### My Member Stats (`/member mystats`)
+
+**Description:**  
+In an ephermal message, displays the users stats who invoked it.
+
+**Usage:** 
+```plaintext
+/member mystats
+```
+
+**Process:**  
+1. Grabs user's discord Id.
+2. Checks the database if it exists
+3. Works some magic.
+4. Return the result in an embed.
+
+---
+
+### Member Leaderboard (`/member leaderboard`)
+
+**Description:**  
+In an ephermal message, displays the top 25 members stats.
+
+**Usage:** 
+```plaintext
+/member mystats
+```
+
+---
