@@ -1055,7 +1055,7 @@ Sets the dynamic challenges message channel for a given league.
 
 ---
 
-### Set Leagues Channel Command (`/set standings_channel_id`)
+### Set Leagues Channel Command (`/set leagues_channel_id`)
 
 **Description:**  
 Sets the dynamic leagues message channel for all leagues.
