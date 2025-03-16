@@ -34,7 +34,22 @@ The sixth update reimplements **Member Stats** and adds **Member Leaderboards**,
 The seventh update to the **4.2.0 branch** introduces a **Level, XP, and Title System**, adding an engaging progression mechanic for members participating in league activities. Members now earn XP for various actions, including joining teams, participating in matches, and completing ladders. XP contributes to leveling up, unlocking unique titles that showcase achievements and milestones.
 
 ### (Merge 7)
-The eighth update to the **4.2.0 branch** is a simple bug fix to correct an issue where if two teams are under a challenge and one is removed, the other teams challenge status would still say 'Challenged'. This is now corrected.
+The eighth update is a simple bug fix to correct an issue where if two teams are under a challenge and one is removed, the other teams challenge status would still say 'Challenged'. This is now corrected.
+
+### (Merge 8)
+The ninth update is the **Set/Post Leagues Rework** that refactors Post Leagues and now adds Set Leagues to have a designated channel for an updated message like the other channel tasks.
+
+---
+
+## (Merge 8 - Detailed) - (03/16/2025)
+
+### Set/Post Leagues Rework
+
+#### **Post Leagues**
+The ```/post leagues``` command now no longer takes a parameter and just posts every league of every format type to the channel it was invoked from.
+
+#### **Set Leagues Channel**
+Now there is a ```/set leagues_channel_id``` command to have a designated channel for an updating message just like standings, challenges and teams.
 
 ---
 
