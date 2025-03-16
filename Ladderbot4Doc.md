@@ -317,13 +317,10 @@ Creates a new league with the specified name and the size each team will be. Onl
 ### Delete League Command (`/league delete`)
 
 **Description:**  
-Deletes a league with the specified name. This command is irreversible and should be used with caution. Only administrators can use this command.
+Load a Modal confirmation window and deletes a league with the specified name. This command is irreversible and should be used with caution. Only administrators can use this command.
 
 **Usage:**  
-/league delete leagueName:<string>
-
-**Parameters:**  
-- `leagueName` (string): The name of the league to delete. Must match an existing league.
+/league delete
 
 **Process:**  
 1. Loads the latest league database.  
@@ -402,15 +399,12 @@ Registers a new team to a specified league. Only administrators can use this com
 ### Remove Team Command (`/team remove`)
 
 **Description:**  
-Removes an existing team from all leagues. Only administrators can use this command.
+Loads a modal confirmation window. Removes an existing team from the leagues database. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/team remove teamName:<string>
+/team remove
 ```
-
-**Parameters:**  
-- `teamName` (string): The name of the team to be removed.
 
 **Process:**  
 1. Loads the latest leagues database.  
@@ -573,11 +567,11 @@ These commands allow administrators to start or end the ladder for a specified l
 ### Start Ladder Command (`/ladder start`)
 
 **Description:**  
-Starts the ladder for a specified league if it is not already running. Only administrators can use this command.
+Loads a modal confirmation window. Starts the ladder for a specified league if it is not already running. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/ladder start leagueName:<string>
+/ladder start
 ```
 
 **Parameters:**  
@@ -605,15 +599,12 @@ Starts the ladder for a specified league if it is not already running. Only admi
 ### End Ladder Command (`/ladder end`)
 
 **Description:**  
-Ends the ladder for a specified league if it is currently running. Only administrators can use this command.
+Loads a modal confirmation window. Ends the ladder for a specified league if it is currently running. Only administrators can use this command.
 
 **Usage:**  
 ```plaintext
-/ladder end leagueName:<string>
+/ladder end
 ```
-
-**Parameters:**  
-- `leagueName` (string): The name of the league to end the ladder in.
 
 **Process:**  
 1. Checks if the league exists.  
@@ -913,15 +904,12 @@ Posts challenge data for a given league.
 ### Post Leagues Command (`/post leagues`)
 
 **Description:**  
-Posts data for all leagues or by specific division type.
+Posts data for all leagues.
 
 **Usage:** 
 ```plaintext
-/post leagues optionalDivisionType:<string>
+/post leagues
 ```
-
-**Parameters:**  
-- `optionalDivisionType` (string): Posts all leagues by specific division type. Leave blank to default to all and post every league in the database.
 
 **Process:**  
 1. Checks given division type, if none given 'all' is default.
@@ -1062,6 +1050,35 @@ Sets the dynamic challenges message channel for a given league.
 **Error Response Example:**  
 - League not found:  
   "❌ The league **LeagueName** could not be found."
+- Invalid channel:  
+  "❌ The channel **ChannelName** could not be set."
+
+---
+
+### Set Leagues Channel Command (`/set standings_channel_id`)
+
+**Description:**  
+Sets the dynamic leagues message channel for all leagues.
+
+**Usage:**  
+```plaintext
+/set leagues_channel_id channel:<IMessageChannel>
+```
+
+**Parameters:**  
+- `channel` (IMessageChannel): The channel to set for the standings messages.
+
+**Process:**  
+1. Check if the user has administrator permissions.
+2. Parse the channel.
+3. Call the `SetLeaguesChannelIdProcess` method to update the channel for standings.
+4. Return the result in an embed.
+
+**Success Response Example:**  
+- Channel set successfully:  
+  "✅ The Leagues channel for has been successfully set to **ChannelName**."
+
+**Error Response Example:**  
 - Invalid channel:  
   "❌ The channel **ChannelName** could not be set."
 
