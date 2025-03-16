@@ -64,6 +64,27 @@ namespace Ladderbot4.Commands
             }
         }
 
+        [SlashCommand("leagues_channel_id", "For Admins to set the dynamic leagues message.")]
+        [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
+        public async Task SetLeaguesChannelIdAsync(
+            [Summary("channel", "The text channel to set to.")] IMessageChannel channel)
+        {
+            try
+            {
+                await Context.Interaction.DeferAsync();
+
+                var result = _ladderManager.SetLeaguesChannelIdProcess(channel);
+
+                await Context.Interaction.FollowupAsync(embed: result);
+            }
+            catch (Exception ex)
+            {
+                string commandName = (Context.Interaction as SocketSlashCommand)?.Data.Name ?? "Unknown Command";
+                var errorResult = _ladderManager.ExceptionErrorHandlingProcess(ex, commandName);
+                await Context.Interaction.FollowupAsync(embed: errorResult);
+            }
+        }
+
         [SlashCommand("standings_channel_id", "For Admins to set the dynamic standings message.")]
         [Discord.Commands.RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetStandingsChannelIdAsync(

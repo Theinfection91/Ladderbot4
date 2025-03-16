@@ -469,18 +469,13 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed PostLeaguesEmbed(List<League> leagues, string divisionType)
+        public Embed PostLeaguesEmbed(List<League> leagues)
         {
-            if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                divisionType = "All";
-            }
-
             // Create the embed
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"📋 Active Leagues - {divisionType}")
+                .WithTitle($"📋 Active Leagues")
                 .WithColor(Color.Purple)
-                .WithDescription($"Overview of {divisionType.ToLower()} leagues:")
+                .WithDescription($"Overview of all leagues:")
                 .WithFooter("Last Updated")
                 .WithTimestamp(DateTimeOffset.Now);
 
@@ -938,6 +933,20 @@ namespace Ladderbot4.Managers
                 .AddField("Channel Name", channel.Name, inline: true)
                 .AddField("Channel ID", channel.Id.ToString(), inline: true)
                 .AddField("League", league.Name, inline: true)
+                .WithFooter("Channel configuration updated")
+                .WithTimestamp(DateTimeOffset.Now);
+
+            return embedBuilder.Build();
+        }
+
+        public Embed SetChannelIdSuccessEmbed(IMessageChannel channel, string type)
+        {
+            var embedBuilder = new EmbedBuilder()
+                .WithTitle("✅ Channel Set Successfully")
+                .WithColor(Color.Green)
+                .WithDescription($"The {type} channel ID has been successfully set.")
+                .AddField("Channel Name", channel.Name, inline: true)
+                .AddField("Channel ID", channel.Id.ToString(), inline: true)
                 .WithFooter("Channel configuration updated")
                 .WithTimestamp(DateTimeOffset.Now);
 

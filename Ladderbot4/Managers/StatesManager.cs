@@ -92,6 +92,30 @@ namespace Ladderbot4.Managers
             }
         }
 
+        public ulong GetLeaguesChannelId()
+        {
+            return _statesAtlas.LeaguesChannelId;
+        }
+
+        public void SetLeaguesChannelId(ulong channelId)
+        {
+            if (channelId != 0)
+                _statesAtlas.LeaguesChannelId = channelId;
+                SaveAndReloadStatesAtlas();
+        }
+
+        public ulong GetLeaguesMessageId()
+        {
+            return _statesAtlas.LeaguesMessageId;
+        }
+
+        public void SetLeaguesMessageId(ulong messageId)
+        {
+            if (messageId != 0)
+                _statesAtlas.LeaguesMessageId = messageId;
+                SaveAndReloadStatesAtlas();
+        }
+
         public ulong GetStandingsChannelId(League league)
         {
             State state = GetStateByLeague(league);
