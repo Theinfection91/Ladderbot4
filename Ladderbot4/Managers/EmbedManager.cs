@@ -469,18 +469,13 @@ namespace Ladderbot4.Managers
             return embedBuilder.Build();
         }
 
-        public Embed PostLeaguesEmbed(List<League> leagues, string divisionType)
+        public Embed PostLeaguesEmbed(List<League> leagues)
         {
-            if (divisionType.Equals("all", StringComparison.OrdinalIgnoreCase))
-            {
-                divisionType = "All";
-            }
-
             // Create the embed
             var embedBuilder = new EmbedBuilder()
-                .WithTitle($"📋 Active Leagues - {divisionType}")
+                .WithTitle($"📋 Active Leagues")
                 .WithColor(Color.Purple)
-                .WithDescription($"Overview of {divisionType.ToLower()} leagues:")
+                .WithDescription($"Overview of all leagues:")
                 .WithFooter("Last Updated")
                 .WithTimestamp(DateTimeOffset.Now);
 

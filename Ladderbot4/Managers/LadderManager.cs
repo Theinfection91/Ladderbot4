@@ -1162,9 +1162,17 @@ namespace Ladderbot4.Managers
             return _embedManager.LeagueNotFoundErrorEmbed(leagueName);
         }
 
-        public Embed PostLeaguesProcess(SocketInteractionContext context, string leagueFormat)
+        public Embed PostLeaguesProcess(SocketInteractionContext context)
         {
-            return _embedManager.CreateDebugEmbed("TODO");
+            // Load leagues
+            _leagueManager.LoadLeagueRegistry();
+
+            List<League> leagues = _leagueManager.GetAllLeagues();
+
+            if (leagues != null)
+                return _embedManager.PostLeaguesEmbed(leagues);
+
+            return _embedManager.CreateDebugEmbed("Error");
         }
 
         public Embed PostStandingsProcess(SocketInteractionContext context, string leagueName)
