@@ -844,6 +844,9 @@ namespace Ladderbot4.Managers
                         // Cancel the challenge
                         _challengeManager.SudoRemoveChallenge(team.League, team.Name);
 
+                        // Reload Challenges Hub to memory
+                        _challengeManager.LoadChallengesHub();
+
                         // Backup the database to Git
                         _backupManager.CopyAndBackupFilesToGit();
 
@@ -970,6 +973,9 @@ namespace Ladderbot4.Managers
 
                     // Cancel the challenge
                     _challengeManager.SudoRemoveChallenge(team.League, team.Name);
+
+                    // Reload Challenges Hub to memory
+                    _challengeManager.LoadChallengesHub();
 
                     // Backup the database to Git
                     _backupManager.CopyAndBackupFilesToGit();
