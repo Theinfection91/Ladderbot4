@@ -8,14 +8,14 @@
 
 ---
 
-# Ladderbot 4.2.0 - What's New
+# Ladderbot 4.2.1 - What's New
 
 ## Simple Overview
 ### (Merge 0)
-The first update to the **4.2.0 branch** introduces significant changes to support flexible league configurations and lays the groundwork for enhanced data handling. These changes include the decoupling of team sizes for leagues (XvX), a new `Data` class structure, and the replacement of several JSON files for improved organization and scalability. This marks the first step toward the fully realized 4.2.0 update.
+The first update to the **4.2.1 branch** introduces significant changes to support flexible league configurations and lays the groundwork for enhanced data handling. These changes include the decoupling of team sizes for leagues (XvX), a new `Data` class structure, and the replacement of several JSON files for improved organization and scalability. This marks the first step toward the fully realized 4.2.1 update.
 
 ### (Merge 1)
-The second update to the **4.2.0 branch** introduces the **Modal Confirmation System**, which enhances critical operations by requiring users to confirm sensitive actions twice, ensuring case-sensitive accuracy. This system is applied to key operations like starting, ending, deleting leagues, and removing teams. Additional improvements include a more streamlined approach to handling the ladder lifecycle, with enhancements like resets for team stats at the start of a ladder and new results embeds at the end. A reusable handler class (`ModalInteractionHandlers`) was also created for better maintainability and scalability of modal processes. This update sets the stage for more interactive components in future releases.
+The second update to the **4.2.1 branch** introduces the **Modal Confirmation System**, which enhances critical operations by requiring users to confirm sensitive actions twice, ensuring case-sensitive accuracy. This system is applied to key operations like starting, ending, deleting leagues, and removing teams. Additional improvements include a more streamlined approach to handling the ladder lifecycle, with enhancements like resets for team stats at the start of a ladder and new results embeds at the end. A reusable handler class (`ModalInteractionHandlers`) was also created for better maintainability and scalability of modal processes. This update sets the stage for more interactive components in future releases.
 
 ### (Merge 2)
 The third update introduces **Dynamic Challenge Rank Updates**, a feature that ensures challenge ranks remain accurate even after other teams report wins, causing rank changes. It also includes new methods for challenge rank validation and correction, improving the integrity of challenge data.
@@ -31,7 +31,7 @@ The fifth update introduces a comprehensive custom autocomplete process for Ladd
 The sixth update reimplements **Member Stats** and adds **Member Leaderboards**, introducing robust support for tracking individual member statistics and adding new commands for personalized data retrieval and leaderboards. Key features include `members_list.json` creation, real-time validation and updating of member profiles, and new methods for integrating stats into league operations.
 
 ### (Merge 6)
-The seventh update to the **4.2.0 branch** introduces a **Level, XP, and Title System**, adding an engaging progression mechanic for members participating in league activities. Members now earn XP for various actions, including joining teams, participating in matches, and completing ladders. XP contributes to leveling up, unlocking unique titles that showcase achievements and milestones.
+The seventh update to the **4.2.1 branch** introduces a **Level, XP, and Title System**, adding an engaging progression mechanic for members participating in league activities. Members now earn XP for various actions, including joining teams, participating in matches, and completing ladders. XP contributes to leveling up, unlocking unique titles that showcase achievements and milestones.
 
 ### (Merge 7)
 The eighth update is a simple bug fix to correct an issue where if two teams are under a challenge and one is removed, the other teams challenge status would still say 'Challenged'. This is now corrected.
@@ -281,7 +281,7 @@ Each member level unlocks a unique title, offering a sense of accomplishment. Ti
 ---
 
 ## Next Steps
-This merge represents the foundation of the 4.2.0 update. Future updates will build upon these changes, introducing features such as:
+This merge represents the foundation of the 4.2.1 update. Future updates will build upon these changes, introducing features such as:
 - **Additional bug fixes and enhancements.**
 
 For detailed documentation on setup and configuration, refer to the [Ladderbot4 Documentation](https://github.com/Theinfection91/Ladderbot4/blob/main/Ladderbot4Doc.md).
