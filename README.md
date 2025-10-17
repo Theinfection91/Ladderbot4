@@ -1,3 +1,7 @@
+# **NO LONGER IN ACTIVE DEVELOPMENT**
+
+# **CHECK OUT MY NEW AND MORE ADVANCED DISCORD TOURNAMENT MANAGER PROJECT HERE:** [Flaw's Fight Night](https://github.com/Theinfection91/FlawsFightNight)
+
 # Ladderbot4
 
 ## Documentation
